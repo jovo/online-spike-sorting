@@ -69,53 +69,55 @@ Address \\
 \section{The model}
 Our data is a time-series of multielectrode recordings $\bX \equiv (\bx_1, \cdots, \bx_T)$, consisting of $T$ recordings from $C$ channels. 
 The set of recording times lie on regular grid with interval length $\Delta$, while $\bx_t \in \mathbb{R}^C$ for all $t$. 
-This time-series of electrical activity is driven by an unknown number of neurons, and we let this number be infinite.
-A consequence is that as time passes, the total number of observed neurons (the number of observed `species') increases. 
+This time-series of electrical activity is driven by an unknown number of neurons. We let this be infinite, though only a few neurons dominate.
+These neurons contribute the majority of the activity, though as time passes, the total number of observed neurons (the number of observed `species') increases. 
 %Each neuron, has its own `shape' A natural model in such a situation is to
 The neurons themselves emit sequences of action potentials which are superimposed to produce the recordings $\bX$. We model the output of each neuron as a
-series of idealized spikes convolved with an appropriate smoothing kernel (the waveform shape). Each neuron has its own distribution over
-waveform shapes. We describe this process for a single channel below.
+series of idealized spikes convolved with an appropriate smoothing kernel (the latter determines the shape of the action potential). Each neuron has its own 
+distribution over waveform shapes. We describe this process for a single channel below.
 
-We model the spiking activity of each neuron as a homogeneous Poisson process. Let $r_i$ be the random firing rate for neuron $i$, and 
-$E_i$ be the set of spike times, so that 
+The spiking activity of each neuron is modelled as a homogeneous Poisson process. Let $r_i$ be the unkown firing rate for neuron $i$, and 
+$E_i$ be the set of spike times (with the time between successive elements of $E$ exponentially distributed with mean $1/r_i$). We write this as
 \begin{align}
   E_i &\sim \text{PoissProc}(r_i)
 \end{align}
-From the superposition property of the Poisson process the overall spiking activity $E = \cup_{i=1}^{\infty} E_i$ is a realization of a Poisson process with 
-rate $R = \sum_{i=1}^{\infty} r_i$.
-The number of spikes observed in any finite interval is finite, so that the total rate $R$ must be finite; moreover, in all applications, this will
-be dominated by a few neurons. Additionally, each neuron has a parameter $\theta$ associated with it that characterizes its distribution over waveform
-shapes.
+From the superposition property of the Poisson process \citep{kingman93}, the overall spiking activity $E = \cup_{i=1}^{\infty} E_i$ is a realization of a 
+Poisson process with rate $R = \sum_{i=1}^{\infty} r_i$.
+Since only a finite number of spikes are observed in any finite interval, the total rate $R$ must also be finite; moreover, as we described earlier, we want this to
+be dominated by a few $r_i$. We also associate a parameter $\theta$ with each neuron; this characterizes the distribution over the shapes of
+action potentials that that neuron produces.
 
-A natural framework that captures all these modelling requirements is that of completely random measures \citep{Kingman:PJM67}:
-we map the infinite collection of pairs $\{r_i, \theta_i\}$ to an atomic measure on $\Theta$:
+A natural framework that captures these three modelling requirements is that of completely random measures \citep{Kingman:PJM67}.
+We map the infinite collection of pairs $\{r_i, \theta_i\}$ to an atomic measure on $\Theta$:
 \begin{align}
   R(\dd \theta) = \sum_{i=1}^{\infty} r_i \delta_{\theta_i}
 \end{align}
- We model $R(\cdot)$ as a realization of a completely random measure (CRM). A completely random measure is characterized by a Levy intensity that
-describes the distribution of the weights $r_i$, while the locations $\theta_i$ are drawn i.i.d.\  from a base measure $H(\theta)$.
-We use a Gamma process; this is a CRM with Levy intensity $r^{-1}\exp(-r\alpha)$; this has the convenient property that the 
-total mass $R \equiv R(\Theta) = \sum_{i=1}^{\infty} r_i$ is Gamma distributed (and thus conjugate to the Poisson). The Gamma distribution
-has shape parameter $1$ and scale parameter $\alpha$.
-Since this is finite almost surely, so too is $E$. The Gamma process is also closely connected with the Dirichlet process, which will prove useful
+ We model $R(\cdot)$ as a realization of a completely random measure (CRM); this is a random measure where for any two disjoint subsets $\varTheta_1$ and 
+$\varTheta_2 \in \Theta$, the measures $R(\Theta_1)$ and $R(\Theta_2)$ are independent (here, $R(\varTheta) = \sum_{i\ s.t.\ \theta_i \in \Theta} r_i$). 
+A completely random measure is characterized by a Levy intensity that
+describes the distribution of the weights $r_i$, while the locations $\theta_i$ are drawn i.i.d.\  from a base probability measure $H(\theta)$.
+The CRM we choose is the Gamma process; this has Levy intensity $r^{-1}\exp(-r\alpha)$. This has the convenient property that the 
+total mass $R \equiv R(\Theta) = \sum_{i=1}^{\infty} r_i$ is Gamma distributed (and thus conjugate to the Poisson). 
+%The Gamma distribution has shape parameter $1$ and scale parameter $\alpha$.  Since this is finite almost surely, so too is $E$. 
+The Gamma process is also closely connected with the Dirichlet process, which will prove useful
 later on.
 
  We model each action potential shape as a linear combination of shared dictionary of $K$ basis function $A \equiv (A_1, \cdots, A_K)$. 
-For the $i$th neuron, the $j$th spike $e_{ij} \in E_i$, is associated with a random weight vector $y_{ij}$, and this spike is convolved with a smoothing 
-kernel given by $A y_{ij}$.
-We let $y_{ij}$ be normally distributed, with $\theta_i \equiv (\mu_i, \Sigma_i)$ setting the mean and variance.
+For the $i$th neuron, the $j$th spike $e_{ij} \in E_i$, is associated with a random $k$-dimensional weight vector $y_{ij}$, and this spike is convolved with a 
+smoothing kernel given by $A y_{ij}$.
+We let $y_{ij}$ be normally distributed, with $\theta_i \equiv (\mu_i, \Sigma_i)$ determining the mean and variance.
 The overall model is then:
 \begin{align}
   R(\dd \theta) & \sim \Gamma \text{P}(\alpha) \\
-  E_i &\sim \text{PoissProc}(r_i) \\
+  E_i\ \  &\sim \text{PoissProc}(r_i) \quad i \text{ in } 1,2,\cdots \\
   x_i(t) &= \sum_{j = 1}^{|E_i|} Ay_j \delta_{(t - e_j)} \\
   X   &= \sum_{i=1}^{\infty} x_i
 \end{align}
 
-Each spike of each neuron is associated with a time $e$ and a weight vector $y$, and one can view the model above as a doubly stochastic Poisson
-process on the product space. 
+%Each spike of each neuron is associated with a time $e$ and a weight vector $y$, and one can view the model above as a doubly stochastic Poisson
+%process on the product space. 
 
-However, it will be more convenient to view the set of pairs $\{(e_{ij}, y_{ij})\}$ as a realization of a 
+It will be more convenient to view the set of pairs $\{(e_{ij}, y_{ij})\}$ as a realization of a 
 marked Poisson process in time. The overall process $E$ is a rate $R$ Poisson process, with each event assigned a label or mark indicating the neuron to which it
 is assigned (or equivalently, the parameter $\theta$ associated with that neuron). These marks are drawn from a probability measure 
 $G(\dd \theta) = \frac{1}{R} R(\dd \theta)$. From the properties of the Gamma process, the probability measure $G$ a Dirichlet process, moreover $G$ is
