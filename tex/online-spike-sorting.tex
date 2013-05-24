@@ -145,7 +145,11 @@ process rate $R$ drawn from a Gamma$(1,\alpha)$ distribution. Simultaneously, dr
 from the DP. Given the marks, we can evaluate the recordings at each time.
 
 \section{Inference}
-We perform inference in an online manner. At each time $t$, we make a hard decision about whether or not a spike is present.
+We perform inference in an online manner \cite{WangDun2009}. Our inference algorithm maintains hard decisions about whether or not a spike is
+present in each time bin, and the neuron to which that spike is assigned. On the other hand, it maintains a posterior distribution over the vector
+$y$ that represents the shape of each spike, as well as parameters that characterize the distribution over spikes.
+Assume each spike waveform spans $W$ time intervals. Define the residual at time $t$ as $X_t - \sum_{i=1}^W A $.
+At time $t$, let $y_t$ represent the shape of the action potential.
 
 \bibliography{refs}
 \bibliographystyle{unsrt}
