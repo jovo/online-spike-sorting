@@ -1,0 +1,18 @@
+We perform inference in an online manner \cite{WangDun2009}. As observations arrive, our inference algorithm decides whether or not a 
+new spike is present, which neuron (cluster) to assign that spike to, as well as the shape of the spike waveform. On the other hand, our algorithm 
+maintains a posterior distribution over the cluster parameters that characterize the distribution over shapes. Having identified the location and shape of 
+spikes from earlier times, we subtract these from the observations treat the residual as an observation from a DP mixture model.
+The cluster assignment of earlier spikes determines the seating arrangement of customers in the Chinese restaurant associated with the DP. Given the
+corresponding distribution over parameters, $p(\theta)$, we decide whether there is an underlying spike, which cluster it is assigned to, and what
+the shape of that spike is. We simultaneously update the distribution over parameters of clusters. Assume each spike waveform spans $W$ time intervals. 
+Define the residual at time $t$ as $X_t - \sum_{i=1}^W A$. At time $t$, let $y_t$ represent the shape of the action potential.
+Letting $\tilde{x}_t$ be the observation at time $t$, we have
+\begin{align}
+  z_t  & \sim Bern(p) \\
+  \intertext{\hspace{2in} if $z_t == 1$}
+  \gamma_t| \gamma_{1:t-1} &\sim CRP \\
+  \theta_t| \gamma_t = i & \sim \mathcal{N}(\theta_{t-1},\Sigma)
+\end{align}
+
+\bibliography{refs}
+\bibliographystyle{unsrt}

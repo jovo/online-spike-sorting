@@ -5,10 +5,15 @@
 \usepackage{natbib}
 \usepackage{comment}
 \usepackage{amssymb, amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
 
 
-\title{Formatting Instructions for NIPS 2013}
+\title{Online Bayesian Inference for a Latent Marked Poisson Process: Applications in Spike Sorting}
 
 
 \author{
@@ -64,571 +69,64 @@ Address \\
 \maketitle
 
 \begin{abstract}
+
+
 \end{abstract}
 
-\section{The model/introduction}
-Our data is a time-series of multielectrode recordings $\bX \equiv (\bx_1, \cdots, \bx_T)$, and consists of $T$ recordings from $C$ channels. 
-The set of recording times lie on regular grid with interval length $\Delta$, while $\bx_t \in \mathbb{R}^C$ for all $t$. 
-This time-series of electrical activity is driven by an unknown number of neurons {\color{red} and we want to... outline scientific goals}. 
-We let the number of neurons be unbounded, though only a few of the infinite
-neurons dominate. These neurons contribute the majority of the activity in any finite interval of time; however, as time passes, the total number of 
-observed neurons increases {\color{red}(Justify?)}. 
-%Each neuron, has its own `shape' A natural model in such a situation is to
-The neurons themselves emit continuous-time voltage traces, with the outputs of all neurons superimposed and discretely sampled to produce the 
-recordings $\bX$.  At a high level, we model the output of each neuron as a
-series of idealized spikes smoothed with appropriate kernels (the latter determines the shape of each action potential). 
-%Each neuron has its own distribution over waveform shapes. 
-We describe this in detail, starting first with the model for a single channel recording $X \equiv (x_1, \cdots, x_T)$.
+\section{Introduction}
 
-\subsection{Modelling a single neuron output}
-We model the spiking activity of each neuron as stationary and memoryless, with its set of spike times distributed as a homogeneous Poisson process. 
-{\color{red} Comment on refractoriness or leave for
-discussion/future work. Similarly on the generalization to inhomogeneity?} The neurons themselves are heterogeneous, with $r_i$ the (unknown) firing 
-rate for neuron $i$. Call the ordered set of spike times of the $i$th neuron $E_i$; then the time between successive elements of $E_i$ is exponentially 
-distributed with mean $1/r_i$. 
-We write this as
-\begin{align}
-  E_i &\sim \text{PoissProc}(r_i)
-\end{align}
-The actual electrical output of a neuron is not a binary event; instead each spiking event is a smooth voltage perturbation about a
-resting state. This perturbation forms the shape of the spike (without any loss of generality, we set the resting state to zero). 
-{(\color{red} figure? better biological description? comment on how we preprocess the data to get zero mean?)}. 
-While the spike shape varies across neurons as well as across different spikes of the same neuron, each 
-neuron has its own characteristic distribution over shapes. {\color{red} Figure? } 
-We let $\theta \in \Theta$ parametrize this distribution, and whenever neuron $i$ emits a 
-spike, we draw a voltage trace independently from the corresponding distribution. %$p_{\theta_i}$, and 
-This is then offset to the time of the spike, and the complete output of the neuron is the superposition of all these spike waveforms. 
-{\color{red} ( Figure?)} % Comment on how this dictionary is obtained now, or in section on inference?)}. 
-More concretely, we model each spike shape as a linear combination of a dictionary of $K$ basis functions $A \equiv (A_1(t), \cdots, A_K(t))$, shared across 
-all neurons.
-For the $i$th neuron, the $j$th spike $e_{ij} \in E_i$, is associated with a random $K$-dimensional weight vector $\tilde{y}_{ij}$, and the 
-shape of this spike is given by the weighted sum $\sum_{k=1}^K \tilde{y}_{ijk} A_k(t)$. We let $\tilde{y}_{ij}$ be Gaussian distributed, with 
-$\theta_i \equiv (\mu_i, \Sigma_i)$ determining its 
-mean and variance. Then, at any time $t$, the output of neuron $i$ is
-\begin{align}
-  x_{i}(t) &= \sum_{j=1}^{|E_i|} \sum_{k=1}^K \tilde{y}_{ijk} A_k(t - e_{ij})
-\end{align}
 
-{The total signal recorded $x(t)$ at any electrode is the superposition of the outputs of all neurons. Define $E = \cup_{i=1}^{\infty} E_i$ as
-the (ordered) superposition of the spike times of all neurons. 
-Furthermore, let $n(j)$ be the neuron to which the $j$th element of $E$ belongs, and let $p(j)$ index the position of the $j$th spike of $E$ in the spike train
-$E_{n(i)}$ of neuron $n(i)$ (so that $e_j = e_{n(j)p(j)}$). Then, we have that}
-\begin{align}
-  x(t) &= \sum_{i=1}^{\infty} x_{i}(t) =   \sum_{j=1}^{|E|} \sum_{k=1}^K y_{jk} A_k(t - e_{j}) \label{eq:spk_sup}
-\intertext{where}
-  y_{j} &\equiv \tilde{y}_{n(j)p(j)} \sim N(\mu_{n(j)}, \sigma_{n(j)}) \label{eq:spk_shape}
-\end{align}
+1 paragraph on the following:
+\begin{enumerate}
+	\item opening
+	\item challenge
+	\item approach
+	\item resolution
+\end{enumerate}
 
-From the superposition property of the Poisson process \citep{kingman93}, the overall spiking activity $E$ is a 
-Poisson process with rate $R = \sum_{i=1}^{\infty} r_i$. The signal $x(t)$ is a functional of a marked Poisson process, where the $j$th event
-is labelled by the neuron to which it is assigned ($n(j)$), and the shape of its spike waveform ($y_j$). From the properties of the Poisson
-process, we have that the marks $n(j)$ are i.i.d. distributed with $P(n(j) = i) = \frac{r_i}{R}$. Given $n(j)$, $y_j$ is distributed as in
-equation \ref{eq:spk_shape}.
 
-\subsection{Completely random measures (CRMs)}
-In this work, we take a nonparametric approach, letting the number of neurons be unbounded (so that $n(i) \in \{1, 2, \cdots \}$).
-Since only a finite number of spikes are observed in any finite interval, the total rate $R$ must 
-also be finite; moreover, as we described earlier, we want this to be dominated by a few $r_i$. 
-A natural framework that captures these  modelling requirements is that of completely random measures \citep{Kingman:PJM67}.
-Completely random measures are stochastic processes that form flexible and convenient priors over
-infinite dimensional objects like probability distributions, hazard functions etc. 
-These have been well studied in the Bayesian nonparametrics and machine learning community, and there exists a wealth of literature on
-their theoretical properties, as well as on computational approaches to posterior inference.
-
-Recall that each neuron is characterized by a pair $(r_i, \theta_i)$; the former characterizes the distribution over spike times, and the latter over spike
-shapes. We map the infinite collection of pairs $\{(r_i, \theta_i)\}$ to an atomic measure on $\Theta$:
-\begin{align}
-  R(\dd \theta) = \sum_{i=1}^{\infty} r_i \delta_{\theta_i}
-\end{align}
-For any subset $\varTheta$ of $\Theta$, the measure $R(\varTheta)$ equals \( \sum_{\{ i: \theta_i \in \varTheta \} } r_i\). We allow $R(\cdot)$ to be random,
-modelling it as a realization of a completely random measure. Such a random measure has the property that for any two disjoint subsets $\varTheta_1$ 
-and $\varTheta_2 \in \Theta$, the measures $R(\varTheta_1)$ and $R(\varTheta_2)$ are independent. 
-This distribution over measures is induced by a distribution
-over the infinite sequence of weights (the $r_i$'s), and a distribution over the sequence of their locations (the $\theta_i$'s). 
-For a CRM, the weights $r_i$ form the jumps of a \Levy process \citep{Sato90}, and their distribution is characterized by a 
-\Levy intensity $\rho(r)$. The locations $\theta_i$ are drawn i.i.d.\  from a base probability measure $H(\theta)$; we let this be the conjugate
-normal-Wishart distribution. As it typical, we assume these to be independent (though this is not necessary). {\color{red} if there's space, I
-can elaborate on the construction of the CRM from its Levy measure, though this is not necessary}
-
-The CRM we choose is the Gamma process ($\Gamma$P); this has \Levy intensity $\rho(r) = r^{-1}\exp(-r\alpha)$. The Gamma process has the convenient property that the 
-total mass $R \equiv R(\Theta) = \sum_{i=1}^{\infty} r_i$ is Gamma distributed (and thus conjugate to the Poisson process prior on $E$). 
-%The Gamma distribution has shape parameter $1$ and scale parameter $\alpha$.  Since this is finite almost surely, so too is $E$. 
-The Gamma process is also closely connected with the Dirichlet process \citep{Ferguson73}, which will prove useful
-later on.
-Other choices of the \Levy intensity can capture greater uncertainty in the number of neurons active in any finite interval, power-law behaviour etc.
-In any case, our overall model is then:
-\begin{align}
-  R(\dd \theta) & \sim \Gamma \text{P}(\alpha, H(\theta)) \\ %\mathcal{NW}(\mu, \Sigma)) \\
-  E_i\ \  &\sim \text{PoissProc}(r_i) \quad i \text{ in } 1,2,\cdots \\
-  \tilde{y}_{ij} & \sim N(\mu_i, \Sigma_i) \quad i,j \text{ in } 1,2,\cdots \\
-  x_i(t) &= \sum_{j = 1}^{|E_i|} \tilde{y}_{ij} A_j(t - e_{ij}) \\
-  X   &= \sum_{i=1}^{\infty} x_i
-\end{align}
-
-%Each spike of each neuron is associated with a time $e$ and a weight vector $y$, and one can view the model above as a doubly stochastic Poisson
-%process on the product space. 
-
-It will be more convenient from the point of inference to work with the marked Poisson process representation of equations \ref{eq:spk_sup} and \ref{eq:spk_shape}. 
-The superposition process $E$ is a rate $R$ Poisson process,
-and under a Gamma process prior, $R$ has a conjugate Gamma distribution with shape and scale parameters $1$ and $\alpha$ respectively.
-As we saw, the labels $n(\cdot)$ assigning events to neurons are drawn i.i.d. from a normalized Gamma process $G(\dd \theta)$:
-\begin{align}
- G(\dd \theta) = \frac{r_j}{R}
-\end{align}
-$G(\dd \theta)$ is a random probability measure that belongs to a class called a normalized random measures \citep{JamesLP09}; for the Gamma process, 
-this is a draw from the Dirichlet process. For the $j$ spike, given its neuron assignment $n(i)$, its shape vector is drawn from a normal distribution
-with parameters $(\mu_{n(j)}, \Sigma_{n(j)})$. Thus the weight vectors are distributed according to a Dirichlet process mixture model, with
-the neurons forming clusters. This insight allows us to marginalize out the infinite-dimensional rate vector $R$, and assign spikes to neurons via
-the Chinese restaurant process (CRP). Under the CRP, the $j$th spike is assigned to one of the earlier neurons with probability proportional to the number
-of earlier spikes assigned to that neuron. It is assigned to a new neuron with probability $\alpha$.
-Unlike most applications with observe the outputs of a CRP, we observe a functional of it.
-%is assigned (or equivalently, the parameter $\theta$ associated with that neuron). These marks are drawn from a probability measure 
-%$G(\dd \theta) = \frac{1}{R} R(\dd \theta)$. From the properties of the Gamma process, the probability measure $G$ a Dirichlet process, 
-Furthermore, (again, for the Gamma process), the random probability measure $G$ is independent of the total mass $R(\Theta)$. We thus have
- the following model equivalent to the one above:
-\begin{align}
-  R & \sim \text{Gamma}(1,\alpha) \\
-  G(\dd \theta) & \sim \text{DP}(\alpha) \\
-  E &\sim \text{PoissProc}(R) \\
-  n(j) &\sim G, \quad j = 1,\cdots, |E| \\
-  y_e &\sim N(\mu_{n(e)}, \Sigma_{n(e)}), \quad  j = 1,\cdots, |E| \\
-  x(t) &=   \sum_{j=1}^{|E|} \sum_{k=1}^K y_{jk} A_k(t - e_{j})
-\end{align}
-
-%For neuron $i$, the sequence of spike times is distributed as a Poisson process with random rate $r_i$.
-%Each event $e_{ij}$ is associated with a mark or label $y_{ij}$ drawn from a normal distribution (again, with random parameters).
-%More broadly, we can view the superposed process $E$ as a rate $R$ Poisson process, with each event having a pair of marks, the neuron identity $i$,
-%and weight $y$. From the properties of the Gamma process, the pair form a draw from a Dirichlet process.
-%Our data is in a form that makes discrete-time modelling more natural, and an approach now is
-%one based on the Beta process-binomial process.
-
-\subsection{A discrete-time approximation}
-In the previous paragraphs, we described a continuous-time voltage output by a neuron. Our data on the other hand consists of recordings
-at a discrete set of times. While it is possible to make inferences about the continuous-time process that underlies these discrete recordings,
-in this work we restrict ourselves to discrete-time inferences. Towards this, we start by providing a discrete-time approximation to the model above. 
-This follows easily from the marked Poisson process characterization of the model.
-Recall first the Bernoulli approximation to the Poisson process: a sample from a Poisson process with rate $R$ can be approximated by discretizing
-time at a granularity $\Delta$, and assigning each interval an event independently with probability $R\Delta$. This approximation becomes exact
-as $\Delta$ tends to $0$.
-
-This suggests the following approximation at a time resolution $\Delta$. Draw the random Poisson process rate $R$ drawn from a Gamma$(1,\alpha)$ 
-distribution. Simultaneously, draw a random probability measure
- $G$ from a Dirichlet process. Assign an event to an interval independently with probability $R\Delta$, and to each event, assign a random mark drawn 
-from the DP. Given the marks, we can evaluate the recordings at each time.
-
-\subsection{Noise and nonstationarity}
-The signal recorded by an electrode is the neuron output corrupted by noise, we model this noise as independent of the signal, additive and Gaussian.
-However, rather than modelling the noise as independent across time bins, we model it as a first-order autoregressive process. This can capture
-effects like the movement of electrodes during the experiment. Furthermore, rather than keeping the cluster parameters fixed, we model these as
-AR processes as well, capturing the evolution of the neuron shape with time.
-
-\subsection{Modelling multielectrode recordings}
+\section{Model}
+\input{model.tex}
 
 \section{Inference}
-We perform inference in an online manner \cite{WangDun2009}. As observations arrive, our inference algorithm decides whether or not a 
-new spike is present, which neuron (cluster) to assign that spike to, as well as the shape of the spike waveform. On the other hand, our algorithm 
-maintains a posterior distribution over the cluster parameters that characterize the distribution over shapes. Having identified the location and shape of 
-spikes from earlier times, we subtract these from the observations treat the residual as an observation from a DP mixture model.
-The cluster assignment of earlier spikes determines the seating arrangement of customers in the Chinese restaurant associated with the DP. Given the
-corresponding distribution over parameters, $p(\theta)$, we decide whether there is an underlying spike, which cluster it is assigned to, and what
-the shape of that spike is. We simultaneously update the distribution over parameters of clusters. Assume each spike waveform spans $W$ time intervals. 
-Define the residual at time $t$ as $X_t - \sum_{i=1}^W A$. At time $t$, let $y_t$ represent the shape of the action potential.
-Letting $\tilde{x}_t$ be the observation at time $t$, we have
-\begin{align}
-  z_t  & \sim Bern(p) \\
-  \intertext{\hspace{2in} if $z_t == 1$}
-  \gamma_t| \gamma_{1:t-1} &\sim CRP \\
-  \theta_t| \gamma_t = i & \sim \mathcal{N}(\theta_{t-1},\Sigma)
-\end{align}
+\input{inference.tex}
 
-\bibliography{refs}
-\bibliographystyle{unsrt}
+\section{Results}
+
+\subsection{Performance on Partial Ground Truth Data}
+
+\subsection{Time-Varying Waveform Adaptation}
+
+\subsection{Overlapping Spike Detection}
+
+\subsection{Michigan Data}
+
+\subsection{dec draft stuff}
+\input{results.tex}
+
+ 
+\section{Discussion}
+
+1 paragraph on:
+\begin{enumerate}
+	\item summary
+	\item relate work - including Franke and Pillow
+	\item future work - including adaptive stimulus design \& decoding
+\end{enumerate}
+
+
 \begin{comment}
-\section{Submission of papers to NIPS 2013}
-NIPS requires electronic submissions.  The electronic submission site is  
-\begin{center}
-   \url{http://papers.nips.cc}
-\end{center}
-
-Please read carefully the
-instructions below, and follow them faithfully.
-\subsection{Style}
-
-Papers to be submitted to NIPS 2013 must be prepared according to the
-instructions presented here. Papers may be only up to eight pages long,
-including figures. Since 2009 an additional ninth page \textit{containing only
-cited references} is allowed. Papers that exceed nine pages will not be
-reviewed, or in any other way considered for presentation at the conference.
-%This is a strict upper bound. 
-
-Please note that this year we have introduced automatic line number generation
-into the style file (for \LaTeXe and Word versions). This is to help reviewers
-refer to specific lines of the paper when they make their comments. Please do
-NOT refer to these line numbers in your paper as they will be removed from the
-style file for the final version of accepted papers.
-
-The margins in 2013 are the same as since 2007, which allow for $\approx 15\%$
-more words in the paper compared to earlier years. We are also again using 
-double-blind reviewing. Both of these require the use of new style files.
-
-Authors are required to use the NIPS \LaTeX{} style files obtainable at the
-NIPS website as indicated below. Please make sure you use the current files and
-not previous versions. Tweaking the style files may be grounds for rejection.
-
-%% \subsection{Double-blind reviewing}
-
-%% This year we are doing double-blind reviewing: the reviewers will not know 
-%% who the authors of the paper are. For submission, the NIPS style file will 
-%% automatically anonymize the author list at the beginning of the paper.
-
-%% Please write your paper in such a way to preserve anonymity. Refer to
-%% previous work by the author(s) in the third person, rather than first
-%% person. Do not provide Web links to supporting material at an identifiable
-%% web site.
-
-%%\subsection{Electronic submission}
-%%
-%% \textbf{THE SUBMISSION DEADLINE IS MAY 31st, 2013. SUBMISSIONS MUST BE LOGGED BY
-%% 23:00, MAY 31st, 2013, UNIVERSAL TIME}
-
-%% You must enter your submission in the electronic submission form available at
-%% the NIPS website listed above. You will be asked to enter paper title, name of
-%% all authors, keyword(s), and data about the contact
-%% author (name, full address, telephone, fax, and email). You will need to
-%% upload an electronic (postscript or pdf) version of your paper.
-
-%% You can upload more than one version of your paper, until the
-%% submission deadline. We strongly recommended uploading your paper in
-%% advance of the deadline, so you can avoid last-minute server congestion.
-%%
-%% Note that your submission is only valid if you get an e-mail
-%% confirmation from the server. If you do not get such an e-mail, please
-%% try uploading again. 
-
-
-\subsection{Retrieval of style files}
-
-The style files for NIPS and other conference information are available on the World Wide Web at
-\begin{center}
-   \url{http://www.nips.cc/}
-\end{center}
-The file \verb+nips2013.pdf+ contains these 
-instructions and illustrates the
-various formatting requirements your NIPS paper must satisfy. \LaTeX{}
-users can choose between two style files:
-\verb+nips11submit_09.sty+ (to be used with \LaTeX{} version 2.09) and
-\verb+nips11submit_e.sty+ (to be used with \LaTeX{}2e). The file
-\verb+nips2013.tex+ may be used as a ``shell'' for writing your paper. All you
-have to do is replace the author, title, abstract, and text of the paper with
-your own. The file
-\verb+nips2013.rtf+ is provided as a shell for MS Word users.
-
-The formatting instructions contained in these style files are summarized in
-sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
-
-%% \subsection{Keywords for paper submission}
-%% Your NIPS paper can be submitted with any of the following keywords (more than one keyword is possible for each paper):
-
-%% \begin{verbatim}
-%% Bioinformatics
-%% Biological Vision
-%% Brain Imaging and Brain Computer Interfacing
-%% Clustering
-%% Cognitive Science
-%% Control and Reinforcement Learning
-%% Dimensionality Reduction and Manifolds
-%% Feature Selection
-%% Gaussian Processes
-%% Graphical Models
-%% Hardware Technologies
-%% Kernels
-%% Learning Theory
-%% Machine Vision
-%% Margins and Boosting
-%% Neural Networks
-%% Neuroscience
-%% Other Algorithms and Architectures
-%% Other Applications
-%% Semi-supervised Learning
-%% Speech and Signal Processing
-%% Text and Language Applications
-
-%% \end{verbatim}
-
-\section{General formatting instructions}
-\label{gen_inst}
-
-The text must be confined within a rectangle 5.5~inches (33~picas) wide and
-9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).
-Use 10~point type with a vertical spacing of 11~points. Times New Roman is the
-preferred typeface throughout. Paragraphs are separated by 1/2~line space,
-with no indentation.
-
-Paper title is 17~point, initial caps/lower case, bold, centered between
-2~horizontal rules. Top rule is 4~points thick and bottom rule is 1~point
-thick. Allow 1/4~inch space above and below title to rules. All pages should
-start at 1~inch (6~picas) from the top of the page.
-
-%The version of the paper submitted for review should have ``Anonymous Author(s)'' as the author of the paper.
-
-For the final version, authors' names are
-set in boldface, and each name is centered above the corresponding
-address. The lead author's name is to be listed first (left-most), and
-the co-authors' names (if different address) are set to follow. If
-there is only one co-author, list both author and co-author side by side.
-
-Please pay special attention to the instructions in section \ref{others}
-regarding figures, tables, acknowledgments, and references.
-
-\section{Headings: first level}
-\label{headings}
-
-First level headings are lower case (except for first word and proper nouns),
-flush left, bold and in point size 12. One line space before the first level
-heading and 1/2~line space after the first level heading.
-
-\subsection{Headings: second level}
-
-Second level headings are lower case (except for first word and proper nouns),
-flush left, bold and in point size 10. One line space before the second level
-heading and 1/2~line space after the second level heading.
-
-\subsubsection{Headings: third level}
-
-Third level headings are lower case (except for first word and proper nouns),
-flush left, bold and in point size 10. One line space before the third level
-heading and 1/2~line space after the third level heading.
-
-\section{Citations, figures, tables, references}
-\label{others}
-
-These instructions apply to everyone, regardless of the formatter being used.
-
-\subsection{Citations within the text}
-
-Citations within the text should be numbered consecutively. The corresponding
-number is to appear enclosed in square brackets, such as [1] or [2]-[5]. The
-corresponding references are to be listed in the same order at the end of the
-paper, in the \textbf{References} section. (Note: the standard
-\textsc{Bib\TeX} style \texttt{unsrt} produces this.) As to the format of the
-references themselves, any style is acceptable as long as it is used
-consistently.
-
-As submission is double blind, refer to your own published work in the 
-third person. That is, use ``In the previous work of Jones et al.\ [4]'',
-not ``In our previous work [4]''. If you cite your other papers that
-are not widely available (e.g.\ a journal paper under review), use
-anonymous author names in the citation, e.g.\ an author of the
-form ``A.\ Anonymous''. 
-
-
-\subsection{Footnotes}
-
-Indicate footnotes with a number\footnote{Sample of the first footnote} in the
-text. Place the footnotes at the bottom of the page on which they appear.
-Precede the footnote with a horizontal rule of 2~inches
-(12~picas).\footnote{Sample of the second footnote}
-
-\subsection{Figures}
-
-All artwork must be neat, clean, and legible. Lines should be dark
-enough for purposes of reproduction; art work should not be
-hand-drawn. The figure number and caption always appear after the
-figure. Place one line space before the figure caption, and one line
-space after the figure. The figure caption is lower case (except for
-first word and proper nouns); figures are numbered consecutively.
-
-Make sure the figure caption does not get separated from the figure.
-Leave sufficient space to avoid splitting the figure and figure caption.
-
-You may use color figures. 
-However, it is best for the
-figure captions and the paper body to make sense if the paper is printed
-either in black/white or in color.
-\begin{figure}[h]
-\begin{center}
-%\framebox[4.0in]{$\;$}
-\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-\end{center}
-\caption{Sample figure caption.}
-\end{figure}
-
-\subsection{Tables}
-
-All tables must be centered, neat, clean and legible. Do not use hand-drawn
-tables. The table number and title always appear before the table. See
-Table~\ref{sample-table}.
-
-Place one line space before the table title, one line space after the table
-title, and one line space after the table. The table title must be lower case
-(except for first word and proper nouns); tables are numbered consecutively.
-
-\begin{table}[t]
-\caption{Sample table title}
-\label{sample-table}
-\begin{center}
-\begin{tabular}{ll}
-\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
-\\ \hline \\
-Dendrite         &Input terminal \\
-Axon             &Output terminal \\
-Soma             &Cell body (contains cell nucleus) \\
-\end{tabular}
-\end{center}
-\end{table}
-
-\section{Final instructions}
-Do not change any aspects of the formatting parameters in the style files.
-In particular, do not modify the width or length of the rectangle the text
-should fit into, and do not change font sizes (except perhaps in the
-\textbf{References} section; see below). Please note that pages should be
-numbered.
-
-\section{Preparing PostScript or PDF files}
-
-Please prepare PostScript or PDF files with paper size ``US Letter'', and
-not, for example, ``A4''. The -t
-letter option on dvips will produce US Letter files.
-
-Fonts were the main cause of problems in the past years. Your PDF file must
-only contain Type 1 or Embedded TrueType fonts. Here are a few instructions
-to achieve this.
-
-\begin{itemize}
-
-\item You can check which fonts a PDF files uses.  In Acrobat Reader,
-select the menu Files$>$Document Properties$>$Fonts and select Show All Fonts. You can
-also use the program \verb+pdffonts+ which comes with \verb+xpdf+ and is
-available out-of-the-box on most Linux machines.
-
-\item The IEEE has recommendations for generating PDF files whose fonts
-are also acceptable for NIPS. Please see
-\url{http://www.emfield.org/icuwb2010/downloads/IEEE-PDF-SpecV32.pdf}
-
-\item LaTeX users:
-
-\begin{itemize}
-
-\item Consider directly generating PDF files using \verb+pdflatex+
-(especially if you are a MiKTeX user). 
-PDF figures must be substituted for EPS figures, however.
-
-\item Otherwise, please generate your PostScript and PDF files with the following commands:
-\begin{verbatim} 
-dvips mypaper.dvi -t letter -Ppdf -G0 -o mypaper.ps
-ps2pdf mypaper.ps mypaper.pdf
-\end{verbatim}
-
-Check that the PDF files only contains Type 1 fonts. 
-%For the final version, please send us both the Postscript file and
-%the PDF file. 
-
-\item xfig "patterned" shapes are implemented with 
-bitmap fonts.  Use "solid" shapes instead. 
-\item The \verb+\bbold+ package almost always uses bitmap
-fonts.  You can try the equivalent AMS Fonts with command
-\begin{verbatim}
-\usepackage[psamsfonts]{amssymb}
-\end{verbatim}
- or use the following workaround for reals, natural and complex: 
-\begin{verbatim}
-\newcommand{\RR}{I\!\!R} %real numbers
-\newcommand{\Nat}{I\!\!N} %natural numbers 
-\newcommand{\CC}{I\!\!\!\!C} %complex numbers
-\end{verbatim}
-
-\item Sometimes the problematic fonts are used in figures
-included in LaTeX files. The ghostscript program \verb+eps2eps+ is the simplest
-way to clean such figures. For black and white figures, slightly better
-results can be achieved with program \verb+potrace+.
-\end{itemize}
-\item MSWord and Windows users (via PDF file):
-\begin{itemize}
-\item Install the Microsoft Save as PDF Office 2007 Add-in from
-\url{http://www.microsoft.com/downloads/details.aspx?displaylang=en\&familyid=4d951911-3e7e-4ae6-b059-a2e79ed87041}
-\item Select ``Save or Publish to PDF'' from the Office or File menu
-\end{itemize}
-\item MSWord and Mac OS X users (via PDF file):
-\begin{itemize}
-\item From the print menu, click the PDF drop-down box, and select ``Save
-as PDF...''
-\end{itemize}
-\item MSWord and Windows users (via PS file):
-\begin{itemize}
-\item To create a new printer
-on your computer, install the AdobePS printer driver and the Adobe Distiller PPD file from
-\url{http://www.adobe.com/support/downloads/detail.jsp?ftpID=204} {\it Note:} You must reboot your PC after installing the
-AdobePS driver for it to take effect.
-\item To produce the ps file, select ``Print'' from the MS app, choose
-the installed AdobePS printer, click on ``Properties'', click on ``Advanced.''
-\item Set ``TrueType Font'' to be ``Download as Softfont''
-\item Open the ``PostScript Options'' folder
-\item Select ``PostScript Output Option'' to be ``Optimize for Portability''
-\item Select ``TrueType Font Download Option'' to be ``Outline''
-\item Select ``Send PostScript Error Handler'' to be ``No''
-\item Click ``OK'' three times, print your file.
-\item Now, use Adobe Acrobat Distiller or ps2pdf to create a PDF file from
-the PS file. In Acrobat, check the option ``Embed all fonts'' if
-applicable.
-\end{itemize}
-
-\end{itemize}
-If your file contains Type 3 fonts or non embedded TrueType fonts, we will
-ask you to fix it. 
-
-\subsection{Margins in LaTeX}
- 
-Most of the margin problems come from figures positioned by hand using
-\verb+\special+ or other commands. We suggest using the command
-\verb+\includegraphics+
-from the graphicx package. Always specify the figure width as a multiple of
-the line width as in the example below using .eps graphics
-\begin{verbatim}
-   \usepackage[dvips]{graphicx} ... 
-   \includegraphics[width=0.8\linewidth]{myfile.eps} 
-\end{verbatim}
-or % Apr 2009 addition
-\begin{verbatim}
-   \usepackage[pdftex]{graphicx} ... 
-   \includegraphics[width=0.8\linewidth]{myfile.pdf} 
-\end{verbatim}
-for .pdf graphics. 
-See section 4.4 in the graphics bundle documentation (\url{http://www.ctan.org/tex-archive/macros/latex/required/graphics/grfguide.ps}) 
- 
-A number of width problems arise when LaTeX cannot properly hyphenate a
-line. Please give LaTeX hyphenation hints using the \verb+\-+ command.
-
-
 \subsubsection*{Acknowledgments}
 
 Use unnumbered third level headings for the acknowledgments. All
 acknowledgments go at the end of the paper. Do not include 
 acknowledgments in the anonymized submission, only in the 
 final paper. 
-
-\subsubsection*{References}
-
-References follow the acknowledgments. Use unnumbered third level heading for
-the references. Any choice of citation style is acceptable as long as you are
-consistent. It is permissible to reduce the font size to `small' (9-point) 
-when listing the references. {\bf Remember that this year you can use
-a ninth page as long as it contains \emph{only} cited references.}
-
-\small{
-[1] Alexander, J.A. \& Mozer, M.C. (1995) Template-based algorithms
-for connectionist rule extraction. In G. Tesauro, D. S. Touretzky
-and T.K. Leen (eds.), {\it Advances in Neural Information Processing
-Systems 7}, pp. 609-616. Cambridge, MA: MIT Press.
-
-[2] Bower, J.M. \& Beeman, D. (1995) {\it The Book of GENESIS: Exploring
-Realistic Neural Models with the GEneral NEural SImulation System.}
-New York: TELOS/Springer-Verlag.
-
-[3] Hasselmo, M.E., Schnell, E. \& Barkai, E. (1995) Dynamics of learning
-and recall at excitatory recurrent synapses and cholinergic modulation
-in rat hippocampal region CA3. {\it Journal of Neuroscience}
-{\bf 15}(7):5249-5262.
-}
 \end{comment}
+
+
+\bibliography{refs}
+\bibliographystyle{unsrt}
+
 
 \end{document}

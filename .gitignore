@@ -1,0 +1,11 @@
+.*.tex
+.*.fls
+.*.fmt
+.*.ini
+.*.watcher*
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.tex~
