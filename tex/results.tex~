@@ -1,0 +1,49 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\begin{document}
+
+\title{}
+\author{}
+\date{}
+\maketitle
+\section{Experiments and Results}
+\subsection{Publicly Available Data}
+Experiments were performed on a subset of the publicly available\footnote{http://crcns.org/data-sets/hc/hc-1/} dataset described in (hc-1 cites).  We used the dataset d533101 that consisted of an extracellular tetrode and a single intracellular electrode.  The recording was made simultaneously on all electrodes and was set up such cell with the intracellular electrode was also recorded on the extracellular array. 
+
+The intracellular recording is very clean, so we are nearly certain about the firing times of the intracellular neuron.  The extracellular recording contains the spike waveforms from the intracellular neuron as well as an unknown number of additional neurons.  The data is a 4-minute recording at a 10kHz sampling rate and preprocessed with a high-pass filter at 800 Hz.
+
+As (probably?) discussed in the methodology, often the time-series is sent through a detection algorithm to get initial estimates of spikes.
+
+Each algorithm gives a clustering of the detected spikes.  In this dataset, we ably have a partial ground truth, so we are only able to analyze whether a spike comes from the intracellular (IC) recording or not.  In these experiments, we define a detected spike to be an IC spike if the IC recording has a spike within .5ms of the detected spike.  We define the cluster with the greatest number of intracellular spikes as a the "IC cluster."  Figure \ref{truefalseplot} shows the performance on the intracellular cluster versus competing methods.  The spike detections for the offline methods were given by using a threshold at 3 times the noise standard deviation. (cite lewicki) (Need to do more comparisons and descriptions).  The action potential window was set at 30, and PCA was used to reduce the space to 3 for the experiments.
+
+We show our detected spikes in the inferred lower-dimensional space in Figure \ref{pcaonlinear}.  (Give description of this plot).
+
+The neurons themselves can have a shifting mean over time.  This is shown in Figure \ref{evohc1}.
+
+The waveform shapes for the false positives and false negatives can be seen in Figure \ref{truewaveforms}.
+\section{Array Sensor}
+\begin{center}
+\begin{figure}
+\includegraphics[width=\textwidth]{../figs/truefalsepositive}
+\caption{Results on the d533101 dataset.  This shows the number of true positives versus the number of false positives.  Our methods do better, yay!\label{truefalseplot}}
+\end{figure}
+\end{center}
+\begin{center}
+\begin{figure}
+\includegraphics[width=\textwidth]{../figs/ykarreduced}
+\caption{Results on the d533101 dataset from the online algorithm with an AR mean.\label{pcaonlinear}}
+\end{figure}
+\end{center}
+\begin{center}
+\begin{figure}
+\includegraphics[width=\textwidth]{../figs/evohc1}
+\caption{Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24s and the color gives the elapsed time.  This neuron decreases in amplitude over the period of the recording.\label{evohc1}}
+\end{figure}
+\end{center}
+\begin{center}
+\begin{figure}
+\includegraphics[width=\textwidth]{../figs/IntracellularTrueFalsePositives}
+\caption{Errorbar plots of the true positives and the false positives in the IC cluster.  While the false positives have slightly more variability, the mean shape for the false positives and the true positives is nearly identical.\label{truewaveforms}}
+\end{figure}
+\end{center}
+\end{document}
