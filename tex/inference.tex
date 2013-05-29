@@ -23,11 +23,11 @@ Having identified the location and shape of spikes from earlier times, we can ca
 We subtract this from the actual observation at time $t+1$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
 Given this residual, our algorithm then makes a hard decision about whether a spike is present, what neuron that spike belongs to 
 (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
-$q_{it+1}(\theta^*_i)$. Our algorithm proceeds recursively in this manner, we describe it in more detail below.
+$q_{i,t+1}(\theta^*_i)$. Our algorithm proceeds recursively in this manner, we describe it in more detail below.
 
 
 Recall that each spike waveform spans $L$ time bins. 
-Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\gamma_t$ is associated neuron. 
+Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ is associated neuron. 
 The residual at time $t$ is then given by
 \begin{align}
   \tx_t = x_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
@@ -35,18 +35,22 @@ The residual at time $t$ is then given by
 Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,
 \begin{align}
-  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\gamma_t = 1}^{C_t+1} P(\tx_t, {\gamma_t} | z_t = 1) P(z_t = 1) \\
+  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\nu_t = 1}^{C_t+1} P(\tx_t, {\nu_t} | z_t = 1) P(z_t = 1) \\
 \intertext{Here, $C_t$ is the number of unique neurons underlying the observations until time $t$. Letting $n_i$ be the number of spikes from neuron $i$,
 we have from the CRP that}
-  P({\gamma_t} = i | z_t = 1) & \propto 
+  P({\nu_t} = i | z_t = 1) & \propto 
   \begin{cases}
    n_i \quad i \in \{1,\cdots, C_t\} \\
    \alpha \quad\ i = C_t + 1 \\
-  \end{cases}\\
+  \end{cases}  \label{eq:crp_marg}\\
 \intertext{On the other hand,}
-  P(\tx_t | {\gamma_t} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{\gamma_t} (\theta_t | \gamma_t) \dd \theta_t
+  P(\tx_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
 \end{align}
-Having calculated $P(z_t = 1 | \tx_t)$, we decide that there is a spike present if this exceeds a threshold of $0.5$, otherwise, we set $z_t = 0$.
-In the event that we decide that a spike is present (after marginalizing over all possible cluster assignments), we simplify matters by assigning 
-the spike to the cluster with highest posterior probability. Similarly, we set the weight vector $\by_t$ to its MAP value.
-Given these two, we update the posterior distribution over parameters of the cluster recursively calculating $q_{t+1}$.
+Recall that  $P(\tx_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$. We let $q_{it}(\cdot)$ be the normal-Wishart
+distribution. % with parameters 
+We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:crp_marg} to calculate $P(z_t = 1 | \tx_t)$. 
+If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $z_t = 0$.
+Note that we make this decision after marginalizing over all possible cluster assignments and all values of the weight vector $\by_t$.
+In the event that we decide that a spike is present , we simplify matters collapsing these parameters, and the spike the neuron and weight-vector
+with highest posterior probability. Given these two, we update the posterior distribution over parameters of cluster $\nu_t$, thereby obtaining
+$q_{i,t+1}$.
