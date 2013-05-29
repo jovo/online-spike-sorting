@@ -2,43 +2,48 @@
 
 We now address the problem of posterior inference over the latent variables gives the matrix $\bX$ of multielectrode recordings. Unsurprisingly, exact 
 inference is intractable, and we have to resort to approximating the posterior distribution.
-There exists a vast literature on approximate inference for nonparametric models, especially so for models based on the Dirichlet process.
+There exists a vast literature on approximate inference for Bayesian nonparametric models, especially so for models based on the Dirichlet process.
 Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
-while recently there has also been work on constructing deterministic approximations to the intractable posterior (\citep{BleJor2006, MinGha2003}).
+and recently there has also been work on constructing deterministic approximations to the intractable posterior (eg.\ \citep{BleJor2006, MinGha2003}).
 Our problem is complicated by two factors. The first is the convolutional nature of our observation process, where we observe a functional of the 
 sequence of observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
-Our goal, on the other hand, is ultimately to perform inference in real time, so that these batch approaches unsuitable for our purposes.
+Our ultimate goal, on the other hand, is to perform inference in real time, so that these batch approaches are unsuitable for our purposes.
 
 With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on \cite{WangDun2009}, though this was 
-developed for the usual situation where one has i.i.d.\ observations drawn from a DPMM. We generalize this algorithm to our observation process, and to 
-account for the time-evolution of the cluster parameters and the Markov nature of the observation noise.
+developed for the usual situation where one has i.i.d.\ observations drawn from a DPMM. We generalize this algorithm to our observation process, and also 
+to account for the time-evolution of the cluster parameters and the Markov nature of the observation noise.
 
-At a high level, at time $t$, our inference algorithm maintains a set of the times of spikes underlying the observations until time $t$. It also maintains
-the identities of the neurons those spikes were assigned to, as well as the weight vectors determining the shapes of the associated spike waveforms.
-Besides these point estimates, we also maintains a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
+At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations until time $t$. It also maintains
+the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
+waveforms. Besides these point estimates, the algorithm also maintains a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
 set of neurons associated with the spikes seen so far. For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the observation at time $t+1$.
 We subtract this from the actual observation at time $t+1$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
-Given this, our algorithm then makes a hard decision about whether a spike is present, whether that spike belongs to one of the earlier neurons
-or a new neuron, and what the shape of the associated spike waveform is. We use this to recursively update the distribution over neuron parameters.
-We describe this recursive algorithm below.
+Given this residual, our algorithm then makes a hard decision about whether a spike is present, what neuron that spike belongs to 
+(one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
+$q_{it+1}(\theta^*_i)$. Our algorithm proceeds recursively in this manner, we describe it in more detail below.
 
 
+Recall that each spike waveform spans $L$ time bins. 
+Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\gamma_t$ is associated neuron. 
+The residual at time $t$ is then given by
 \begin{align}
   \tx_t = x_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
 \end{align}
-Given the spike statistics from earlier times, as well as the distribution over parameters, our algorithm decides whether there is a spike underlying
-the observations at time $t$, which cluster it is assigned to, and what
-the shape of that spike is. We simultaneously update the distribution over parameters of clusters. 
-
-Recall that each spike waveform spans $L$ time bins. 
-Lett $z_t$ indicate whether or not a spike is present at time $t$, and with $\by_t$ giving its shape. Equation \eqref{eq:resid} gives the residual 
-at time $t$, we must first decide whether or not there is a spike underlying this residual.
+Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,
 \begin{align}
-  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\gamma_t = 1}^{C_t} P(\tx_t, {\gamma_t} | z_t = 1) P(z_t = 1) \\
+  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\gamma_t = 1}^{C_t+1} P(\tx_t, {\gamma_t} | z_t = 1) P(z_t = 1) \\
+\intertext{Here, $C_t$ is the number of unique neurons underlying the observations until time $t$. Letting $n_i$ be the number of spikes from neuron $i$,
+we have from the CRP that}
+  P({\gamma_t} = i | z_t = 1) & \propto 
+  \begin{cases}
+   n_i \quad i \in \{1,\cdots, C_t\} \\
+   \alpha \quad\ i = C_t + 1 \\
+  \end{cases}\\
+\intertext{On the other hand,}
   P(\tx_t | {\gamma_t} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{\gamma_t} (\theta_t | \gamma_t) \dd \theta_t
 \end{align}
 Having calculated $P(z_t = 1 | \tx_t)$, we decide that there is a spike present if this exceeds a threshold of $0.5$, otherwise, we set $z_t = 0$.
