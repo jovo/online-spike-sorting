@@ -11,19 +11,21 @@ The second complication is a computational requirement: typical inference scheme
 Our ultimate goal, on the other hand, is to perform inference in real time, so that these batch approaches are unsuitable for our purposes.
 
 With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on \cite{WangDun2009}, though this was 
-developed for the usual situation where one has i.i.d.\ observations drawn from a DPMM. We generalize this algorithm to our observation process, and also 
+developed for the usual case of i.i.d.\ observations drawn from a DPMM. We generalize this algorithm to our observation process, and also 
 to account for the time-evolution of the cluster parameters and the Markov nature of the observation noise.
 
 At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations until time $t$. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
-waveforms. Besides these point estimates, the algorithm also maintains a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
-set of neurons associated with the spikes seen so far. For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
+waveforms. In addition to these point estimates, the algorithm also maintains a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
+set of neurons associated with the spikes seen so far. Let the number of unique neurons observed at time $t$ be $C_t$, so that $i$ varies from $1$ to $C_t$.
+For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
-Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the observation at time $t+1$.
-We subtract this from the actual observation at time $t+1$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
-Given this residual, our algorithm then makes a hard decision about whether a spike is present, what neuron that spike belongs to 
-(one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
-$q_{i,t+1}(\theta^*_i)$. Our algorithm proceeds recursively in this manner, we describe it in more detail below.
+Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recording $x_{t+1}$ at time $t+1$.
+We subtract this term from $x_{t+1}$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
+Given this residual, our algorithm then makes a hard decision about whether or not this was produced by an underlying spike, what neuron that spike belongs 
+to (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
+$q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
+We describe it in more detail below.
 
 
 Recall that each spike waveform spans $L$ time bins. 
@@ -35,13 +37,13 @@ The residual at time $t$ is then given by
 Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,
 \begin{align}
-  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\nu_t = 1}^{C_t+1} P(\tx_t, {\nu_t} | z_t = 1) P(z_t = 1) \\
-\intertext{Here, $C_t$ is the number of unique neurons underlying the observations until time $t$. Letting $n_i$ be the number of spikes from neuron $i$,
-we have from the CRP that}
+  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\tx_t, {\nu_t} | z_t = 1) P(z_t = 1) \\
+\intertext{Here, $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $n_i$ be the number of spikes from neuron 
+$i$, we have from the Chinese restaurant process that}
   P({\nu_t} = i | z_t = 1) & \propto 
   \begin{cases}
-   n_i \quad i \in \{1,\cdots, C_t\} \\
-   \alpha \quad\ i = C_t + 1 \\
+   n_i \quad i \in \{1,\cdots, C_{t-1}\} \\
+   \alpha \quad\ i = C_{t-1} + 1 \\
   \end{cases}  \label{eq:crp_marg}\\
 \intertext{On the other hand,}
   P(\tx_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
