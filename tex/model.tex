@@ -17,8 +17,9 @@ series of idealized spikes which are smoothed with appropriate kernels, the latt
 We describe this in detail, starting first with a model for a single channel recording $X \equiv (x_1, \cdots, x_T)$.
 
 \subsection{Modelling a single electrode recording}
-There is a rich literature characterizing the spiking activity of a single neuron \citep{}, accounting for factors like nonstationarity and
-refractoriness. However we shall make the simplifying assumption that each neuron as stationary and memoryless, so that its set of spike times are 
+There is a rich literature characterizing the spiking activity of a single neuron \citep{}, accounting in detail for factors like nonstationarity, 
+refractoriness and spike waveform. We shall however make a number of simplifying assumptions. First, we model the spiking activity of each neuron is 
+stationary and memoryless, so that its set of spike times are 
 distributed as a homogeneous Poisson process. 
 {\color{red} justify?} We model the neurons themselves are heterogeneous, with the $i$th neuron having
 an (unknown) firing rate $r_i$. Call the ordered set of spike times of the $i$th neuron $E_i$; then the time between successive elements of $E_i$ is 
@@ -27,13 +28,13 @@ exponentially distributed with mean $1/r_i$. We write this as
   E_i &\sim \text{PoissProc}(r_i)
 \end{align}
 The actual electrical output of a neuron is not binary; instead each spiking event is a smooth perturbation in voltage about a
-resting state. This perturbation forms the shape of the spike (without any loss of generality, we set the resting state to zero). 
+resting state. This perturbation forms the shape of the spike, and without any loss of generality, we set the resting state to zero. 
 {(\color{red} figure? better biological description? comment on how we preprocess the data to get zero mean?)}. 
 While the spike shapes vary across neurons as well as across different spikes of the same neuron, each 
 neuron has its own characteristic distribution over shapes. {\color{red} Figure? } 
 We let $\theta^* \in \Theta$ parametrize this distribution, with neuron $i$ having parameter $\theta^*_i$. Whenever this neuron emits a 
 spike, a new shape is drawn independently from the corresponding distribution. %$p_{\theta_i}$, and 
-This is then offset to the time of the spike, and forms the voltage trace associate with that spike. The complete output of the neuron is the 
+This waveform is then offset to the time of the spike, and forms the voltage trace associate with that spike. The complete output of the neuron is the 
 superposition of all these spike waveforms. 
 {\color{red} ( Figure?)} % Comment on how this dictionary is obtained now, or in section on inference?)}. 
 We model the random spike shapes themselves as weighted superpositions of a dictionary of $K$ basis functions $A \equiv (A_1(t), \cdots, A_K(t))$. The
@@ -52,7 +53,7 @@ the (ordered) union of the spike times of all neurons.
 To map elements $e_j \in E$ to those in the individual spike trains $E_i$, we need to introduce some more notation. 
 Let $\nu_j$ be the neuron to which the $j$th element of $E$ belongs, and let $\theta_j \equiv (\mu_j, \Sigma_j)$ be the neuron parameter associated with
 that spike. Thus $\theta_j = \theta^*_{\nu_j}$. Furthermore, let $p_j$ index the position of the spike $j$ of $E$ in $E_{\nu_j}$, the spike train
-of neuron $\nu_j$. Thus $e_j = e_{\nu_j p_j}$. Finally, define $\by_{j} = \tilde{\by}_{\nu_j p_j}$. Then, we have that}
+of neuron $\nu_j$. Thus $e_j = e_{\nu_j p_j}$. Finally, define $\by_{j} = \tilde{\by}_{\nu_j p_j}$ as the weight vector of spike $e_j$. Then, we have that}
 \begin{align}
   x(t) &= \sum_{i=1}^{N} x_{i}(t) =   \sum_{j=1}^{|E|} \sum_{k=1}^K y_{jk} A_k(t - e_{j}) \label{eq:spk_sup}
 \intertext{where}
@@ -62,19 +63,21 @@ of neuron $\nu_j$. Thus $e_j = e_{\nu_j p_j}$. Finally, define $\by_{j} = \tilde
 From the superposition property of the Poisson process \citep{kingman93}, the overall spiking activity $E$ is a 
 Poisson process with rate $R = \sum_{i=1}^{N} r_i$. Each event $e_j \in E$ is associated with a pair of labels, the parameter of the neuron to which it 
 is assigned ($\theta_j = (\mu_j, \Sigma_j)$), and the weight-vector characterizing the spike shape ($\by_j$). We can view these as the `marks' of a 
-marked Poisson process $E$.  From the properties of the Poisson process, we have that the marks $\theta_j$ are drawn i.i.d. from a measure 
+marked Poisson process $E$.  From the properties of the Poisson process, we have that the marks $\theta_j$ are drawn i.i.d. from a probability measure 
 \begin{align}
  G(\dd \theta) = \frac{1}{R}\sum_{i=1}^{N} r_i \delta_{\theta^*_i}    \label{eq:mark_distr}
 \end{align}
 Note that with probability one, the neurons have distinct parameters, so that the mark $\theta_j$ associated with spike $j$ identifies the
 neuron which produced it: $G(\theta_j = \theta^*_i) = P(\nu_j = i) = \frac{r_i}{R}$. Given $\theta_j$, $y_j$ is distributed as in
-equation \ref{eq:spk_shape}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process (equation \eqref{eq:spk_sup}). 
+equation \ref{eq:spk_shape}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process (equation \eqref{eq:spk_sup})
+{\color{red} Figure?}. 
 
 \subsection{Completely random measures (CRMs)}
-While the previous section assumed $N$ neurons, our recordings are actually a superposition of the outputs of an unknown
-number of neurons. We deal with this by taking a nonparametric Bayesian approach, and letting the number of neurons $N$ tend to infinity. 
+The previous section assumed a known number of neurons $N$. In practice however, our recordings are a superposition of the outputs of an unknown
+number of neurons. We deal with this uncertainty by taking a nonparametric Bayesian approach, and letting the number of neurons $N$ tend to infinity
+{\color{red} Can we provide a biogical/electrical justification of this?}. 
 Such an approach leads to an elegant and flexible modelling framework, and has  already proved successful in neuroscience applications
-\citep{WooGolBla2006}.
+\citep{WoodBla2008}.
 Since only a finite number of spikes are observed in any finite interval, the total rate $R$ must 
 also be finite; moreover, as we described earlier, we want this to be dominated by a few $r_i$. 
 A natural framework that captures these  modelling requirements is that of completely random measures \citep{Kingman:PJM67}.
@@ -83,8 +86,9 @@ infinite dimensional objects like probability distributions \citep{JamesLP09}, h
 These have been well studied in the Bayesian nonparametrics and machine learning communities, and there exists a wealth of literature on
 their theoretical properties, as well as on computational approaches to posterior inference.
 
-Recall that each neuron is characterized by a pair $(r_i, \theta^*_i)$; the former characterizes the distribution over spike times, and the latter over spike
-shapes. Recalling equation \eqref{eq:mark_distr}, map the infinite collection of pairs $\{(r_i, \theta^*_i)\}$ to an atomic measure on $\Theta$:
+Recall that each neuron is characterized by a pair of parameters $(r_i, \theta^*_i)$; the former characterizes the distribution over spike times, 
+and the latter over spike
+shapes. With equation \eqref{eq:mark_distr} in mind, we map the infinite collection of pairs $\{(r_i, \theta^*_i)\}$ to an atomic measure on $\Theta$:
 \begin{align}
   R(\dd \theta) = \sum_{i=1}^{\infty} r_i \delta_{\theta^*_i}
 \end{align}
@@ -98,17 +102,18 @@ For a CRM, the weights $r_i$ are the jumps of a \Levy process \citep{Sato90}, an
 As is typical, we assume these to be independent (though this is not necessary). {\color{red} if there's space, I
 can elaborate on the construction of the CRM from its Levy measure, though this is not necessary}
 
-The CRM we choose for our application is the Gamma process ($\Gamma$P); this has \Levy intensity $\rho(r) = r^{-1}\exp(-r\alpha)$. 
+The particular class of CRM is determined by the \Levy measure $\rho(r)$. For our application, we set $\rho(r) = r^{-1}\exp(-r\alpha)$;
+this results in a CRM called the Gamma process ($\Gamma$P) \citep{applebaum2004}. 
 The Gamma process has the convenient property that the 
 total rate $R \equiv R(\Theta) = \sum_{i=1}^{\infty} r_i$ is Gamma distributed (and thus conjugate to the Poisson process prior on $E$).
 %\footnote{We abuse notation by using $R$ to denote both the measure as well as the total measure of $\Theta}
 %The Gamma distribution has shape parameter $1$ and scale parameter $\alpha$.  Since this is finite almost surely, so too is $E$. 
 The Gamma process is also closely connected with the Dirichlet process \citep{Ferguson73}, which will prove useful
 later on.
-Other choices of the \Levy intensity can be used to capture greater uncertainty in the number of neurons active in any finite interval, power-law 
-behaviour etc.
+Other choices of the \Levy intensity can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
+power-law behaviour in the number of spikes emitted by different neurons.
 
-To complete the specification on the Gamma process, we need to set the base-measure $H(\theta^*)$.
+To complete the specification on the Gamma process, we need to choose a base-measure $H(\theta^*)$.
 Recalling that $\theta^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by$ of each neuron; we set $H(\theta^*)$ 
 to be the conjugate normal-Wishart distribution. Our overall model is then:
 \begin{align}
@@ -124,21 +129,26 @@ to be the conjugate normal-Wishart distribution. Our overall model is then:
 
 It will be more convenient to work with the marked Poisson process representation of equations \ref{eq:spk_sup} and \ref{eq:spk_shape}. 
 The superposition process $E$ is a rate $R$ Poisson process,
-and under a Gamma process prior, $R$ has a conjugate Gamma distribution with shape and scale parameters $1$ and $\alpha$ respectively \citep{Ferguson73}.
-As we saw, the labels $\theta_i$ assigning events to neurons are drawn i.i.d. from a normalized Gamma process $G(\dd \theta)$:
+and under a Gamma process prior, $R$ has a Gamma distribution with shape and scale parameters $1$ and $\alpha$ respectively \citep{Ferguson73}.
+As we saw (equation \eqref{eq:mark_distr}), the labels $\theta_i$ assigning events to neurons are drawn i.i.d. from a normalized Gamma 
+process $G(\dd \theta)$:
 \begin{align}
  G(\dd \theta) = \frac{1}{R} \sum_{j=1}^{\infty} r_j
 \end{align}
-$G(\dd \theta)$ is a random probability measure that belongs to a class called normalized random measures \citep{JamesLP09}. Importantly, a 
-normalized Gamma process is the Dirichlet process \citep{Ferguson73}, so that $G$ is a draw from a Dirichlet process. For the $j$ spike, given its 
-parameter $\theta_j)$, its shape vector is drawn from a normal distribution
+$G(\dd \theta)$ is a random probability measure called a \emph{normalized random measure} \citep{JamesLP09}. Importantly, a 
+normalized Gamma process is the Dirichlet process (DP) \citep{Ferguson73}, so that $G$ is a draw from a Dirichlet process. For the $j$ spike in $E$, given its 
+parameter $\theta_j$, its shape vector is drawn from a normal distribution
 with parameters $(\mu_{j}, \Sigma_{j})$. Thus the spike parameters $\theta$ are i.i.d.\ draws from a Dirichlet process, while the weight vectors are
-draws from a DP mixture model of Gaussians \citep{Lo1984}.
+draws from a DP mixture model of Gaussians (DPMM) \citep{Lo1984}.
 
-With this insight, we can now marginalize out the infinite-dimensional rate vector $R(\cdot)$, and assign spikes to neurons via
-the Chinese restaurant process (CRP) \citep{Pit2002a}. Under the CRP, the $j$th spike is assigned the same parameter as an earlier spike with probability proportional 
-to the number of earlier spikes having that parameter. It is assigned a new parameter (and thus, a new neuron is observed) with probability proportional to
-$\alpha$.
+The connection with the DP allows us to simplify the representation of our model. In particular, we exploit the remarkable property of the DP that
+the the infinite-dimensional variable $G(\cdot)$ can be integrated out, with the observations marginally distributed according to a so called
+Po\'olya urn scheme \citep{BlaMac1973}. Under this scheme, the $j$th spike is assigned the same parameter as an earlier spike with probability 
+proportional to the number of earlier spikes having that parameter. It is assigned a new parameter (and thus, a new neuron is observed) with probability 
+proportional to $\alpha$. Closely related to this P\'olya urn scheme is the Chinese restaurant process (CRP) \citep{Pit2002a}, for simplicity,
+we shall treat both these processes as the same.
+The marginalization property of the DP allows us to integrate out the infinite-dimensional rate vector $R(\cdot)$, and assign spikes to neurons based
+on the assignment of earlier spike.
 %is assigned (or equivalently, the parameter $\theta$ associated with that neuron). These marks are drawn from a probability measure 
 %$G(\dd \theta) = \frac{1}{R} R(\dd \theta)$. From the properties of the Gamma process, the probability measure $G$ a Dirichlet process, 
 A final point is that for the Gamma process, the random probability measure $G(\cdot)$ is independent of the total mass $R(\Theta)$. 
