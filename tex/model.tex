@@ -141,28 +141,39 @@ parameter $\theta_j$, its shape vector is drawn from a normal distribution
 with parameters $(\mu_{j}, \Sigma_{j})$. Thus the spike parameters $\theta$ are i.i.d.\ draws from a Dirichlet process, while the weight vectors are
 draws from a DP mixture model of Gaussians (DPMM) \citep{Lo1984}.
 
-The connection with the DP allows us to simplify the representation of our model. In particular, we exploit the remarkable property of the DP that
-the the infinite-dimensional variable $G(\cdot)$ can be integrated out, with the observations marginally distributed according to a so called
-Po\'olya urn scheme \citep{BlaMac1973}. Under this scheme, the $j$th spike is assigned the same parameter as an earlier spike with probability 
+The connection with the DP allows us to simplify the representation of our model. In particular, we exploit a remarkable property of the DP that
+allows us to integrate out the infinite-dimensional variable $G(\cdot)$. The resulting marginal distribution over observations follows the so-called
+ Chinese restaurant process (CRP) \citep{Pit2002a}. Under this scheme, the $j$th spike is assigned the same parameter as an earlier spike with probability 
 proportional to the number of earlier spikes having that parameter. It is assigned a new parameter (and thus, a new neuron is observed) with probability 
-proportional to $\alpha$. Closely related to this P\'olya urn scheme is the Chinese restaurant process (CRP) \citep{Pit2002a}, for simplicity,
-we shall treat both these processes as the same.
-The marginalization property of the DP allows us to integrate out the infinite-dimensional rate vector $R(\cdot)$, and assign spikes to neurons based
-on the assignment of earlier spike.
+proportional to $\alpha$. Letting $C_t$ be the number of neurons observed until time $t$, and letting $n_i$ be the number of spikes produced by neuron $i$,
+we then have for spike $j$ at time $t = e_j$: 
+\begin{align}
+  P({\nu_j} = i) & \propto 
+  \begin{cases}
+   n_i \quad i \in \{1,\cdots, C_{t}\} \\
+   \alpha \quad\ i = C_{t} + 1 \\
+  \end{cases}  
+\label{eq:crp_marg_pr}
+\end{align}
+%\footnote{Strictly speaking, the process we just described is called a P\'olya urn scheme \citep{BlaMac1973}; for simplicity, we do not distinguish between this and the CRP.}.
+and $\theta_j = \theta^*_{\nu_j}$. 
+The marginalization property of the DP allows us to integrate out the infinite-dimensional rate vector $R(\cdot)$, and sequentially 
+assign spikes to neurons based on the assignments of earlier spikes.
 %is assigned (or equivalently, the parameter $\theta$ associated with that neuron). These marks are drawn from a probability measure 
 %$G(\dd \theta) = \frac{1}{R} R(\dd \theta)$. From the properties of the Gamma process, the probability measure $G$ a Dirichlet process, 
-A final point is that for the Gamma process, the random probability measure $G(\cdot)$ is independent of the total mass $R(\Theta)$. 
-Thus, the clustering of spikes is independent of the rate $R$ at which they are produced. We thus have
+To do so, we need one final property: for the Gamma process, the random probability measure $G(\cdot)$ is independent of the total mass $R(\Theta)$. 
+Consequently, the clustering of spikes (determined by $G(\cdot)$) is independent of the rate $R$ at which they are produced. We then have
  the following model equivalent to the one above:
 \begin{align}
   R & \sim \text{Gamma}(1,\alpha) \\
   E &\sim \text{PoissProc}(R) \\
-  \nu_j &\sim \text{CRP}(\alpha, H(\cdot)), \quad j = 1,\cdots, |E|   \label{eq:CRP}\\
-  y_e &\sim N(\mu_{\nu(e)}, \Sigma_{\nu(e)}), \quad  j = 1,\cdots, |E|   \label{eq:CRP_mix}\\
+  \theta_j &\sim \text{CRP}(\alpha, H(\cdot)), \quad j = 1,\cdots, |E|   \label{eq:CRP}\\
+  \by_j &\sim N(\mu_{j}, \Sigma_{j}), \quad  j = 1,\cdots, |E|   \label{eq:CRP_mix}\\
   x(t) &=   \sum_{j=1}^{|E|} \sum_{k=1}^K y_{jk} A_k(t - e_{j})
 \end{align}
-Unlike most applications which observe the outputs of a CRP, we observe a convolution-like functional of these outputs. This means that standard
-inference techniques cannot be directly applied. In section \ref{sec:inf}, we develop a novel online algorithm for posterior inference.
+Unlike most applications which observe the outputs of a CRP, out observation at any time $t$ a convolution-like function of the CRP outputs of all
+earlier times. Consequently, we cannot directly apply standard techniques for posterior inference. In section \ref{sec:inf}, we develop a novel online 
+algorithm for posterior inference; first, we provide a discrete-time approximation to our model.
 
 %For neuron $i$, the sequence of spike times is distributed as a Poisson process with random rate $r_i$.
 %Each event $e_{ij}$ is associated with a mark or label $y_{ij}$ drawn from a normal distribution (again, with random parameters).
@@ -172,30 +183,36 @@ inference techniques cannot be directly applied. In section \ref{sec:inf}, we de
 %one based on the Beta process-binomial process.
 
 \subsection{A discrete-time approximation}
-In the previous subsections, we modelled a continuous-time voltage waveform output by a neuron. Our data on the other hand consists of recordings
+In the previous subsections, we modelled the continuous-time voltage waveform output by a neuron. Our data on the other hand consists of recordings
 at a discrete set of times. While it is possible to make inferences about the continuous-time process that underlies these discrete recordings,
-in this paper, for simplicity, we restrict ourselves to the discrete case. We thus provide a discrete-time approximation to the model above, 
-this follows easily from the marked Poisson process characterization of the model.
+in this paper, for simplicity, we restrict ourselves to the discrete case. We thus provide a discrete-time approximation to the model above. 
+Our approximation follows easily from the marked Poisson process characterization of the model.
 
 Recall first the Bernoulli approximation to the Poisson process: a sample from a Poisson process with rate $R$ can be approximated by discretizing
-time at a granularity $\Delta$, and assigning each interval an event independently with probability $R\Delta$. The accuracy of this approximation increases 
+time at a granularity $\Delta$, and assigning each bin an event independently with probability $R\Delta$. The accuracy of this approximation increases 
 as $\Delta$ tends to $0$.
 %
 %This suggests the following approximation at a time resolution $\Delta$. Draw the random Poisson process rate $R$ drawn from a Gamma$(1,\alpha)$ 
 %distribution. Simultaneously, draw a random probability measure
 % $G$ from a Dirichlet process. Assign an event to an interval independently with probability $R\Delta$, and to each event, assign a random mark drawn 
-In our case, we have to approximate the marked Poisson process $E$. All we require additionally is to assign the marks $\theta_i$ and $\by_i$ to each event 
+In our case, we have to approximate the marked Poisson process $E$. All this requires additionally is to assign marks $\theta_i$ and $\by_i$ to each event 
 in the Bernoulli approximation. Following equations \eqref{eq:CRP} and \eqref{eq:CRP_mix}, the $\theta_i$'s are distributed according
-to a Chinese restaurant process, while each $\by_i$ is drawn from a normal distribution parametrized by the corresponding $\theta_i$. The elements
-of dictionary $\mathbf{A}$ are discretized as well, and each element is now a finite-dimensional vector instead of a function. We set the length of each
-dictionary element to $L$, so that $\bA$ is an $K$-by-$L$ matrix. The shape of the $j$th spike is now a vector of length $L$, and is given by $\bA \by$.
+to a Chinese restaurant process, while each $\by_i$ is drawn from a normal distribution parametrized by the corresponding $\theta_i$. We discretize the 
+elements of dictionary $\mathbf{A}$ as well, and each element is now a finite-dimensional vector instead of a function. We set the length of each
+dictionary element to $L$, so that $\bA$ is an $K$-by-$L$ matrix. The shape of the $j$th spike is now a vector of length $L$, and for a weight vector
+$\by$, is given by $\bA \by$.
 
-\subsection{Noise and nonstationarity}
-We have so far not considered measurement noise: in practice the signal recorded by an electrode is the neuron output corrupted by noise. 
-{\color{red} Biology}. Let $\epsilon_t$ be the noise at time $t$, we model this as independent of the signal, additive and Gaussian.
-However, rather than modelling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
-effects like the movement of electrodes during the experiment. Furthermore, rather than keeping the cluster parameters fixed, we model these as
-AR processes as well, capturing the evolution of the neuron shape distribution with time. {\color{red} Justify, eg cells dying}
+\subsection{Correlations in time and across electrodes}
+We now describe three extensions to the model outlined previously. The first is the inclusion of measurement noise: 
+{\color{red} Biology?}. Let $\epsilon_t$ be the noise at time $t$, we model this as independent, additive and Gaussian.
+%However, rather than modelling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
+%effects like the movement of electrodes during the experiment. 
 
-\subsection{Modelling multielectrode recordings}
-{\color{red} Not too much to add, but I need to talk to David. I will also given a mechanistic summary of the overall discrete time generative process}
+Our second extension allows the parameters of each neuron to evolve with time {\color{red} Justify, eg cells dying}. Recall that for neuron $i$, the 
+associated parameters are ($\mu^*_i, \Sigma^*_i$). We keep the covariance $\Sigma^*_i$ fixed, however we model the mean $\mu^*_i$ as a first-order
+autoregressive process. 
+
+Finally, all we have described so far is the input to a single electrode, our observations on the other hand are multielectrode recordings. 
+A simple approach has all electrodes having the same signal (but independent noise); we relax this by only requiring the signals to be
+correlated across electrodes {\color{red} Need to check how we set details of this correlation matrix}.
+than modelling
