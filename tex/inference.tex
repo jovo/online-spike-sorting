@@ -1,15 +1,47 @@
-We perform inference in an online manner \cite{WangDun2009}. As observations arrive, our inference algorithm decides whether or not a 
-new spike is present, which neuron (cluster) to assign that spike to, as well as the shape of the spike waveform. On the other hand, our algorithm 
-maintains a posterior distribution over the cluster parameters that characterize the distribution over shapes. Having identified the location and shape of 
-spikes from earlier times, we subtract these from the observations treat the residual as an observation from a DP mixture model.
-The cluster assignment of earlier spikes determines the seating arrangement of customers in the Chinese restaurant associated with the DP. Given the
-corresponding distribution over parameters, $p(\theta)$, we decide whether there is an underlying spike, which cluster it is assigned to, and what
-the shape of that spike is. We simultaneously update the distribution over parameters of clusters. Assume each spike waveform spans $W$ time intervals. 
-Define the residual at time $t$ as $X_t - \sum_{i=1}^W A$. At time $t$, let $y_t$ represent the shape of the action potential.
-Letting $\tilde{x}_t$ be the observation at time $t$, we have
+\newcommand{\tx}{\tilde{x}}
+
+We now address the problem of posterior inference over the latent variables gives the matrix $\bX$ of multielectrode recordings. Unsurprisingly, exact 
+inference is intractable, and we have to resort to approximating the posterior distribution.
+There exists a vast literature on approximate inference for nonparametric models, especially so for models based on the Dirichlet process.
+Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
+while recently there has also been work on constructing deterministic approximations to the intractable posterior (\citep{BleJor2006, MinGha2003}).
+Our problem is complicated by two factors. The first is the convolutional nature of our observation process, where we observe a functional of the 
+sequence of observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes the DPMM outputs themselves.
+The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
+Our goal, on the other hand, is ultimately to perform inference in real time, so that these batch approaches unsuitable for our purposes.
+
+With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on \cite{WangDun2009}, though this was 
+developed for the usual situation where one has i.i.d.\ observations drawn from a DPMM. We generalize this algorithm to our observation process, and to 
+account for the time-evolution of the cluster parameters and the Markov nature of the observation noise.
+
+At a high level, at time $t$, our inference algorithm maintains a set of the times of spikes underlying the observations until time $t$. It also maintains
+the identities of the neurons those spikes were assigned to, as well as the weight vectors determining the shapes of the associated spike waveforms.
+Besides these point estimates, we also maintains a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
+set of neurons associated with the spikes seen so far. For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
+$\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
+Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the observation at time $t+1$.
+We subtract this from the actual observation at time $t+1$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
+Given this, our algorithm then makes a hard decision about whether a spike is present, whether that spike belongs to one of the earlier neurons
+or a new neuron, and what the shape of the associated spike waveform is. We use this to recursively update the distribution over neuron parameters.
+We describe this recursive algorithm below.
+
+
 \begin{align}
-  z_t  & \sim Bern(p) \\
-  \intertext{\hspace{2in} if $z_t == 1$}
-  \gamma_t| \gamma_{1:t-1} &\sim CRP \\
-  \theta_t| \gamma_t = i & \sim \mathcal{N}(\theta_{t-1},\Sigma)
+  \tx_t = x_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
 \end{align}
+Given the spike statistics from earlier times, as well as the distribution over parameters, our algorithm decides whether there is a spike underlying
+the observations at time $t$, which cluster it is assigned to, and what
+the shape of that spike is. We simultaneously update the distribution over parameters of clusters. 
+
+Recall that each spike waveform spans $L$ time bins. 
+Lett $z_t$ indicate whether or not a spike is present at time $t$, and with $\by_t$ giving its shape. Equation \eqref{eq:resid} gives the residual 
+at time $t$, we must first decide whether or not there is a spike underlying this residual.
+By Bayes' rule,
+\begin{align}
+  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\gamma_t = 1}^{C_t} P(\tx_t, {\gamma_t} | z_t = 1) P(z_t = 1) \\
+  P(\tx_t | {\gamma_t} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{\gamma_t} (\theta_t | \gamma_t) \dd \theta_t
+\end{align}
+Having calculated $P(z_t = 1 | \tx_t)$, we decide that there is a spike present if this exceeds a threshold of $0.5$, otherwise, we set $z_t = 0$.
+In the event that we decide that a spike is present (after marginalizing over all possible cluster assignments), we simplify matters by assigning 
+the spike to the cluster with highest posterior probability. Similarly, we set the weight vector $\by_t$ to its MAP value.
+Given these two, we update the posterior distribution over parameters of the cluster recursively calculating $q_{t+1}$.
