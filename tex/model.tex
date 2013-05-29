@@ -181,9 +181,11 @@ of dictionary $\mathbf{A}$ are discretized as well, and each element is now a fi
 dictionary element to $L$, so that $\bA$ is an $K$-by-$L$ matrix. The shape of the $j$th spike is now a vector of length $L$, and is given by $\bA \by$.
 
 \subsection{Noise and nonstationarity}
-The signal recorded by an electrode is the neuron output corrupted by noise, we model this noise as independent of the signal, additive and Gaussian.
-However, rather than modelling the noise as independent across time bins, we model it as a first-order autoregressive process. This can capture
+We have so far not considered measurement noise: in practice the signal recorded by an electrode is the neuron output corrupted by noise. 
+{\color{red} Biology}. Let $\epsilon_t$ be the noise at time $t$, we model this as independent of the signal, additive and Gaussian.
+However, rather than modelling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
 effects like the movement of electrodes during the experiment. Furthermore, rather than keeping the cluster parameters fixed, we model these as
-AR processes as well, capturing the evolution of the neuron shape with time.
+AR processes as well, capturing the evolution of the neuron shape distribution with time. {\color{red} Justify, eg cells dying}
 
 \subsection{Modelling multielectrode recordings}
+{\color{red} Not too much to add, but I need to talk to David. I will also given a mechanistic summary of the overall discrete time generative process}
