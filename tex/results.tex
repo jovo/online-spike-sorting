@@ -14,7 +14,8 @@ add waveforms over time in PC space
 
 scatterplot of waveforms of TP, FP, and FN in PC space (either learned from all data or only these waveforms).  let's see whether the distributions look different at all in this space, which should inform us with regard to how well we are doing. perhaps plot ellipsoids (corresponding to level-sets) with means and covariances fit from the data
 
-show waveforms in 3b and 3c in PCA of channel 3 to show that they are overlapping
+show waveforms in 3b and 3c in PCA of channel 3 to show that they are overlapping. {\color{green} done}
+
 
 rotate 3a and 4a panels to be N rows and 1 column, rather than 1 row and N columns
 
@@ -51,7 +52,6 @@ The single-channel experiments were all run on channel 2 (the results were nearl
 
   The main empirical result of our contribution is that all variants of \smug~detect more true positives with fewer false positives
 than any of the other algorithms on the partial ground truth data (see Figure \ref{hc1res}).  
-\jovo{@dec: replace this fig with the fig using all 4 minutes.}
 Our improved sensitivity and specificity is \emph{despite} that \smug~is fully online, whereas all the algorithms that we compare to are batch algorithms using all data for all spikes.  Of the \smug~variants, both multi-channel (MC) variants outperformed variants utilizing only a single channel (see \S \ref{sub:multi} for more details).  Moreover, \smug~with time-varying distribution of waveforms yielded fewer false positives than \smug~with i.i.d.~waveforms, and both yielded the same number of true positives (see \S \ref{sub:adapt} for more details).  Perhaps most importantly, \smug~found more spikes than all the other algorithms, at least partially because it could detect overlapping spikes (see \S \ref{sub:overlap} for more details).
 
 
@@ -64,7 +64,7 @@ To get uncertainty estimates, we split the data into 10 random 2 minute segments
 The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6GB of memory.
 
 \jovo{@dec: i changed this to highlight that we used other data to learn the dictionary.  let's replace the figs with those results.}
-Because our method is fully online, we cannot use the data to estimate the dictionary weights. We therefore learn a dictionary via PCA applied to data from a \emph{different experiment} \jovo{can you provide details: same animal? same prob design? same lab?}.  Our approach is robust to such variations in the dictionary.  We also compare our results using the dictionary learned from the data, and obtain quantitatively quite similar results (see Figure \ref{sfig:truewaveforms} in the Supplementary materials).
+Because our method is fully online, we cannot use the data to estimate the dictionary weights. We therefore learn a dictionary via PCA applied to data from a the d566102 dataset in the HC-1 database.  This dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat. Our approach is robust to such variations in the dictionary.  We also compare our results using the dictionary learned from the data, and obtain quantitatively quite similar results (see Figure \ref{sfig:truewaveforms} in the Supplementary materials).
 
 % In these experiments we used features learned from the data, which is not always possible in an online algorithm.  However, since spikes are very similar it is possible to use a pre-learned dictionary from a similar dataset.  To show robustness with the choice of similar dictionaries, we used a dictionary learned offline on a similar tetrode implanted in the hippocampus of a different rat.  The results were similar and are shown in Figure \ref{hc1res} 
 % ({\color{red} will be added.  I've calculated the result, and it is within a few percent of the same result}).  
@@ -73,7 +73,7 @@ For the IC cluster, it is of interest to investigate the properties of the true 
 \begin{figure}
 \begin{subfigure}[b]{.49\textwidth}
 \centering
-\includegraphics[width=\textwidth]{../figs/clusterperm}
+\includegraphics[width=\textwidth]{../figs/truefalsepositive.pdf}
 \caption{}
 \label{hc1res}
 \end{subfigure}
@@ -100,7 +100,7 @@ In the tetrode case the waveform undoubtedly appears on all channels at once; it
 
 We use processed data from novel NeuroNexus devices implanted in the rat motor cortex.  The data was recorded at 32.5kHz in freely-moving rats, and the data was first processed by high-pass filtering at 800Hz.  The first device we consider is a set of 3 channels of data shown in Figure \ref{3dev}.  The neighboring electrode sites in these devices have 30 $\mu$m between electrode edges and 60 $\mu$m between electrode centers.  These devices are close enough that a locally-firing neuron could appear on multiple electrode sites (cite that paper on action potential overlap), and neighboring channels warrant joint processing.  The second, 8-channel device is shown in Figure \ref{8dev}, and has similar properties to the first device.
 
- The top 3 clusters found in the first 10 minutes of data on the 3-channel device are shown in Figures \ref{ex31}, \ref{ex32}, and \ref{ex33}.  The waveform in channel 3 is very similar for the waveforms in Figure \ref{ex31} and \ref{ex32}, and would be difficult to separate if we were analyzing each channel individually; we gain the ability to distinguish the waveforms by looking at all the channels simultaneously.  The top 3 clusters found in the 8-channel device can be found in Figures \ref{ex81}, \ref{ex82}, and \ref{ex83}.
+ The top 2 clusters found in the first 10 minutes of data on the 3-channel device are shown in Figures \ref{ex31}, \ref{ex32}.  The waveform in channel 3 is very similar for the waveforms in Figure \ref{ex31} and \ref{ex32}, and would be difficult to separate if we were analyzing each channel individually; the representation of those two clusters in PCA space on channel 3 is shown in Figure \ref{chpca}.  We gain the ability to distinguish the waveforms by looking at all the channels simultaneously.  The top 3 clusters found in the 8-channel device can be found in Figures \ref{ex81}, \ref{ex82}, and \ref{ex83}.
 
 {\color{red} perhaps add comments about time-evolution and the false positives we avoid by using multi-channel analysis}
 
@@ -137,11 +137,11 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 \label{ex32}
 \end{subfigure}
 \begin{subfigure}[b]{.24\textwidth}
-\includegraphics[width=\textwidth]{../figs/3devim/clus3}
+\includegraphics[width=\textwidth]{../figs/new/3chpca}
 \caption{}
-\label{ex33}
+\label{3chpca}
 \end{subfigure}
-\caption{(a)3 electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (b,c,d) Top 3 most prevalent waveforms.  Each waveform shape is 2ms long.   Note in (a) we have a waveform that appears on both channel 2 and channel 3, wheras in (b) the waveform only appears in channel 3.  If only channel 3 was used, it would be difficult to separate the waveform in (a) and (b).}
+\caption{(a)3 electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (b,c) Top 2 most prevalent waveforms.  Each waveform shape is 2ms long.   Note in (a) we have a waveform that appears on both channel 2 and channel 3, wheras in (b) the waveform only appears in channel 3.  If only channel 3 was used, it would be difficult to separate the waveform in (a) and (b), as is demonstrated in Figure (d) by the representation of detected spikes on the 3rd channel in PCA space.}
 \end{figure}
 \end{center}
 \begin{center}
