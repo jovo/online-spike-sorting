@@ -1,49 +1,7 @@
 \newcommand{\tx}{\tilde{x}}
-\newcommand{\bY}{\mathbf{Y}}
-
-\begin{algorithm}
-\caption{Generative mechanism for the multi-electrode, nonstationary, discrete-time process}\label{alg:gen_proc}
-\begin{tabular}{p{1.2cm}p{12.4cm}}
-Input:&  a) the number of bins $T$, and the bin-width $\Delta$\\
-  &  b) the $K$-by-$L$ dictionary $\bA$ of $K$ basis functions\\
-  &  c) the DP hyperparameters $\alpha$ and $\phi$. {\color{red} Introduce $\phi$ in main text}\\ 
-  &  d) the transition matrix $B$ of the neuron AR process \\
-Output:& \ \ An $\Upsilon$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
-\end{tabular}
-\begin{algorithmic}[1]
-\State Initialize the number of clusters $C$ to $0$.
-\State Draw the overall spiking rate $\Lambda \sim \text{Gamma}(1,\alpha)$.
-%\State Set $A_{s_i}(\tau) = \sum_j A_{s_i,j} (\tau)$ and define $u_{s_i}(\tau) \ge A_{s_i}(\tau) \forall \tau$. \label{alg:loop}
-%\State Let $\tau_o = (w_{i} - l_i)$. \label{alg:smjp_loop}
-\For{$t$ in $\{1, \cdots, T \} $}
-\State Sample $z_t \sim \text{Bernoulli}(\Lambda \Delta)$, with $z_t = 1$ indicating a spike in bin $t$.
-\If{$z_t = 1$}   \label{enum:thin}
-  \State Sample $\nu_t$, assigning the spike to a neuron, with
-%\begin{align*}
-$  P({\nu_t} = i) \propto 
-  \begin{cases}
-   n_i \quad i \in \{1,\cdots, C\} \\
-   \alpha \quad\ i = C + 1 \\
-  \end{cases}$
-%\end{align*}
-       \If{ $\nu_t = C + 1$} 
-          \State Increment $C$. Set $\theta^*_{C} \sim H(\cdot)$, and $n_C$=1.
-       \Else \State Increment $n_{\nu_t}$.
-    \EndIf
-\State Set $\theta_t = \theta^*_{\nu_t}$, and recall that $\theta_t \equiv (\mu_t, \Sigma_t)$.
-\State Sample $\bY_t %\equiv (\by_{t1}, \cdots, \by_{t\Upsilon}) 
-           \sim \mathcal{N}(\mu_t, \Sigma \otimes K)$, determining the spike shape at all electrodes.
-%\State $\bx^h_{t:t+L} = A\by^h$
-\EndIf
-
-\State Update the cluster parameters: ${\mu}^*_i = \mathbf{B} {\mu}^*_i + r_i \quad i \in \{1, \cdots, C\}$
-\EndFor
-\State $\bX = \bX + \mathbf{\epsilon}$
-\end{algorithmic}
-\end{algorithm}
 
 
-We now address the problem of posterior inference over the latent variables gives the matrix $\bX$ of multielectrode recordings. Unsurprisingly, exact 
+We now address the problem of posterior inference over the latent variables given the matrix $\bX$ of multielectrode recordings. Unsurprisingly, exact 
 inference is intractable, and we have to resort to approximating the posterior distribution.
 There exists a vast literature on approximate inference for Bayesian nonparametric models, especially so for models based on the Dirichlet process.
 Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
@@ -67,31 +25,32 @@ For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parame
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
 
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recording $x_{t+1}$ at time $t+1$.
-We subtract this term from $x_{t+1}$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
+We subtract this term from $x_{t+1}$, and treat the residual $\mt{\bx}_{t+1}$ as an observation from a DP mixture model.
 Given this residual, our algorithm then makes a hard decision about whether or not this was produced by an underlying spike, what neuron that spike belongs 
 to (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
 $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
 
 
-Below, we describe each of these steps for the case a single electrode. Most steps are repeated across all electrodes; 
-we will point out when the need for anything more complicated arises. We start by recalling that the basis functions $\bA_i$, and thus all spike waveforms,
+Below, we describe each of these steps for the case a single electrode; %Most steps are repeated across all electrodes; 
+%we will point out when the need for anything more complicated arises. 
+generalizing to the multielectrode case is straightforward. We start by recalling that the basis functions $\bA_i$, and thus all spike waveforms,
 span $L$ time bins. 
 Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
 The residual at time $t$ is then given by
 \begin{align}
-  \tx_t = x_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
+  \mt{\bx}_t = \bx_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
 \end{align}
 Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,
 \begin{align}
-  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\tx_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
+  P(z_t = 1 | \mt{\bx}_t)  &\propto P(z_t = 1,  \mt{\bx}_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\mt{\bx}_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
 \intertext{Recall that $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $n_i$ be the number of spikes from 
 neuron $i$,  $P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}). On the other hand,}
-  P(\tx_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
+  P(\mt{\bx}_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\mt{\bx}_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
 \end{align}
-Here,  $P(\tx_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$, while we restrict $q_{it}(\cdot)$ be the 
+Here,  $P(\mt{\bx}_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$, while we restrict $q_{it}(\cdot)$ be the 
 normal-Wishart distribution. % with parameters 
-We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to calculate $P(z_t = 1 | \tx_t)$. 
+We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to calculate $P(z_t = 1 | \mt{\bx}_t)$. 
 If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $z_t = 0$.
 Observe that making this decision involves marginalizing over all possible cluster assignments $\nu_t$, and all values of the weight vector $\by_t$.
 On the other hand, having decided that a spike is present , we simplify matters collapsing these posterior distributions to point estimates. In
