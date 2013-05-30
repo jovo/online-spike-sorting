@@ -1,13 +1,61 @@
 \subsection{Performance on partial ground truth data}
-Experiments were performed on a subset of the publicly available\footnote{http://crcns.org/data-sets/hc/hc-1/} dataset described in \cite{Henze2000}.  We used the dataset d533101 that consisted of an extracellular tetrode and a single intracellular electrode.  The recording was made simultaneously on all electrodes and was set up such cell with the intracellular electrode was also recorded on the extracellular array implanted in the hippocampus of an anesthetized rat.
 
-The intracellular recording is relatively noiseless and gives nearly certain firing times of the intracellular neuron.  The extracellular recording contains the spike waveforms from the intracellular neuron as well as an unknown number of additional neurons.  The data is a 4-minute recording at a 10kHz sampling rate and preprocessed with a high-pass filter at 800 Hz.
+\jovo{need to discuss preprocessing
 
-Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we are only able to analyze whether a spike comes from the intracellular (IC) recording or not.  In these experiments, we define a detected spike to be an IC spike if the IC recording has a spike within .5ms of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the "IC cluster."  In order to run replicates of the data to get uncertainty estimates, we split the data into 10 random 2 minute segments and process them with the algorithms.  The results on the IC cluster are shown in Figure \ref{hc1res} ({\color{red} plot will be changed to reflect this}).  The single-channel experiments were all run on channel 2 (the results were nearly identical for all channels).  The spike detections for the offline methods were given by using a threshold at 3 times the noise standard deviation \cite{Lewicki}. (Need to do more comparisons and descriptions) and windowed at a size $P=30$ (check if $P$ matches with Vinayak notation).  The action potential window was set at 30, and PCA was used to reduce the space to $K$=3 for the experiments.  The results were very similar for $K$=2, $K$=3, and $K$=4.   On the full 4-minute dataset, there were 3742 spikes detected with the threshold, and 753 of those corresponded to the intracellular spikes.  The PCA learned from the thresholded spikes was used as an input to the online algorithms.  For comparison, the algorithms we implemented here detected 3593 spikes of which 840 were intracellular spikes; this means we detected fewer total "spikes" while capturing more of the intracellular spikes. ({\color{red}  Is it worthwhile to give a plot showing what we don't detect that a threshold does and vice versa?})
+fig 1a: include all data in main, in supplement, include current 1a and with errorbars
 
-The online algorithms were all run with weakly informative parameters (add parameters once I get vinayak's notation). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2GHzIntel Core i5 machine with 6GB of memory.
+table of run times
 
-In these experiments we used features learned from the data, which is not always possible in an online algorithm.  However, since spikes are very similar it is possible to use a pre-learned dictionary from a similar dataset.  To show robustness with the choice of similar dictionaries, we used a dictionary learned offline on a similar tetrode implanted in the hippocampus of a different rat.  The results were similar and are shown in Figure \ref{hc1res} ({\color{red} will be added.  I've calculated the result, and it is within a few percent of the same result}).  For the IC cluster, it is of interest to investigate the properties of the true positives, the false positives, as well as the IC spikes that are missed by the algorithm.  Errorbar plots for these groups are shown in Figure \ref{truewaveforms}; this figure demonstrates the great similarity of the true positives and the false positives, while the missed positives (spike waveforms not detected or not in the IC cluster) have high variability and a different mean shape.
+compare with DPMM
+
+check matlab initializes with hierarchical clustering for GMM \& k-means
+
+add waveforms over time in PC space
+
+scatterplot of waveforms of TP, FP, and FN in PC space (either learned from all data or only these waveforms).  let's see whether the distributions look different at all in this space, which should inform us with regard to how well we are doing. perhaps plot ellipsoids (corresponding to level-sets) with means and covariances fit from the data
+
+show waveforms in 3b and 3c in PCA of channel 3 to show that they are overlapping
+
+rotate 3a and 4a panels to be N rows and 1 column, rather than 1 row and N columns
+
+show that we capture waveform adaptation, via showing the $\mu$ moving around in PC space
+
+show 10 waveforms of AR and non-AR means \& errorbars over time 
+
+
+for overlapping, show in black dashed lines, the "expected" trace (sum of overlapping),
+and beside that, show the three time-varying residuals, reporting the sum-squared residuals
+
+then let's plot the two distributions of sum-squared-residuals (one for assuming overlapping, one for only the ground-truth neuron).  depending on how different those two distributions look and what they look like, we can test to demonstrate the differences.
+
+
+}
+
+\subsection{Data}
+
+Experiments were performed on a subset of the publicly available\footnote{http://crcns.org/data-sets/hc/hc-1/} dataset described in \cite{Henze2000}.  We used the dataset d533101 that consisted of an extracellular tetrode and a single intracellular electrode.  The recording was made simultaneously on all electrodes and was set up such cell with the intracellular electrode was also recorded on the extracellular array implanted in the hippocampus of an anesthetized rat. \jovo{We pre-processed the data via .... (did we ``cheat'' in this pre-processing, ie, include future info?)}
+
+The intracellular recording is relatively noiseless and gives nearly certain firing times of the intracellular neuron.  The extracellular recording contains the spike waveforms from the intracellular neuron as well as an unknown number of additional neurons.  The data is a 4-minute recording at a 10 kHz sampling rate and preprocessed with a high-pass filter at 800 Hz. \jovo{@dec: always a space between \# and unit.  i fixed throughout.}
+
+Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we are only able to analyze whether a spike comes from the intracellular (IC) recording or not.  In these experiments, we define a detected spike to be an IC spike if the IC recording has a spike within 0.5 ms \jovo{@dec: always ``0.'' prior to fraction, because ``.'' is easy to miss.} of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the ``IC cluster'' \jovo{@dec: double quote, latex style please}.   
+
+
+LMPP
+
+\subsection{Results}
+
+The results on the IC cluster are shown in Figure \ref{hc1res} ({\color{red} plot will be changed to reflect this}).  The single-channel experiments were all run on channel 2 (the results were nearly identical for all channels).  The spike detections for the offline methods used a threshold of 3 times the noise standard deviation \cite{Lewicki}. (Need to do more comparisons and descriptions) and windowed at a size $P=30$ (check if $P$ matches with Vinayak notation) \jovo{vinayak uses $L$, i believe}.  The action potential window was set to 30, and PCA was used to reduce the space to $K$=3 for the experiments.  The results were very similar for $K$=2, $K$=3, and $K$=4.   On the full 4-minute dataset, there were 3742 spikes detected with the threshold, and 753 of those corresponded to the intracellular spikes.  The PCA learned from the thresholded spikes was used as an input to the online algorithms.  For comparison, the algorithms we implemented here detected 3593 spikes of which 840 were intracellular spikes; this means we detected fewer total "spikes" while capturing more of the intracellular spikes. ({\color{red}  Is it worthwhile to give a plot showing what we don't detect that a threshold does and vice versa?})
+To get uncertainty estimates, we split the data into 10 random 2 minute segments and process them with the algorithms. The results are qualitatively similar (see Figure \ref{sfig:hc1res}).
+
+
+The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6GB of memory.
+
+\jovo{@dec: i changed this to highlight that we used other data to learn the dictionary.  let's replace the figs with those results.}
+Because our method is fully online, we cannot use the data to estimate the dictionary weights. We therefore learn a dictionary via PCA applied to data from a \emph{different experiment} \jovo{can you provide details: same animal? same prob design? same lab?}.  Our approach is robust to such variations in the dictionary.  We also compare our results using the dictionary learned from the data, and obtain quantitatively quite similar results (see Figure \ref{sfig:truewaveforms} in the Supplementary materials).
+
+% In these experiments we used features learned from the data, which is not always possible in an online algorithm.  However, since spikes are very similar it is possible to use a pre-learned dictionary from a similar dataset.  To show robustness with the choice of similar dictionaries, we used a dictionary learned offline on a similar tetrode implanted in the hippocampus of a different rat.  The results were similar and are shown in Figure \ref{hc1res} 
+% ({\color{red} will be added.  I've calculated the result, and it is within a few percent of the same result}).  
+For the IC cluster, it is of interest to investigate the properties of the true positives, the false positives, as well as the IC spikes that are missed by the algorithm.  Errorbar plots for these groups are shown in Figure \ref{truewaveforms}; this figure demonstrates the great similarity of the true positives and the false positives, while the missed positives (spike waveforms not detected or not in the IC cluster) have high variability and a different mean shape.
 \begin{center}
 \begin{figure}
 \begin{subfigure}[b]{.49\textwidth}

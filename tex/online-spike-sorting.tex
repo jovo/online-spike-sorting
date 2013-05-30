@@ -16,7 +16,7 @@
 %\documentstyle[nips13submit_09,times,art10]{article} % For LaTeX 2.09
 
 
-\title{Real-Time Bayesian Inference for a Latent Marked Poisson Process: Applications in Spike Sorting}
+\title{Real-Time Nonparametric Bayesian Inference  for  Spike Sorting}
 
 
 \author{
@@ -114,8 +114,11 @@ Address \\
 \newcommand{\bth}{\mb{\theta}}
 
 \usepackage{color}
-\newcommand{\jovo}[1]{{\color{magenta}{\it #1}}}
+\newcommand{\jovo}[1]{{\color{blue}{\it #1}}}
+\newcommand{\dec}[1]{{\color{red}{\it #1}}}
 \newcommand{\eps}{\varepsilon}
+\providecommand{\sct}[1]{{\sc \texttt{#1}}}
+\newcommand{\smug}{\sct{Smug}}
 
 
 %\nipsfinalcopy % Uncomment for camera-ready version
@@ -126,8 +129,7 @@ Address \\
 \maketitle
 
 \begin{abstract}
-
-
+\input{abstract.tex}
 \end{abstract}
 
 \section{Introduction}
@@ -142,11 +144,12 @@ Address \\
 \section{Inference} \label{sec:inf}
 \input{inference.tex}
 
-\section{Results}
+\section{Experiments}
 \input{results.tex}
 
  
 \section{Discussion}
+\input{discussion.tex}
 
 1 paragraph on:
 \begin{enumerate}
