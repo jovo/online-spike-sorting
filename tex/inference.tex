@@ -1,33 +1,41 @@
 \newcommand{\tx}{\tilde{x}}
+\newcommand{\bY}{\mathbf{Y}}
 
-%       \begin{algorithm}
-%       \caption{State-dependent thinning for sMJPs}\label{alg:smjp_unif}
-%       \begin{tabular}{p{1.2cm}p{12.4cm}}
-%       Input:&  Hazard functions $A_{ss'}(\cdot)\ \forall s,s' \in \mathcal{S}$, and an initial distribution over states $\pi_0$. \\ 
-%        & Dominating hazard functions $B_{s}(\tau) \ge A_{s}(\tau)\ \forall \tau, s$, where $A_{s}(\tau) = \sum_{s'} A_{ss'} (\tau)$. \\
-%       Output:& A piecewise constant path $(V,L,W) \equiv (v_i, l_i, w_i)$ on the interval $[t_{start},t_{end}]$. % defined by a set of state and time pairs.
-%       \end{tabular}
-%       \begin{algorithmic}[1]
-%       \State Draw $v_0 \sim \pi_0$ and set $w_0 = t_{start}$. Set $l_0 = 0$ and $i = 0$.
-%       %\State Set $A_{s_i}(\tau) = \sum_j A_{s_i,j} (\tau)$ and define $u_{s_i}(\tau) \ge A_{s_i}(\tau) \forall \tau$. \label{alg:loop}
-%       %\State Let $\tau_o = (w_{i} - l_i)$. \label{alg:smjp_loop}
-%       \While{$w_i < t_{end}$}
-%       \State Sample $\tau_{hold} \sim B_{v_i}(\cdot), \text{\ with } \tau_{hold} > l_i$.
-%              Let $\Delta w_i = \tau_{hold} - l_i$, and $w_{i+1} = w_i + \Delta w_i$. 
-%       %\State Sample $\tau_n \sim B_{v_i}(\tau_n) \exp \left( -\int_{\tau_o}^{\tau_n} B_{v_i}(\tau) d\tau \right), \text{\ conditioned on } \tau_n > \tau_o$.
-%       %       Let $w_{i+1} = \tau_n + l_i$. 
-%       \If{$\frac{A_{v_i}(\tau_{hold})}{B_{v_i}(\tau_{hold})}$}   \label{enum:thin}
-%         \State Set $l_{i+1} = 0$, and sample $v_{i+1}$, with $P(v_{i+1} = s'|v_i) \propto A_{v_is'}(\tau_{hold}),\ s' \in \mathcal{S}$.   \label{enum:sample}
-%       \Else
-%         \State Set $l_{i+1} = l_i + \Delta w_i$, and $v_{i+1} = v_i$.
-%       \EndIf
-%       %\State Define $q_j = \frac{A_{v_ss'}(\tau_n)}{B_{v_i}(\tau_n)}\ \forall j \in \mathcal{S}$ and $q_0 = 1 - \sum_{j \in  \cS} q_j$.% = 1 - \frac{A_{v_i}(\tau)}{u_{v_i}(\tau)}$.
-%       %\State Sample $v_{i+1} \sim q$. If $v_{i+1} \neq 0$, set $l_{i+1} = w_{i+1}$; else set $v_{i+1}$ to $v_i$ and $l_{i+1} = l_i$.
-%       \State Increment $i$.
-%       \EndWhile
-%       \State Set $w_{|W|} = t_{end}$, $v_{|W|} = v_{|W|-1}$, $l_{|W|} = l_{|W|} + w_{|W|} - w_{|W|-1}$. 
-%       \end{algorithmic}
-%       \end{algorithm}
+\begin{algorithm}
+\caption{Generative mechanism for the multi-electrode, nonstationary, discrete-time process}\label{alg:gen_proc}
+\begin{tabular}{p{1.2cm}p{12.4cm}}
+Input:&  The number of bins $T$, and the bin-width $\Delta$\\
+  & The DP concentration parameter $\alpha$, and the hyperparameters of the base-measure $H(\cdot)$\\ 
+ & Decay parameter of the neuron parameter \\
+Output:& An $H$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
+\end{tabular}
+\begin{algorithmic}[1]
+\State Initialize the number of clusters $C = 0$.
+\State Draw the overall spiking rate $R \sim \text{Gamma}(1,\alpha)$.
+%\State Set $A_{s_i}(\tau) = \sum_j A_{s_i,j} (\tau)$ and define $u_{s_i}(\tau) \ge A_{s_i}(\tau) \forall \tau$. \label{alg:loop}
+%\State Let $\tau_o = (w_{i} - l_i)$. \label{alg:smjp_loop}
+\For{$t \le T$}
+\State Sample $z_t \sim \text{Bernoulli}(R\Delta)$. $z_t = 1$ indicates a spike in bin $t$.
+\If{$z_t = 1$}   \label{enum:thin}
+  \State Set $\mu_t$, assigning the spike to neuron $i$, with
+\begin{align}
+  P({\nu_t} = i) & \propto 
+  \begin{cases}
+   n_i \quad i \in \{1,\cdots, C\} \\
+   \alpha \quad\ i = C + 1 \\
+  \end{cases}
+\end{align}
+\State If{ $\nu_t = C + 1$}, set $\theta^*_{C+1} \sim H(\cdot)$, and increment $C$.
+\State Set $\theta_t = \theta^*_{\nu_t}$.
+\State $\bY \sim \mathcal{N}(\mu_t, \Sigma_t \otimes K)$
+\State $\bx^h_{t:t+L} = A\by^h$
+\EndIf
+
+\State Update the cluster parameters following the AR process: $$\mu^*_i = \mathbf{A} \mu^*_i + r_i \quad i \in \{1, \cdots, C\}$$
+\EndFor
+\State $\bX = \bX + \mathbf{\epsilon}$
+\end{algorithmic}
+\end{algorithm}
 
 
 We now address the problem of posterior inference over the latent variables gives the matrix $\bX$ of multielectrode recordings. Unsurprisingly, exact 
@@ -35,14 +43,15 @@ inference is intractable, and we have to resort to approximating the posterior d
 There exists a vast literature on approximate inference for Bayesian nonparametric models, especially so for models based on the Dirichlet process.
 Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
 and recently there has also been work on constructing deterministic approximations to the intractable posterior (eg.\ \citep{BleJor2006, MinGha2003}).
-Our problem is complicated by two factors. The first is the convolutional nature of our observation process, where we observe a functional of the 
-sequence of observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes the DPMM outputs themselves.
+Our problem is even more challenging because of two factors. The first is the convolutional nature of our observation process, where at each time,
+we observe a function of the previous observations drawn from a DP mixture model. This is in contrast to the usual situation where one directly observes 
+the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
-Our ultimate goal, on the other hand, is to perform inference in real time, so that these batch approaches are unsuitable for our purposes.
+Our ultimate goal, on the other hand, is to perform inference in real time, making these approaches are unsuitable for our purposes.
 
-With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on \cite{WangDun2009}, though this was 
-developed for the usual case of i.i.d.\ observations drawn from a DPMM. We generalize this algorithm to our observation process, and also 
-to account for the time-evolution of the cluster parameters and the Markov nature of the observation noise.
+With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on 
+\citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize this algorithm to our 
+observation process, and also to account for the time-evolution of the cluster parameters.
 
 At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations until time $t$. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
@@ -50,15 +59,16 @@ waveforms. In addition to these point estimates, the algorithm also maintains a 
 set of neurons associated with the spikes seen so far. Let the number of unique neurons observed at time $t$ be $C_t$, so that $i$ varies from $1$ to $C_t$.
 For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
+
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recording $x_{t+1}$ at time $t+1$.
 We subtract this term from $x_{t+1}$, and treat the residual $\tx_{t+1}$ as an observation from a DP mixture model.
 Given this residual, our algorithm then makes a hard decision about whether or not this was produced by an underlying spike, what neuron that spike belongs 
 to (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
 $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
-We describe it in more detail below.
 
 
-Recall that each spike waveform spans $L$ time bins. 
+We provide a more detailed discussion in the following.
+Recall that the basis functions $\bA_i$, and thus all spike waveforms, span $L$ time bins. 
 Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ is associated neuron. 
 The residual at time $t$ is then given by
 \begin{align}
