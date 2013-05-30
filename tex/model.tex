@@ -26,12 +26,12 @@ There is a rich literature characterizing the spiking activity of a single neuro
 refractoriness and spike waveform. We however make a number of simplifying assumptions (some of which we later relax, others we leave
 for future work). Figure \ref{fig:schematic} provides a schematic depiction of our generative process.
 First, we model the spiking activity of each neuron as stationary and memoryless, so that its set of spike times are 
-distributed as a homogeneous Poisson process. 
+distributed as a homogeneous Poisson process (PP). 
 {\color{red} justify?} We model the neurons themselves are heterogeneous, with the $i^{th}$ neuron having
 an (unknown) firing rate $\lambda_i$. Call the ordered set of spike times of the $i^{th}$ neuron $\mc{T}_i$; then the time between successive elements of $\mc{T}_i$ is 
 exponentially distributed with mean $1/\lambda_i$. We write this as
 \begin{align}
-  \mc{T}_i &\sim \text{PoissProc}(\lambda_i)
+  \mc{T}_i &\sim \text{PP}(\lambda_i)
 \end{align}
 The actual electrical output of a neuron is not binary; instead each spiking event is a smooth perturbation in voltage about a
 resting state. This perturbation forms the shape of the spike, and without any loss of generality, we set the resting state to zero. 
@@ -50,13 +50,13 @@ We assume the noise is independent and  identically distributed Gaussian noise a
 We model the random spike shapes themselves as weighted superpositions of a dictionary of $K$ basis functions $\bd(t) \equiv (d_1(t), \cdots, d_K(t))\T$. The
 dictionary elements are shared across all neurons, and each is a real-valued function of time, e.g., $d_k \in L_2$.
 For the $i^{th}$ neuron, the $j^{th}$ spike $\tau_{ij} \in \mc{T}_i$, is associated with a random $K$-dimensional weight vector $\tby_{ij} \equiv (\ty_{ij1}, \ldots \ty_{ijK})\T$, and the 
-shape of this spike is given by the weighted sum $\sum_{k=1}^K \ty_{ijk} d_k(t)$. We assume $\tby_{ij} \sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i)$ indicating a $K$-dimensional Gaussian distribution with mean $\mb{\mu}^*_i$ and covariance $\Sigma^*_i$.   Then, at any time $t$, the output of neuron $i$ is
+shape of this spike at time $t$ is given by the weighted sum $\sum_{k=1}^K \ty_{ijk} d_k(t)$. We assume $\tby_{ij} \sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i)$, indicating a $K$-dimensional Gaussian distribution with mean $\mb{\mu}^*_i$ and covariance $\Sigma^*_i$.   Then, at any time $t$, the output of neuron $i$ is
 \begin{align}
-  x_{i}(t) &= \sum_{j=1}^{|\mc{T}_i|} \sum_{k=1}^K \ty_{ijk} d_k(t - \tau_{ij})
+  x_{i}(t) &= \sum_{j=1}^{|\mc{T}_i|} \sum_{k=1}^K \ty_{ijk} d_k(t - \tau_{ij}).
 \end{align}
-
-
-
+% 
+% 
+% 
 % \begin{center}
 % \begin{figure}
 % % \includegraphics[width=\textwidth]{../figs/truefalsepositive}
@@ -64,27 +64,24 @@ shape of this spike is given by the weighted sum $\sum_{k=1}^K \ty_{ijk} d_k(t)$
 % \label{fig:schmetic}
 % \end{figure}
 % \end{center}
-
+% 
 {The total signal recorded from any electrode  is the superposition of the outputs of all neurons. Assume for the moment there are $N$
 neurons, and define $\mc{T} = \cup_{i \in [N]} \mc{T}_i$ as
 the (ordered) union of the spike times of all neurons. 
 Let $\tau_l \in \mc{T}$ indicate the time of $l^{th}$ overall spike, whereas $\tau_{ij} \in \mc{T}_i$ is the $j^{th}$ spike of neuron $i$.
 %To map elements  $\tau_{ij} \in \mc{T}_i$ to elements  $\tau_l \in \mc{T}$,   
 This defines a pair of mappings: $\nu:[\mc{T}]\rightarrow [N]$, and $p:[\mc{T}]\rightarrow \mc{T}_{\nu(i)}$, with %$(i = \nu(l))$, , which maps from the $j^{th}$ spikes of neuron $i$ to the $l^{th}$ overall spike.
-$\tau_l = \tau_{\nu_l p_l}$. In words, $\nu_l \in N$ is the neuron to which the $l^{th}$ element of $\mc{T}$ belongs, 
-while $p_l$ indexes the position of this spike in the spike train $\mc{T}_{\nu_l}$.
+$\tau_l = \tau_{\nu_l p_l}$. \jovo{i don't think the square brackets around $\mc{T}$ are correct, we are mapping from the set of spikes, not the number of spikes, right?} In words, $\nu_l \in N$ is the neuron to which the $l^{th}$ element of $\mc{T}$ belongs, 
+while $p_l$ indexes the position of this spike in the spike train $\mc{T}_{\nu_l}$\jovo{``position'' is weird to me.  can we say: ``indexes which spike of neuron $\nu_l$'', or something like that?}.
 Let $\bth_l \equiv (\mb{\mu}_l, \Sigma_l)$ be the neuron parameter associated with spike $l$, so that $\bth_l = \bth^*_{\nu_l}$. 
-% Furthermore, let $p_j \from \mc{T} \to \mc{T}_j$ index the position of spike $j$ of $\mc{T}$ in $\mc{T}_{\nu_j}$.
-% , the spike train of neuron $\nu_j$. 
-%Thus $\tau_l = \tau_{\nu_l j}$ is the $j^{th}$ spike of neuron $\nu_l$. 
 Finally, define $\by_l=(y_{l1}, \ldots, y_{lK})\T \equiv \tby_{\nu_j p_j}$ as the weight vector of spike $\tau_l$. Then, we have that}
-\begin{subequations}
+% \begin{subequations}
 \begin{align}
-  x(t) &= \sum_{i \in [N]} x_{i}(t) =   \sum_{l \in |\mc{T}|} \sum_{k \in [K]} y_{lk} d_k(t - \tau_{l}),  \label{eq:spk_sup} \\
+  x(t) &= \sum_{i \in [N]} x_{i}(t) =   \sum_{l \in |\mc{T}|} \sum_{k \in [K]} y_{lk} d_k(t - \tau_{l}), \qquad %\label{eq:spk_sup} \\
 % \intertext{where}
-  \by_{l} & \sim \mc{N}_K(\mb{\mu}_{l}, \Sigma_{l}). \label{eq:spk_shape}
+  \text{ where } \by_{l}  \sim \mc{N}_K(\mb{\mu}_{l}, \Sigma_{l}). \label{eq:spk}
 \end{align}
-\end{subequations}
+% \end{subequations}
 % 
 From the superposition property of the Poisson process \citep{kingman93}, the overall spiking activity $\mc{T}$ is a 
 Poisson process with rate $\Lambda = \sum_{i \in [N]} \lambda_i$. Each event $\tau_l \in \mc{T}$ is associated with a pair of labels, the parameter of the neuron to which it 
@@ -95,13 +92,12 @@ marked Poisson process $\mc{T}$.  From the properties of the Poisson process, we
 \end{align}
 Note that with probability one, the neurons have distinct parameters, so that the mark $\bth_l$ associated with spike $l$ identifies the
 neuron which produced it: $G(\bth_l = \bth^*_i) = P(\nu_l= i) = \lambda_i/\Lambda$. Given $\bth_l$, $\by_l$ is distributed as in
-Eq.~\eqref{eq:spk_shape}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process (Eq.~\eqref{eq:spk_sup}). 
+Eq.~\eqref{eq:spk}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process. % (Eq.~\eqref{eq:spk_sup}). 
 
 \subsection{Completely random measures (CRMs)}
 
 The previous section assumed a known number of neurons $N$. In practice however, our recordings are a superposition of the outputs of an unknown
-number of neurons. We deal with this uncertainty by taking a nonparametric Bayesian approach, and letting the number of neurons $N$ tend to infinity
-{\color{red} Can we provide a biological/electrical justification of this?}. 
+number of neurons. We deal with this uncertainty by taking a nonparametric Bayesian approach, and letting the number of neurons $N$ tend to infinity as the amount of time we measure for approaches infinity.  This makes sense in a biological context, in that as we record for longer (e.g., days, weeks, or months even), certain neurons will die or drop-out, and others will appear, simply by virtue of the electrodes moving, for example. 
 Such an approach leads to an elegant and flexible modeling framework, and has  already proved successful in neuroscience applications
 \citep{WoodBla2008}.
 Since only a finite number of spikes are observed in any finite interval, the total rate $\Lambda$ must 
@@ -117,7 +113,7 @@ Recall that each neuron is characterized by a pair of parameters $(\lambda_i, \b
 and the latter, over spike
 shapes. With Eq.~\eqref{eq:mark_distr} in mind, we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an atomic measure on $\Theta$:
 \begin{align}
-  \Lambda(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}
+  \Lambda(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}.
 \end{align}
 For any subset $\varTheta$ of $\Theta$, the measure $\Lambda(\varTheta)$ equals \( \sum_{\{ i: \bth^*_i \in \varTheta \} } \lambda_i\). We allow $\Lambda(\cdot)$ to be random,
 modeling it as a realization of a completely random measure. Such a random measure has the property that for any two disjoint subsets $\varTheta_1$,  $\varTheta_2 \subseteq \Theta$, the measures $\Lambda(\varTheta_1)$ and $\Lambda(\varTheta_2)$ are independent. 
@@ -125,7 +121,7 @@ This distribution over measures is induced by a distribution
 over the infinite sequence of weights (the $\lambda_i$'s), and a distribution over the sequence of their locations (the $\bth^*_i$'s). 
 For a CRM, the weights $\lambda_i$ are the jumps of a \Levy process \citep{Sato90}, and their distribution is characterized by a 
 \Levy measure $\rho(\lambda)$. The locations $\bth^*_i$ are drawn i.i.d.\  from a base probability measure $H(\bth^*)$.
-As is typical, we assume these to be independent (though this is not necessary). {\color{red} if there's space, I
+As is typical, we assume these to be independent (though this is not necessary). {\color{green} if there's space, I
 can elaborate on the construction of the CRM from its Levy measure, though this is not necessary}
 
 The particular class of CRM is determined by the \Levy measure $\rho(\lambda)$. For our application, we set $\rho(\lambda) = \lambda^{-1}\exp(-\lambda\alpha)$;
@@ -144,23 +140,22 @@ Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of 
 to be the conjugate normal-Wishart distribution with parameters $\phi$. Our overall model is then:
 \begin{subequations}
 \begin{align}
-  \Lambda(\cdot) & \sim \Gamma \text{P}(\alpha, H_{\phi}(\cdot)) \\ %\mathcal{NW}(\mu, \Sigma)) \\
-  \mc{T}_i\ \  &\sim \text{PoissProc}(\lambda_i) \quad i \in \ZZ \\
-  \by^*_{ij} & \sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i) \quad i,j \in \ZZ \\
-  x_i(t) &= \sum_{j = 1}^{|\mc{T}_i|}  \sum_{k = 1}^{K} y^*_{ijk} d_k(t - \tau_{ij}) \\
-  x(t)   &= \sum_{i=1}^{\infty} x_i(t) + \epsilon_t
+  \mc{T}_i\ \  &\sim \text{PP}(\lambda_i) \quad i \in \ZZ, \qquad &\text{ where } \Lambda(\cdot) &\sim \Gamma \text{P}(\alpha, H_{\phi}(\cdot)), \\ %\mathcal{NW}(\mu, \Sigma)) \\ \\
+  x_i(t) &= \sum_{j = 1}^{|\mc{T}_i|}  \sum_{k = 1}^{K} y^*_{ijk} d_k(t - \tau_{ij}), \qquad &\text{ where }\by^*_{ij}  &\sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i) \quad i,j \in \ZZ, \\
+  x(t)   &= \sum_{i=1}^{\infty} x_i(t) + \eps_t, \qquad &\text{ where } \eps_t &\sim \mc{N}(0,\Sigma_x)
 \end{align}
 \end{subequations}
 %Each spike of each neuron is associated with a time $e$ and a weight vector $y$, and one can view the model above as a doubly stochastic Poisson
 %process on the product space. 
 % 
-It will be more convenient to work with the marked Poisson process representation of Eqs.~\eqref{eq:spk_sup} and \eqref{eq:spk_shape}. 
+\jovo{perhaps it is standard, but you sample $\Lambda$ and then the next line you have $\lambda_i$, but no explanation for how you from $\Lambda$ to $\lambda_i$. i also am confused as to why $\phi$ is a subscript on $H$, rather than in the $(\cdot)$}
+It will be more convenient to work with the marked Poisson process representation of Eq.~\eqref{eq:spk}. % and \eqref{eq:spk_shape}. 
 The superposition process $\mc{T}$ is a rate $\Lambda$ Poisson process,
 and under a Gamma process prior, $\Lambda$ has a Gamma distribution with shape and scale parameters $1$ and $\alpha$ respectively \citep{Ferguson73}.
 As we saw (Eq.~\eqref{eq:mark_distr}), the labels $\bth_i$ assigning events to neurons are drawn i.i.d. from a normalized Gamma 
 process $G(\dd \bth)$:
 \begin{align}
- G(\dd \bth) = \frac{1}{\Lambda} \sum_{l=1}^{\infty} \lambda_l
+ G(\dd \bth) = \frac{1}{\Lambda} \sum_{l=1}^{\infty} \lambda_l.
 \end{align}
 $G(\dd \bth)$ is a random probability measure called a \emph{normalized random measure} \citep{JamesLP09}. Crucially, a 
 normalized Gamma process is the Dirichlet process (DP) \citep{Ferguson73}, so that $G$ is a draw from a Dirichlet process. For the $l^{th}$ spike in $\mc{T}$, given its 
@@ -177,8 +172,8 @@ we then have for spike $l$ at time $t = \tau_l$:
 \begin{align}
   P({\nu_l} = i) & \propto 
   \begin{cases}
-   |\mc{T}_i| \quad i \in \{1,\cdots, C_{t}\} \\
-   \alpha \quad\ i = C_{t} + 1 \\
+   |\mc{T}_i| \quad i \in \{1,\cdots, C_{t}\}, \\
+   \alpha \quad\ i = C_{t} + 1, 
   \end{cases}  
 \label{eq:crp_marg_pr}
 \end{align}
@@ -193,11 +188,10 @@ Consequently, the clustering of spikes (determined by $G(\cdot)$) is independent
  the following model equivalent to the one above:
 \begin{subequations}
 \begin{align}
-  \Lambda & \sim \text{Gamma}(1,\alpha) \\
-  \mc{T} &\sim \text{PoissProc}(\Lambda) \\
-  \bth_l &\sim \text{CRP}(\alpha, H_{\phi}(\cdot)), \quad l \in [|\mc{T}|]   \label{eq:CRP}\\
-  \by_l &\sim \mc{N}_K(\mb{\mu}_{l}, \Sigma_{l}), \quad  l \in [|\mc{T}|]   \label{eq:CRP_mix}\\
-  x(t) &=   \sum_{l=1}^{|\mc{T}|} \sum_{k=1}^K y_{lk} d_k(t - \tau_{l})
+  \mc{T} &\sim \text{PP}(\Lambda), \qquad &\text{ where } \Lambda  &\sim \text{Gamma}(1,\alpha),
+   \\
+   (\mb{\mu}_{l}, \Sigma_{l}) &\sim \bth_l,  &\text{ where } \bth_l &\sim \text{CRP}(\alpha, H_{\phi}(\cdot)), \quad l \in [|\mc{T}|],   \label{eq:CRP}\\
+  x(t) &=   \sum_{l=1}^{|\mc{T}|} \sum_{k=1}^K y_{lk} d_k(t - \tau_{l}) + \eps_t  &\text{ where } \by_l &\sim \mc{N}_K(\mb{\mu}_{l}, \Sigma_{l}), \,  l \in [|\mc{T}|], \, \eps_t \sim \mc{N}(0,\sigma^2).   \label{eq:CRP_mix}
 \end{align}
 \end{subequations}
 Unlike most applications which observe the outputs of a CRP, our observation at any time $t$ is a convolution-like function of the CRP outputs of all
@@ -230,67 +224,71 @@ to a Chinese restaurant process, while each $\by_l$ is drawn from a normal distr
 elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, defining a mapping from $L_2$ to $\Real^L$ yielding discrete dictionary elements $\mt{d}_k=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$,  so  $\bD \in \Real^{K \times L}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
 $\by$, is given by $\bD \by$.
 
+\jovo{introduce the remaining discrete time notation, including indexing on $t$ rather than $l$ (in an abuse of notation).}
+
 \subsection{Correlations in time and across electrodes}
 We now describe two extensions to the model outlined so far. 
 %The first is the inclusion of measurement noise: {\color{red} Biology?}. Let $\eps_t$ be the noise at time $t$, we model this as independent, additive and Gaussian.
 %However, rather than modeling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
 %effects like the movement of electrodes during the experiment. 
-The first relaxes the requirement that the parameters $\theta^*$ of each neuron remain constant, instead allowing the Gaussian mean $\mu^*$ evolve
-with time.  {\color{red} Justify, eg cells dying}. 
-%Recall that for neuron $i$, the associated parameters are ($\mu^*_i, \Sigma^*_i$). We keep the covariance $\Sigma^*_i$ fixed, however we model the mean $\mu^*_i$ as a first-order autoregressive process. 
+The first relaxes the requirement that the parameters $\theta^*$ of each neuron remain constant, instead allowing the Gaussian mean $\mb{\mu}^*$ evolve
+with time.  {\color{green} Justify, eg cells dying}. 
+%Recall that for neuron $i$, the associated parameters are ($\mb{\mu}^*_i, \Sigma^*_i$). We keep the covariance $\Sigma^*_i$ fixed, however we model the mean $\mb{\mu}^*_i$ as a first-order autoregressive process. 
 In continuous-time, we allow these parameters to evolve according to a Gaussian process (GP) \citep{}, so that our original model now involves a DP mixture 
 of Gaussian processes. The means continue to remain Gaussian distributed marginally, their time-evolution is determined by the GP covariance kernel.
-We choose a Markov kernel, this results in a first-order autoregressive process for the discrete case. Letting $B$ be the transition matrix of this
-process, we then have
+We choose a Markov kernel, this results in a first-order autoregressive process for the discrete case. Letting $\mb{B}$ be the transition matrix of this
+process, 
+and $r$ be an independent and normally distributed innovation term, we have
 \begin{align}
-  \mu^*_{t+1} = \mathbf{B} \mu^*_t + \mathbf{r}
+  \mb{\mu}^*_{t+1} = \mathbf{B} \mb{\mu}^*_t + \mathbf{r}_t.
 \end{align}
-Here, $r$ is an independent and normally distributed innovation term.
 
 Our second extension is to generalize out model from a single electrode to the case of multielectrode recordings. 
-We do this allowing each channel to have its own latent weight vector: for channel $c$ at time $t$, call this $\by^c_t$.
-Of course, these vectors need to be correlated (since they correspond to the same spike). We do this by modelling the set of
+We do this allowing each channel to have its own latent weight vector: for channel $m$ at time $t$, call this $\by^m_t$.
+Of course, these vectors need to be correlated (since they correspond to the same spike). We do this by modeling the set of
 vectors as a matrix-variate normal.
-{\color{red} Need to check how we set details of this correlation matrix}.
+{\color{green} Need to check how we set details of this correlation matrix}.
 
 \begin{algorithm}
-\caption{Generative mechanism for the multi-electrode, nonstationary, discrete-time process}\label{alg:gen_proc}
+\caption{Generative mechanism for the multi-electrode, non-stationary, discrete-time process}\label{alg:gen_proc}
 \begin{tabular}{p{1.2cm}p{12.4cm}}
 Input:&  a) the number of bins $T$, and the bin-width $\Delta$\\
-  &  b) the $K$-by-$L$ dictionary $\bA$ of $K$ basis functions\\
+  &  b) the $K$-by-$L$ dictionary $\bD$ of $K$ basis functions\\
   &  c) the DP hyperparameters $\alpha$ and $\phi$.\\ 
-  &  d) the transition matrix $B$ of the neuron AR process \\
-Output:& \ \ An $\Upsilon$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
+  &  d) the transition matrix $\bB$ of the neuron AR process \\
+Output:& \  An $M$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
 \end{tabular}
 \begin{algorithmic}[1]
 \State Initialize the number of clusters $C$ to $0$.
 \State Draw the overall spiking rate $\Lambda \sim \text{Gamma}(1,\alpha)$.
 %\State Set $A_{s_i}(\tau) = \sum_j A_{s_i,j} (\tau)$ and define $u_{s_i}(\tau) \ge A_{s_i}(\tau) \forall \tau$. \label{alg:loop}
 %\State Let $\tau_o = (w_{i} - l_i)$. \label{alg:smjp_loop}
-\For{$t$ in $\{1, \cdots, T \} $}
+\For{$t$ in $[T] $}
 \State Sample $z_t \sim \text{Bernoulli}(\Lambda \Delta)$, with $z_t = 1$ indicating a spike in bin $t$.
 \If{$z_t = 1$}   \label{enum:thin}
   \State Sample $\nu_t$, assigning the spike to a neuron, with
 %\begin{align*}
 $  P({\nu_t} = i) \propto 
   \begin{cases}
-   n_i \quad i \in \{1,\cdots, C\} \\
+   |\mc{T}_i| \quad i \in [C] \\
    \alpha \quad\ i = C + 1 \\
   \end{cases}$
 %\end{align*}
        \If{ $\nu_t = C + 1$} 
-          \State Increment $C$. Set $\theta^*_{C} \sim H_{\phi}(\cdot)$, and $n_C$=1.
-       \Else \State Increment $n_{\nu_t}$.
+          \State  $C \leftarrow C + 1$. 
+		\State Set $\theta^*_{C} \sim H_{\phi}(\cdot)$, and $n_C$=1.
+       \Else \State  $n_{\nu_t} \leftarrow n_{\nu_t}+1$.
     \EndIf
-\State Set $\theta_t = \theta^*_{\nu_t}$, and recall that $\theta_t \equiv (\mu_t, \Sigma_t)$.
+\State Set $\theta_t = \theta^*_{\nu_t}$, and recall that $\theta_t \equiv (\mb{\mu}_t, \Sigma_t)$.
 \State Sample $\bY_t %\equiv (\by_{t1}, \cdots, \by_{t\Upsilon}) 
-           \sim \mathcal{N}(\mu_t, \Sigma \otimes K)$, determining the spike shape at all electrodes.
+           \sim \mathcal{N}(\mb{\mu}_t, \Sigma \otimes K)$, determining the spike shape at all electrodes. \jovo{define $\otimes$.}
 %\State $\bx^h_{t:t+L} = A\by^h$
 \EndIf
 
-\State Update the cluster parameters: ${\mu}^*_i = \mathbf{B} {\mu}^*_i + r_i \quad i \in \{1, \cdots, C\}$
+\State Update the cluster parameters: ${\mb{\mu}}^*_i = \mathbf{B} {\mb{\mu}}^*_i + r_i \quad i \in \{1, \cdots, C\}$
 \EndFor
-\State $\bX = \bX + \mathbf{\epsilon}$ {\color{red} Fix}
+\State $\bX = \bX + \mathbf{\epsilon}$ {\color{green} Fix}
+\State \jovo{seems like $C$ should be indexed by $t$?}
 \end{algorithmic}
 \end{algorithm}
 

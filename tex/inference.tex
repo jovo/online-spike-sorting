@@ -33,12 +33,12 @@ $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+
 
 Below, we describe each of these steps for the case a single electrode; %Most steps are repeated across all electrodes; 
 %we will point out when the need for anything more complicated arises. 
-generalizing to the multielectrode case is straightforward. We start by recalling that the basis functions $\bA_i$, and thus all spike waveforms,
+generalizing to the multielectrode case is straightforward. We start by recalling that the basis functions $\bD$, and thus all spike waveforms,
 span $L$ time bins. 
 Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
 The residual at time $t$ is then given by
 \begin{align}
-  \mt{\bx}_t = \bx_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
+  \mt{\bx}_t = \bx_t - \sum_{i=1}^L \bD\by_{t-i} \label{eq:resid}
 \end{align}
 Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,

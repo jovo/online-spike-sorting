@@ -39,31 +39,25 @@ The intracellular recording is relatively noiseless and gives nearly certain fir
 
 Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we are only able to analyze whether a spike comes from the intracellular (IC) recording or not.  In these experiments, we define a detected spike to be an IC spike if the IC recording has a spike within 0.5 ms \jovo{@dec: always ``0.'' prior to fraction, because ``.'' is easy to miss.} of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the ``IC cluster'' \jovo{@dec: double quote, latex style please}.   We refer to these data as ``partial ground truth data'', because we know the ground truth spike times for one of the neurons, but not all the others.  
 
-\subsection{Bake-off Ingredients}
+\subsection{Bake-off Recipes}
 
-We compare a number of variants of \smug, as well as several previously proposed methods, as described below:
-\begin{itemize}\itemsep0pt
-	\item \smug-\sct{1W} operates on a single channel assuming i.i.d. white noise at each time step.
-	\item \smug-\sct{1C} operates on a single channel assuming colored noise at each time step \jovo{somebody please clarify this}.
-	\item \smug-\sct{MW} operates using multiple channels and white noise.
-	\item \smug-\sct{MC} operates using multiple channels and colored noise.
-	\item \jovo{something about AR on the means of the waveforms.  which is that?}
-	\item \sct{GMM-N} is a batch Gaussian mixture model projecting into N principal components. \jovo{is N clusters or components; make sure to do GMM-5, since GMM-4 is better than GMM-3}
-	\item \sct{FMM} is a recently proposed batch method
-\end{itemize}
+We compare a number of variants of \smug, as well as several previously proposed methods, as described below.  \smug~can operation on either multichannel data, \smug-\sct{M}, or single channel data, \smug-\sct{1}.  The waveforms can either be assumed to follow an auto-regressive process, \smug-\sct{MA}, or be i.i.d., \smug-\sct{MW} (W for white).   We also compare to Gaussian mixture models with N components (GMM-N) \jovo{or does N refer to number of PCs? either way, we must specify both}, and k-means-N, where N indicates the number of principle components on which we operate.  Finally, we include a Focus Mixture Model \cite{??}, a recently proposed Bayesian generative model with state-of-the-art performance.  Only \smug~methods were online as we could not find any previous code available for online spike sorting, despite a small literature on the topic \cite{??}. 
+
 % 
 % 
-The single-channel experiments were all run on channel 2 (the results were nearly identical for all channels).  The spike detections for the offline methods used a threshold of 3 times the noise standard deviation \cite{Lewicki}. (Need to do more comparisons and descriptions) and windowed at a size $P=30$ (\dec{check if $P$ matches with Vinayak notation}) \jovo{vinayak uses $L$, i believe}.  The action potential window was set to 30, and PCA was used to reduce the space to $K$=3 for the experiments. 
+The single-channel experiments were all run on channel 2 (the results were nearly identical for all channels).  The spike detections for the offline methods used a threshold of 3 times the noise standard deviation \cite{Lewicki}. (\dec{Need to do more comparisons and descriptions}) and windowed at a size $L=30$ (\dec{check if $L$ matches with Vinayak notation}) \jovo{vinayak uses $L$, i believe}.  The action potential window was set to 30, and PCA was used to reduce the space to $K$=3 for the experiments. 
 
 \subsection{Results}
 
   The main empirical result of our contribution is that all variants of \smug~detect more true positives with fewer false positives
 than any of the other algorithms on the partial ground truth data (see Figure \ref{hc1res}).  
 \jovo{@dec: replace this fig with the fig using all 4 minutes.}
-Our improved sensitivity and specificity is \emph{despite} that \smug~is fully online, whereas all the algorithms that we compare to are batch algorithms using all data for all spikes.  Of the \smug~variants, both multi-channel (MC) variants outperformed variants utilizing only a single channel (see \S \ref{sub:multi} for more details).  Moreover, \smug~with auto-regressive noise yielded fewer false positives than \smug~with white noise, and both yielded the same number of true positives.  
+Our improved sensitivity and specificity is \emph{despite} that \smug~is fully online, whereas all the algorithms that we compare to are batch algorithms using all data for all spikes.  Of the \smug~variants, both multi-channel (MC) variants outperformed variants utilizing only a single channel (see \S \ref{sub:multi} for more details).  Moreover, \smug~with time-varying distribution of waveforms yielded fewer false positives than \smug~with i.i.d.~waveforms, and both yielded the same number of true positives (see \S \ref{sub:adapt} for more details).  Perhaps most importantly, \smug~found more spikes than all the other algorithms, at least partially because it could detect overlapping spikes (see \S \ref{sub:overlap} for more details).
 
 
-The results were very similar for $K$=2, $K$=3, and $K$=4.   On the full 4-minute dataset, there were 3742 spikes detected with the threshold, and 753 of those corresponded to the intracellular spikes.  The PCA learned from the thresholded spikes was used as an input to the online algorithms.  For comparison, the algorithms we implemented here detected 3593 spikes of which 840 were intracellular spikes; this means we detected fewer total "spikes" while capturing more of the intracellular spikes. ({\color{red}  Is it worthwhile to give a plot showing what we don't detect that a threshold does and vice versa?})
+The results were very similar for $K$=2, $K$=3, and $K$=4.   On the full 4-minute dataset, there were 3742 spikes detected with the threshold, and 753 of those corresponded to the intracellular spikes.  
+% The PCA learned from the thresholded spikes was used as an input to the online algorithms.  
+For comparison, the algorithms we implemented here detected 3593 spikes of which 840 were intracellular spikes; this means we detected fewer total "spikes" while capturing more of the intracellular spikes. ({\color{red}  Is it worthwhile to give a plot showing what we don't detect that a threshold does and vice versa?})
 To get uncertainty estimates, we split the data into 10 random 2 minute segments and process them with the algorithms. The results are qualitatively similar (see Figure \ref{sfig:hc1res}).
 
 
