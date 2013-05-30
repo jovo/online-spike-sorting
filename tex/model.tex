@@ -54,7 +54,7 @@ We assume the noise at each observation time is i.i.d.\ Gaussian.
 % Comment on how this dictionary is obtained now, or in section on inference?)}. 
 We model the random spike shapes themselves as weighted superpositions of a dictionary of $K$ basis functions $\bd(t) \equiv (d_1(t), \cdots, d_K(t))\T$. The
 dictionary elements are shared across all neurons, and each is a real-valued function of time, e.g., $d_k \in L_2$.
-For the $i^{th}$ neuron, the $j^{th}$ spike $\tau_{ij} \in \mc{T}_i$, is associated with a random $K$-dimensional weight vector $\tby_{ij} \equiv (\ty_{ij1}, \ldots \ty_{ijK})\T$, and the 
+For the $i^{th}$ neuron, the $j^{th}$ spike time $\tau_{ij} \in \mc{T}_i$, is associated with a random $K$-dimensional weight vector $\tby_{ij} \equiv (\ty_{ij1}, \ldots \ty_{ijK})\T$, and the 
 shape of this spike at time $t$ is given by the weighted sum $\sum_{k=1}^K \ty_{ijk} d_k(t)$. We assume $\tby_{ij} \sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i)$, indicating a $K$-dimensional 
 Gaussian distribution with mean and covariance given by $\theta^*_i \equiv (\mb{\mu}^*_i, \Sigma^*_i)$.   Then, at any time $t$, the output of neuron $i$ is
 \begin{align}
@@ -74,7 +74,7 @@ Gaussian distribution with mean and covariance given by $\theta^*_i \equiv (\mb{
 {The total signal recorded from any electrode  is the superposition of the outputs of all neurons. Assume for the moment there are $N$
 neurons, and define $\mc{T} = \cup_{i \in [N]} \mc{T}_i$ as
 the (ordered) union of the spike times of all neurons. 
-Let $\tau_l \in \mc{T}$ indicate the time of $l^{th}$ overall spike, whereas $\tau_{ij} \in \mc{T}_i$ is the $j^{th}$ spike of neuron $i$.
+Let $\tau_l \in \mc{T}$ indicate the time of $l^{th}$ overall spike, whereas $\tau_{ij} \in \mc{T}_i$ is the time of the $j^{th}$ spike of neuron $i$.
 %To map elements  $\tau_{ij} \in \mc{T}_i$ to elements  $\tau_l \in \mc{T}$,   
 This defines a pair of mappings: $\nu:[|\mc{T}|]\rightarrow [N]$, and $p:[|\mc{T}|]\rightarrow \mc{T}_{\nu_i}$, with %$(i = \nu(l))$, , which maps from the $j^{th}$ spikes of neuron $i$ to the $l^{th}$ overall spike.
 $\tau_l = \tau_{\nu_l p_l}$. 
@@ -153,12 +153,11 @@ power-law behavior in the number of spikes emitted by different neurons.
 To complete the specification on the Gamma process, we choose a base-measure $H(\bth^*)$.
 Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, we set $H(\bth^*)$ 
 to be the conjugate normal-Wishart distribution with parameters $\phi$. Our overall model is then:
-\vspace{-.1in}
 \begin{subequations}
 \begin{align}
-  \mc{T}_i\ \  &\sim \text{PP}(\lambda_i) \quad i \in \NN, \qquad &\text{ where } \Lambda(\cdot)&=\sum_{i=1}^{\infty} \lambda_i \delta_{\theta^*_i} \sim \Gamma \text{P}(\alpha, H(\cdot| {\phi})), \\ %\mathcal{NW}(\mu, \Sigma)) \\ \\
-  x_i(t) &= \sum_{j = 1}^{|\mc{T}_i|}  \sum_{k = 1}^{K} y^*_{ijk} d_k(t - \tau_{ij}), \qquad &\text{ where }\by^*_{ij}  &\sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i) \quad i,j \in \NN, \\
-  x(t)   &= \sum_{i=1}^{\infty} x_i(t) + \eps_t, \qquad &\text{ where } \eps_t &\sim \mc{N}(0,\Sigma_x)
+  \mc{T}_i\ \  &\sim \text{PP}(\lambda_i) \quad i \in \NN, \quad &\text{ where } \Lambda(\cdot)&=\sum_{i=1}^{\infty} \lambda_i \delta_{\theta^*_i} \sim \Gamma \text{P}(\alpha, H(\cdot| {\phi})), \\ %\mathcal{NW}(\mu, \Sigma)) \\ \\
+  x_i(t) &= \sum_{j = 1}^{|\mc{T}_i|}  \sum_{k = 1}^{K} y^*_{ijk} d_k(t - \tau_{ij}), \quad &\text{ where }\by^*_{ij}  &\sim \mc{N}_K(\mb{\mu}^*_i, \Sigma^*_i) \quad i,j \in \NN, \\
+  x(t)   &= \sum_{i=1}^{\infty} x_i(t) + \eps_t, \quad &\text{ where at any time $t$, } \eps_t &\sim \mc{N}(0,\Sigma_x) \text{ independently}
 \end{align}
 \end{subequations}
 %Each spike of each neuron is associated with a time $e$ and a weight vector $y$, and one can view the model above as a doubly stochastic Poisson
@@ -184,7 +183,8 @@ The connection with the DP allows us to simplify the representation of our model
 allows us to integrate out the infinite-dimensional variable $G(\cdot)$. The resulting marginal distribution over observations follows the so-called
  Chinese restaurant process (CRP) \citep{Pit2002a}. Under this scheme, the $l^{th}$ spike is assigned the same parameter as an earlier spike with probability 
 proportional to the number of earlier spikes having that parameter. It is assigned a new parameter (and thus, a new neuron is observed) with probability 
-proportional to $\alpha$. Letting $C_t$ be the number of neurons observed until time $t$, and  $|\mc{T}^t_i| = |\mc{T}_i \cap [0,t)|$ be the number of spikes produced by neuron $i$ before time $t$,
+proportional to $\alpha$. Letting $C_t$ be the number of neurons observed until time $t$, and  $\mc{T}^t_i = \mc{T}_i \cap [0,t)$ be the times of spikes 
+produced by neuron $i$ before time $t$,
 we then have for spike $l$ at time $t = \tau_l$: 
 \vspace{-.06in}
 \begin{align}
@@ -248,7 +248,7 @@ Let the binary variable $z_t$ indicate whether or not a spike in present in time
 $\nu_t$ and $\theta_t$ be the neuron and neuron parameter associate with the spike in time bin $t$ (these remain undefined if $z_t = 0$).
 Then the output at time $t$, $x_t$ is given by
 \begin{align}
-  x_t = \sum_{\tau = 1}^L \bD_{\tau}^{\T} \by_{t-\tau-1} + \epsilon_t &\text{\quad where $\bD_{\tau}$ is column $\tau$ of $\bD$, 
+  x_t = \sum_{k = 1}^L \bD_{k}^{\T} \by_{t-k-1} + \epsilon_t &\text{\quad where $\bD_{k}$ is column $k$ of $\bD$, 
   and $\epsilon_t \sim \mathcal{N}(0,\sigma^2)$.} 
 \end{align}
 \subsection{Correlations in time and across electrodes}
@@ -256,24 +256,27 @@ We end by describing two extensions to the model outlined so far.
 %The first is the inclusion of measurement noise: {\color{red} Biology?}. Let $\eps_t$ be the noise at time $t$, we model this as independent, additive and Gaussian.
 %However, rather than modeling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
 %effects like the movement of electrodes during the experiment. 
-The first relaxes the requirement that the parameters $\theta^*$ of each neuron remain constant, instead allowing the mean of the weight-vector ($\mb{\mu}^*$)
-evolve with time.  {\color{green} Justify, eg cells dying}. 
-In order that the means remain marginally Gaussian distributed, we model their time-evolution as realizations of a Gaussian process (GP) \citep{RasWil2006}
-%Recall that for neuron $i$, the associated parameters are ($\mb{\mu}^*_i, \Sigma^*_i$). We keep the covariance $\Sigma^*_i$ fixed, however we model the mean $\mb{\mu}^*_i$ as a first-order autoregressive process. 
-In continuous-time, we allow these parameters to evolve according to a Gaussian process (GP) \citep{}, so that our original model now involves a DP mixture 
-of Gaussian processes.
-We choose a Markov kernel, this results in a first-order autoregressive process for the discrete case. Letting $\mb{B}$ be the transition matrix of this
-process, 
-and $r$ be an independent and normally distributed innovation term, we have
+The first relaxes the requirement that the parameters $\bth^*$ of each neuron remain constant, instead allowing $\mb{\mu}^*$, the mean of the weight-vector,
+to evolve with time (we keep the covariance parameter $\mb{\Sigma}^*_i$ fixed, however). Such flexibility can capture effects like changing cell 
+characteristics or moving electrodes.
+We model these time-evolution of the mean vector of a neuron as a realization of a Gaussian process (GP) \citep{RasWil2006}. A consequence is that these 
+parameters remain marginally Gaussian distributed at any time. One the other hand, correlation between means across time are determined by the choice 
+of the GP covariance kernel.
+We choose a stationary Markov kernel (where covariance decays exponentially with time). In discrete-time, this corresponds to a simple first-order 
+autoregressive process: with $\mb{B} \in \mathbb{R}^{K \times K}$ the transition matrix, and $\mb{r}_t \in \mathbb{R}^K$, 
+independent and Gaussian \emph{innovations}, we have
 \begin{align}
   \mb{\mu}^*_{t+1} = \mathbf{B} \mb{\mu}^*_t + \mathbf{r}_t.
 \end{align}
+Where we previously had a DP mixture of Gaussians, we now have a DP mixture of GPs, with each neuron associated with a vector-valued function 
+$\bth^*(\cdot)$, rather than a constant. When a spike at time $\tau_l$ is assigned to neuron $i$, it is assigned a weight-vector $\by_l$ drawn from a 
+Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. Following \citep{wood2009}, a useful extension is to also allow the neuron assignment probabilities to evolve 
+(corresponding to a time-varying Gamma process \citep{RaoTeh2009a}); we leave this for future work.
 
-Our second extension is to generalize out model from a single electrode to the case of multielectrode recordings. 
-We do this allowing each channel to have its own latent weight vector: for channel $m$ at time $t$, call this $\by^m_t$.
-Of course, these vectors need to be correlated (since they correspond to the same spike). We do this by modeling the set of
-vectors as a matrix-variate normal.
-{\color{green} Need to check how we set details of this correlation matrix}.
+Our second extension is to generalize our model from a single electrode to the case of multielectrode recordings. 
+We allow the shape of any spike to vary across channels: for spike $l$ in channel $m$, call the weight-vector $\by^m_l$.
+Of course, all these vectors need to be correlated as they correspond to the same spike; we do this by modeling the set of
+vectors as a matrix-variate normal. {\color{green} Need to check with Dec how we set details of this correlation matrix}.
 Algorithm \ref{alg:gen_proc} outlines generative mechanism of the data for the discrete-time model.
 
 \begin{algorithm}
@@ -313,7 +316,7 @@ $  P({\nu_t} = i) \propto
 \EndIf
 
 \State Update the cluster parameters: ${\mb{\mu}}^*_i = \mathbf{B} {\mb{\mu}}^*_i + r_i \quad i \in \{1, \cdots, C\}$
-\State $x_t = \sum_{\tau = 1}^L \bD_{\tau}^{\T} \by_{t-\tau} + \epsilon_t$
+\State $x_t = \sum_{k = 1}^L \bD_{k}^{\T} \by_{t-k-1} + \epsilon_t$
 \EndFor
 \State \jovo{seems like $C$ should be indexed by $t$?}
 \end{algorithmic}
