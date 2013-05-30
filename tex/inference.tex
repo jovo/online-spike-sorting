@@ -4,34 +4,39 @@
 \begin{algorithm}
 \caption{Generative mechanism for the multi-electrode, nonstationary, discrete-time process}\label{alg:gen_proc}
 \begin{tabular}{p{1.2cm}p{12.4cm}}
-Input:&  The number of bins $T$, and the bin-width $\Delta$\\
-  & The DP concentration parameter $\alpha$, and the hyperparameters of the base-measure $H(\cdot)$\\ 
- & Decay parameter of the neuron parameter \\
-Output:& An $H$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
+Input:&  a) the number of bins $T$, and the bin-width $\Delta$\\
+  &  b) the $K$-by-$L$ dictionary $\bA$ of $K$ basis functions\\
+  &  c) the DP hyperparameters $\alpha$ and $\phi$. {\color{red} Introduce $\phi$ in main text}\\ 
+  &  d) the transition matrix $B$ of the neuron AR process \\
+Output:& \ \ An $\Upsilon$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
 \end{tabular}
 \begin{algorithmic}[1]
-\State Initialize the number of clusters $C = 0$.
-\State Draw the overall spiking rate $R \sim \text{Gamma}(1,\alpha)$.
+\State Initialize the number of clusters $C$ to $0$.
+\State Draw the overall spiking rate $\Lambda \sim \text{Gamma}(1,\alpha)$.
 %\State Set $A_{s_i}(\tau) = \sum_j A_{s_i,j} (\tau)$ and define $u_{s_i}(\tau) \ge A_{s_i}(\tau) \forall \tau$. \label{alg:loop}
 %\State Let $\tau_o = (w_{i} - l_i)$. \label{alg:smjp_loop}
-\For{$t \le T$}
-\State Sample $z_t \sim \text{Bernoulli}(R\Delta)$. $z_t = 1$ indicates a spike in bin $t$.
+\For{$t$ in $\{1, \cdots, T \} $}
+\State Sample $z_t \sim \text{Bernoulli}(\Lambda \Delta)$, with $z_t = 1$ indicating a spike in bin $t$.
 \If{$z_t = 1$}   \label{enum:thin}
-  \State Set $\mu_t$, assigning the spike to neuron $i$, with
-\begin{align}
-  P({\nu_t} = i) & \propto 
+  \State Sample $\nu_t$, assigning the spike to a neuron, with
+%\begin{align*}
+$  P({\nu_t} = i) \propto 
   \begin{cases}
    n_i \quad i \in \{1,\cdots, C\} \\
    \alpha \quad\ i = C + 1 \\
-  \end{cases}
-\end{align}
-\State If{ $\nu_t = C + 1$}, set $\theta^*_{C+1} \sim H(\cdot)$, and increment $C$.
-\State Set $\theta_t = \theta^*_{\nu_t}$.
-\State $\bY \sim \mathcal{N}(\mu_t, \Sigma_t \otimes K)$
-\State $\bx^h_{t:t+L} = A\by^h$
+  \end{cases}$
+%\end{align*}
+       \If{ $\nu_t = C + 1$} 
+          \State Increment $C$. Set $\theta^*_{C} \sim H(\cdot)$, and $n_C$=1.
+       \Else \State Increment $n_{\nu_t}$.
+    \EndIf
+\State Set $\theta_t = \theta^*_{\nu_t}$, and recall that $\theta_t \equiv (\mu_t, \Sigma_t)$.
+\State Sample $\bY_t %\equiv (\by_{t1}, \cdots, \by_{t\Upsilon}) 
+           \sim \mathcal{N}(\mu_t, \Sigma \otimes K)$, determining the spike shape at all electrodes.
+%\State $\bx^h_{t:t+L} = A\by^h$
 \EndIf
 
-\State Update the cluster parameters following the AR process: $$\mu^*_i = \mathbf{A} \mu^*_i + r_i \quad i \in \{1, \cdots, C\}$$
+\State Update the cluster parameters: ${\mu}^*_i = \mathbf{B} {\mu}^*_i + r_i \quad i \in \{1, \cdots, C\}$
 \EndFor
 \State $\bX = \bX + \mathbf{\epsilon}$
 \end{algorithmic}
@@ -43,8 +48,9 @@ inference is intractable, and we have to resort to approximating the posterior d
 There exists a vast literature on approximate inference for Bayesian nonparametric models, especially so for models based on the Dirichlet process.
 Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
 and recently there has also been work on constructing deterministic approximations to the intractable posterior (eg.\ \citep{BleJor2006, MinGha2003}).
-Our problem is even more challenging because of two factors. The first is the convolutional nature of our observation process, where at each time,
-we observe a function of the previous observations drawn from a DP mixture model. This is in contrast to the usual situation where one directly observes 
+Posterior inference in our problem is further confounded by two additional factors. The first is the convolutional nature of our observation process, 
+where at each time,
+we observe a function of the previous observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes 
 the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
 Our ultimate goal, on the other hand, is to perform inference in real time, making these approaches are unsuitable for our purposes.
@@ -55,7 +61,7 @@ observation process, and also to account for the time-evolution of the cluster p
 
 At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations until time $t$. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
-waveforms. In addition to these point estimates, the algorithm also maintains a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
+waveforms. In addition to these point estimates, the algorithm also keeps a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
 set of neurons associated with the spikes seen so far. Let the number of unique neurons observed at time $t$ be $C_t$, so that $i$ varies from $1$ to $C_t$.
 For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
@@ -67,9 +73,10 @@ to (one of the earlier neurons or a new neuron), and what the shape of the assoc
 $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
 
 
-We provide a more detailed discussion in the following.
-Recall that the basis functions $\bA_i$, and thus all spike waveforms, span $L$ time bins. 
-Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ is associated neuron. 
+Below, we describe each of these steps for the case a single electrode. Most steps are repeated across all electrodes; 
+we will point out when the need for anything more complicated arises. We start by recalling that the basis functions $\bA_i$, and thus all spike waveforms,
+span $L$ time bins. 
+Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
 The residual at time $t$ is then given by
 \begin{align}
   \tx_t = x_t - \sum_{i=1}^L \bA\by_{t-i} \label{eq:resid}
@@ -77,22 +84,20 @@ The residual at time $t$ is then given by
 Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,
 \begin{align}
-  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\tx_t, {\nu_t} | z_t = 1) P(z_t = 1) \\
-\intertext{Here, $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $n_i$ be the number of spikes from neuron 
-$i$, we have from the Chinese restaurant process that}
-  P({\nu_t} = i | z_t = 1) & \propto 
-  \begin{cases}
-   n_i \quad i \in \{1,\cdots, C_{t-1}\} \\
-   \alpha \quad\ i = C_{t-1} + 1 \\
-  \end{cases}  \label{eq:crp_marg}\\
-\intertext{On the other hand,}
+  P(z_t = 1 | \tx_t)  &\propto P(z_t = 1, \tx_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\tx_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
+\intertext{Recall that $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $n_i$ be the number of spikes from 
+neuron $i$,  $P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}). On the other hand,}
   P(\tx_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\tx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
 \end{align}
-Recall that  $P(\tx_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$. We let $q_{it}(\cdot)$ be the normal-Wishart
-distribution. % with parameters 
-We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:crp_marg} to calculate $P(z_t = 1 | \tx_t)$. 
+Here,  $P(\tx_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$, while we restrict $q_{it}(\cdot)$ be the 
+normal-Wishart distribution. % with parameters 
+We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to calculate $P(z_t = 1 | \tx_t)$. 
 If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $z_t = 0$.
-Note that we make this decision after marginalizing over all possible cluster assignments and all values of the weight vector $\by_t$.
-In the event that we decide that a spike is present , we simplify matters collapsing these parameters, and the spike the neuron and weight-vector
-with highest posterior probability. Given these two, we update the posterior distribution over parameters of cluster $\nu_t$, thereby obtaining
-$q_{i,t+1}$.
+Observe that making this decision involves marginalizing over all possible cluster assignments $\nu_t$, and all values of the weight vector $\by_t$.
+On the other hand, having decided that a spike is present , we simplify matters collapsing these posterior distributions to point estimates. In
+particular, we assign the spike to the neuron with highest posterior probability, and similarly set the weight-vector to its MAP value. 
+
+Given these point estimates, we can update the posterior distribution over parameters of cluster $\nu_t$ to obtain $q_{i,t+1}$ from $q_{i,t}$; this
+is straightforward because of conjugacy. 
+We need to follow this up with an additional update step for the parameter distributions of \emph{all} clusters because of the AR process on the parameters.
+This too is straightforward {\color{red} Get exact update rule}.
