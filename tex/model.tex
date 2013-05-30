@@ -3,7 +3,7 @@
 
 \subsection{Notation}
 
-Unless otherwise specified, we let lower-case English alphabet characters indicate scalars $x \in \Real$, bold indicates column vectors $\mb{x} \in \Real^p$, and upper-case indicate matrices, $X \in \Real^{p \times q}$.  Parameters and constants will be Greek characters.  Time will be $t \in (0,T)$, $i \in [N]$ will index the $N$ neurons, where $[N]=\{1,2,\ldots,N\}$. Script will denote sets and pipes will denote the cardinality of the set, e.g. $|\mc{T}|$.  
+Unless otherwise specified, we let lower-case English alphabet characters indicate scalars $x \in \Real$, bold indicates column vectors $\mb{x} \in \Real^p$, and upper-case bold indicates matrices, $\bX \in \Real^{p \times q}$.  Parameters and constants will be Greek characters.  Time will be $t \in (0,T)$, $i \in [N]$ will index the $N$ neurons, where $[N]=\{1,2,\ldots,N\}$. Script will denote sets and pipes will denote the cardinality of the set, e.g. $|\mc{T}|$.  
 
 \subsection{Input}
 % \subsection{Data Model}
@@ -224,8 +224,8 @@ as $\Delta$ tends to $0$.
 In our case, we have to approximate the marked Poisson process $\mc{T}$. All this requires additionally is to assign marks $\bth_i$ and $\by_i$ to each event 
 in the Bernoulli approximation. Following Eqs.~\eqref{eq:CRP} and \eqref{eq:CRP_mix}, the $\bth_l$'s are distributed according
 to a Chinese restaurant process, while each $\by_l$ is drawn from a normal distribution parametrized by the corresponding $\bth_l$. We discretize the 
-elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, defining a mapping from $L_2$ to $\Real^L$ yielding discrete dictionary elements $\mt{d}_k=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$,  so  $D \in \Real^{K \times T}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
-$\by$, is given by $D \by$.
+elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, defining a mapping from $L_2$ to $\Real^L$ yielding discrete dictionary elements $\mt{d}_k=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$,  so  $\bD \in \Real^{K \times T}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
+$\by$, is given by $\bD \by$.
 
 \subsection{Correlations in time and across electrodes}
 We now describe three extensions to the model outlined previously. The first is the inclusion of measurement noise: 
