@@ -78,11 +78,13 @@ Thus $\bth_l = \bth^*_{\nu_l}$.
 % Furthermore, let $p_j \from \mc{T} \to \mc{T}_j$ index the position of spike $j$ of $\mc{T}$ in $\mc{T}_{\nu_j}$.
 % , the spike train of neuron $\nu_j$. 
 Thus $\tau_l = \tau_{\nu_l j}$ is the $j^{th}$ spike of neuron $\nu_l$. Finally, define $\by_l=(y_{l1}, \ldots, y_{lK})\T \equiv \tby_{\nu_j j}$ as the weight vector of spike $\tau_l$. Then, we have that}
+\begin{subequations}
 \begin{align}
-  x(t) &= \sum_{i \in [N]} x_{i}(t) =   \sum_{l \in |\mc{T}|} \sum_{k \in [K]} y_{lk} d_k(t - \tau_{l}), \label{eq:spk_sup}
-\intertext{where}
+  x(t) &= \sum_{i \in [N]} x_{i}(t) =   \sum_{l \in |\mc{T}|} \sum_{k \in [K]} y_{lk} d_k(t - \tau_{l}),  \label{eq:spk_sup} \\
+% \intertext{where}
   \by_{l} & \sim \mc{N}_K(\mb{\mu}_{l}, \Sigma_{l}). \label{eq:spk_shape}
 \end{align}
+\end{subequations}
 % 
 From the superposition property of the Poisson process \citep{kingman93}, the overall spiking activity $\mc{T}$ is a 
 Poisson process with rate $\Lambda = \sum_{i \in [N]} \lambda_i$. Each event $\tau_l \in \mc{T}$ is associated with a pair of labels, the parameter of the neuron to which it 
@@ -93,13 +95,13 @@ marked Poisson process $\mc{T}$.  From the properties of the Poisson process, we
 \end{align}
 Note that with probability one, the neurons have distinct parameters, so that the mark $\bth_l$ associated with spike $l$ identifies the
 neuron which produced it: $G(\bth_l = \bth^*_i) = P(\nu_l= i) = \lambda_i/\Lambda$. Given $\bth_l$, $\by_l$ is distributed as in
-Eq.~\ref{eq:spk_shape}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process (Eq.~\eqref{eq:spk_sup}). 
+Eq.~\eqref{eq:spk_shape}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process (Eq.~\eqref{eq:spk_sup}). 
 
 \subsection{Completely random measures (CRMs)}
 
 The previous section assumed a known number of neurons $N$. In practice however, our recordings are a superposition of the outputs of an unknown
 number of neurons. We deal with this uncertainty by taking a nonparametric Bayesian approach, and letting the number of neurons $N$ tend to infinity
-{\color{red} Can we provide a biogical/electrical justification of this?}. 
+{\color{red} Can we provide a biological/electrical justification of this?}. 
 Such an approach leads to an elegant and flexible modeling framework, and has  already proved successful in neuroscience applications
 \citep{WoodBla2008}.
 Since only a finite number of spikes are observed in any finite interval, the total rate $\Lambda$ must 
@@ -151,7 +153,7 @@ to be the conjugate normal-Wishart distribution. Our overall model is then:
 %Each spike of each neuron is associated with a time $e$ and a weight vector $y$, and one can view the model above as a doubly stochastic Poisson
 %process on the product space. 
 % 
-It will be more convenient to work with the marked Poisson process representation of Eqs.~\ref{eq:spk_sup} and \ref{eq:spk_shape}. 
+It will be more convenient to work with the marked Poisson process representation of Eqs.~\eqref{eq:spk_sup} and \eqref{eq:spk_shape}. 
 The superposition process $\mc{T}$ is a rate $\Lambda$ Poisson process,
 and under a Gamma process prior, $\Lambda$ has a Gamma distribution with shape and scale parameters $1$ and $\alpha$ respectively \citep{Ferguson73}.
 As we saw (Eq.~\eqref{eq:mark_distr}), the labels $\bth_i$ assigning events to neurons are drawn i.i.d. from a normalized Gamma 
