@@ -1,4 +1,3 @@
-\subsection{Performance on partial ground truth data}
 
 \jovo{need to discuss preprocessing
 
@@ -48,7 +47,10 @@ We compare a number of variants of \smug, as well as several previously proposed
 % 
 The single-channel experiments were all run on channel 2 (the results were nearly identical for all channels).  The spike detections for the offline methods used a threshold of 3 times the noise standard deviation \cite{Lewicki}. (\dec{Need to do more comparisons and descriptions}) and windowed at a size $L=30$ (\dec{check if $L$ matches with Vinayak notation}) \jovo{vinayak uses $L$, i believe}.  The action potential window was set to 30, and PCA was used to reduce the space to $K$=3 for the experiments. 
 
-\subsection{Results}
+% \subsection{Results}
+
+
+\subsection{Performance on partial ground truth data}
 
   The main empirical result of our contribution is that all variants of \smug~detect more true positives with fewer false positives
 than any of the other algorithms on the partial ground truth data (see Figure \ref{hc1res}).  
@@ -61,13 +63,15 @@ For comparison, the algorithms we implemented here detected 3593 spikes of which
 To get uncertainty estimates, we split the data into 10 random 2 minute segments and process them with the algorithms. The results are qualitatively similar (see Figure \ref{sfig:hc1res}).
 
 
-The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6GB of memory.
 
-\jovo{@dec: i changed this to highlight that we used other data to learn the dictionary.  let's replace the figs with those results.}
-Because our method is fully online, we cannot use the data to estimate the dictionary weights. We therefore learn a dictionary via PCA applied to data from a the d566102 dataset in the HC-1 database.  This dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat. Our approach is robust to such variations in the dictionary.  We also compare our results using the dictionary learned from the data, and obtain quantitatively quite similar results (see Figure \ref{sfig:truewaveforms} in the Supplementary materials).
+Our approach uses a dictionary that we specify \emph{a priori}, although we envision adaptively learning the dictionary in future work. Thus, we can compare variants of \smug~using different dictionaries.  We consider three different dictionaries: (i) the same ``batch'' dictionary used for the other methods, (ii) a dictionary learned via PCA applied to data from a the d566102 dataset in the HC-1 database (this dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat), and (iii) a dictionary learned from using only the first \jovo{X=??} seconds of data from this experiment.  Because dictionary learning via PCA is so fast, learning a dictionary from the first several sections is trivial computationally.  Figure \ref{hc1res} indicates that using a better dictionary results in better sensitivity and/or specificity. \jovo{we will have to revise this sentence to reflect the actual results.}
+
+% \jovo{@dec: i changed this to highlight that we used other data to learn the dictionary.  let's replace the figs with those results.}
+% Because our method is fully online, we cannot use the data to estimate the dictionary weights. We therefore learn a dictionary via PCA applied to data from a the d566102 dataset in the HC-1 database.  This dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat. Our approach is robust to such variations in the dictionary.  We also compare our results using the dictionary learned from the data, and obtain quantitatively quite similar results (see Figure \ref{sfig:truewaveforms} in the Supplementary materials).
 
 % In these experiments we used features learned from the data, which is not always possible in an online algorithm.  However, since spikes are very similar it is possible to use a pre-learned dictionary from a similar dataset.  To show robustness with the choice of similar dictionaries, we used a dictionary learned offline on a similar tetrode implanted in the hippocampus of a different rat.  The results were similar and are shown in Figure \ref{hc1res} 
 % ({\color{red} will be added.  I've calculated the result, and it is within a few percent of the same result}).  
+
 For the IC cluster, it is of interest to investigate the properties of the true positives, the false positives, as well as the IC spikes that are missed by the algorithm.  Errorbar plots for these groups are shown in Figure \ref{truewaveforms}; this figure demonstrates the great similarity of the true positives and the false positives, while the missed positives (spike waveforms not detected or not in the IC cluster) have high variability and a different mean shape.
 \begin{center}
 \begin{figure}
@@ -82,17 +86,22 @@ For the IC cluster, it is of interest to investigate the properties of the true 
 \caption{}
 \label{overlapping}
 \end{subfigure}
-
-
-
-\caption{Results on the d533101 dataset.  (a) This shows the average number of true positives versus the average number of false positives in the intracellular cluster for 2 minute segments of the 4 minutes of day.  The methods that combine the clustering and the detection have similar numbers of false positives but greater numbers of true positives. {\color{red} I have error bars as well, but they look ugly}  (b) An example of an inferred overlapping spike.}
+\caption{Results on the d533101 dataset.  (a) This shows the average number of true positives versus the average number of false positives in the intracellular cluster for 2 minute segments of the 4 minutes of day.  The methods that combine the clustering and the detection have similar numbers of false positives but greater numbers of true positives. {\color{red} I have error bars as well, but they look ugly}  (b) An example of an inferred overlapping spike. \jovo{let's make the symbols different for the different methods.  also, let's make the axes in terms of percentages, rather than raw numbers.}
+}
 \end{figure}
 \end{center}
 
-\subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
-As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Allowing the mean of each component to evolve over time improved single-channel performance over the 4-minute dataset, and gave similar performance in the multi-channel algorithms.
+
 \subsection{Overlapping Spike Detection}
 It is possible for action potentials to fire close to simultaneously so that a given window would have 2 or move action potent ions.  It is possible for the algorithm to detect and fit overlapping spikes as they come in.  Out of the 3593 spikes detected by the algorithm, there are 124 pairs of overlapping spikes within 1ms of one another (3.45\%).  An example of an overlapping waveform is shown in Figure \ref{overlapping}.
+
+
+
+
+\subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
+As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Allowing the mean of each component to evolve over time improved single-channel performance over the 4-minute dataset, and gave similar performance in the multi-channel algorithms.
+
+
 
 \subsection{Multi-Electrode Array} \label{sub:multi}
 
@@ -121,22 +130,22 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 \end{center}
 \begin{center}
 \begin{figure}
-\begin{subfigure}[b]{.24\textwidth}
-\includegraphics[width=\textwidth]{../figs/3dev}
+\begin{subfigure}[b]{.12\textwidth}
+\includegraphics[width=1\textwidth]{../figs/3dev}
 \caption{}
 \label{3dev}
 \end{subfigure}
-\begin{subfigure}[b]{.24\textwidth}
+\begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/3devim/clus1}
 \caption{}
 \label{ex31}
 \end{subfigure}
-\begin{subfigure}[b]{.24\textwidth}
+\begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/3devim/clus2}
 \caption{}
 \label{ex32}
 \end{subfigure}
-\begin{subfigure}[b]{.24\textwidth}
+\begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/new/3chpca}
 \caption{}
 \label{3chpca}
@@ -145,23 +154,23 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 \end{figure}
 \end{center}
 \begin{center}
-\begin{figure}
-\begin{subfigure}[b]{.24\textwidth}
-\includegraphics[width=\textwidth]{../figs/8dev}
+\begin{figure}[h!]
+\begin{subfigure}[b]{.12\textwidth}
+\includegraphics[width=0.8\textwidth]{../figs/8dev}
 \caption{}
 \label{3dev}
 \end{subfigure}
-\begin{subfigure}[b]{.24\textwidth}
+\begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/8devim/clus3}
 \caption{}
 \label{ex81}
 \end{subfigure}
-\begin{subfigure}[b]{.24\textwidth}
+\begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/8devim/clus9}
 \caption{}
 \label{ex82}
 \end{subfigure}
-\begin{subfigure}[b]{.24\textwidth}
+\begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/8devim/clus6}
 \caption{}
 \label{ex83}

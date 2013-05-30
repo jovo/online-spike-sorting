@@ -60,3 +60,5 @@ Given these point estimates, we can update the posterior distribution over param
 is straightforward because of conjugacy. 
 We need to follow this up with an additional update step for the parameter distributions of \emph{all} clusters because of the AR process on the parameters.
 This too is straightforward {\color{red} Get exact update rule}.
+
+The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
