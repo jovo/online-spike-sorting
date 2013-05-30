@@ -76,7 +76,7 @@ neurons, and define $\mc{T} = \cup_{i \in [N]} \mc{T}_i$ as
 the (ordered) union of the spike times of all neurons. 
 Let $\tau_l \in \mc{T}$ indicate the time of $l^{th}$ overall spike, whereas $\tau_{ij} \in \mc{T}_i$ is the $j^{th}$ spike of neuron $i$.
 %To map elements  $\tau_{ij} \in \mc{T}_i$ to elements  $\tau_l \in \mc{T}$,   
-This defines a pair of mappings: $\nu:[\mc{T}]\rightarrow [N]$, and $p:[\mc{T}]\rightarrow \mc{T}_{\nu(i)}$, with %$(i = \nu(l))$, , which maps from the $j^{th}$ spikes of neuron $i$ to the $l^{th}$ overall spike.
+This defines a pair of mappings: $\nu:[|\mc{T}|]\rightarrow [N]$, and $p:[|\mc{T}|]\rightarrow \mc{T}_{\nu_i}$, with %$(i = \nu(l))$, , which maps from the $j^{th}$ spikes of neuron $i$ to the $l^{th}$ overall spike.
 $\tau_l = \tau_{\nu_l p_l}$. 
 %\jovo{i don't think the square brackets around $\mc{T}$ are correct, we are mapping from the set of spikes, not the number of spikes, right?} 
 In words, $\nu_l \in N$ is the neuron to which the $l^{th}$ element of $\mc{T}$ belongs, 
@@ -243,24 +243,25 @@ to a Chinese restaurant process, while each $\by_l$ is drawn from a normal distr
 elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, defining a mapping from $L_2$ to $\Real^L$ yielding discrete dictionary elements $\mt{d}_k=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$,  so  $\bD \in \Real^{K \times L}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
 $\by$, is given by $\bD \by$.
 
-We can simplify notation a bit for the discrete time model. Let $t$ index time-bins (so that for an observation interval of length $T$, $t \in [T/\Delta]$).
+We can simplify notation a bit for the discrete-time model. Let $t$ index time-bins (so that for an observation interval of length $T$, $t \in [T/\Delta]$).
 Let the binary variable $z_t$ indicate whether or not a spike in present in time bin $t$ (recall that $z_t \sim \text{Bernoulli}(\Lambda \Delta)$). Let
 $\nu_t$ and $\theta_t$ be the neuron and neuron parameter associate with the spike in time bin $t$ (these remain undefined if $z_t = 0$).
 Then the output at time $t$, $x_t$ is given by
 \begin{align}
-  x_t = \sum_{\tau = 1}^L \bD_{\tau}^{\T} \by_{t-\tau} + \epsilon_t &\text{\quad where $\bD_{\tau}$ is column $\tau$ of $\bD$.} 
+  x_t = \sum_{\tau = 1}^L \bD_{\tau}^{\T} \by_{t-\tau-1} + \epsilon_t &\text{\quad where $\bD_{\tau}$ is column $\tau$ of $\bD$, 
+  and $\epsilon_t \sim \mathcal{N}(0,\sigma^2)$.} 
 \end{align}
-Algorithm \ref{alg:gen_proc} outlines generative mechanism of the data for the discrete time model.
 \subsection{Correlations in time and across electrodes}
-We now describe two extensions to the model outlined so far. 
+We end by describing two extensions to the model outlined so far. 
 %The first is the inclusion of measurement noise: {\color{red} Biology?}. Let $\eps_t$ be the noise at time $t$, we model this as independent, additive and Gaussian.
 %However, rather than modeling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
 %effects like the movement of electrodes during the experiment. 
-The first relaxes the requirement that the parameters $\theta^*$ of each neuron remain constant, instead allowing the Gaussian mean $\mb{\mu}^*$ evolve
-with time.  {\color{green} Justify, eg cells dying}. 
+The first relaxes the requirement that the parameters $\theta^*$ of each neuron remain constant, instead allowing the mean of the weight-vector ($\mb{\mu}^*$)
+evolve with time.  {\color{green} Justify, eg cells dying}. 
+In order that the means remain marginally Gaussian distributed, we model their time-evolution as realizations of a Gaussian process (GP) \citep{RasWil2006}
 %Recall that for neuron $i$, the associated parameters are ($\mb{\mu}^*_i, \Sigma^*_i$). We keep the covariance $\Sigma^*_i$ fixed, however we model the mean $\mb{\mu}^*_i$ as a first-order autoregressive process. 
 In continuous-time, we allow these parameters to evolve according to a Gaussian process (GP) \citep{}, so that our original model now involves a DP mixture 
-of Gaussian processes. The means continue to remain Gaussian distributed marginally, their time-evolution is determined by the GP covariance kernel.
+of Gaussian processes.
 We choose a Markov kernel, this results in a first-order autoregressive process for the discrete case. Letting $\mb{B}$ be the transition matrix of this
 process, 
 and $r$ be an independent and normally distributed innovation term, we have
@@ -273,6 +274,7 @@ We do this allowing each channel to have its own latent weight vector: for chann
 Of course, these vectors need to be correlated (since they correspond to the same spike). We do this by modeling the set of
 vectors as a matrix-variate normal.
 {\color{green} Need to check how we set details of this correlation matrix}.
+Algorithm \ref{alg:gen_proc} outlines generative mechanism of the data for the discrete-time model.
 
 \begin{algorithm}
 \caption{Generative mechanism for the multi-electrode, non-stationary, discrete-time process}\label{alg:gen_proc}
