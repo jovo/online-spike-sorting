@@ -1,18 +1,32 @@
 
-The recent heightened interest in understanding the brain calls for the development of technologies that will advance our understanding of neuroscience.%\footnote{\url{http://www.whitehouse.gov/infographics/brain-initiative}}  
-Crucial to the success of this endeavor is the advancement of our ability to understand the \emph{dynamics} of the brain, via the measurement of large populations of neural activity at the single neuron level.  Such reverse engineering efforts  benefit from real-time decoding of neural activity, to facilitate adapting the stimuli to probe the functional connectivity more effectively.  Regardless of the experimental apparati used to measure such data (e.g., electrodes or calcium imaging), real-time decoding of individual neuron responses requires identifying and labeling individual spikes from recordings from large populations of neurons.
+The recent heightened interest in understanding the brain calls for the development of technologies that will advance our understanding of neuroscience. %\footnote{\url{http://www.whitehouse.gov/infographics/brain-initiative}}  
+Crucial for this endeavor is the advancement of our ability to understand the \emph{dynamics} of the brain, via the measurement of large populations of 
+neural activity at the single neuron level.  Such reverse engineering efforts  benefit from real-time decoding of neural activity, to 
+facilitate effectively adapting the probing stimuli. 
+% to probe the functional connectivity more effectively.  
+Regardless of the experimental apparati used (e.g., electrodes or calcium imaging), real-time decoding of individual neuron responses requires identifying and labeling individual spikes from recordings from large populations.
 In other words, real-time decoding requires real-time spike sorting.
 
 Automatic spike sorting methods are continually evolving to deal with more sophisticated experiments.  Most recently, several methods have been proposed to (i) learn the number of separable neurons on each electrode or ``multi-trode'' \cite{??}, or (ii) operate online to resolve overlapping spikes from multiple neurons \cite{??}.   To our knowledge, no method to date is able to simultaneously address both of these challenges.  
 
 We develop a nonparametric Bayesian continuous-time generative model of population activity.  Our model explains the continuous output of each neuron
-by a latent marked Poisson process, with the ``marks'' characterizing the shape of each spike.  Previous efforts to address overlapping spiking often assume a fixed kernel for each waveform, but joint intracellular and extracellular recording clearly indicate that this assumption is false (see Figure \ref{fig:draft}). Thus, we assume that the statistics of the marks are time-varying.  Moreover, rather than assuming \emph{a priori} a fixed number of separable neurons per channel, we take a nonparametric Bayesian approach.  We use the framework of completely random measures to jointly characterize spike times and waveforms from 
-a potentially infinite number of neurons \cite{??}, although in practice via the posterior we infer a finite number of neurons (or single units) responsible for the data.  
+by a latent marked Poisson process, with the ``marks'' characterizing the shape of each spike.  Previous efforts to address overlapping spiking often assume a fixed kernel for each waveform, but joint intracellular and extracellular recording clearly indicate that this assumption is false (see Figure \ref{fig:draft}). Thus, we assume that the statistics of the marks are time-varying.  
+%Moreover, rather than assuming \emph{a priori} a fixed number of separable neurons per channel, we take a nonparametric Bayesian approach.  
+We use the framework of completely random measures to inference how many of a potentially infinite number of neurons (or single units)
+%  although in practice via the posterior we infer a finite number of neurons (or single units) 
+are responsible for the observed data,  simultaneuosly characterizing spike times and waveforms of these neurons
+%a potentially infinite number of neurons \cite{??}, although in practice via the posterior we infer a finite number of neurons (or single units) responsible 
+%for the data.  
 
-We characterize the above infinite-dimensional continuous-time stochastic process as the limiting process of an intuitive discrete-time model.  
-We then develop an online variational Bayesian inference algorithm for this model \cite{??}.  Via numerical simulations, we demonstrate that our inference procedure improves over the previous state-of-the-art, even though we allow the other methods to use the entire dataset for training, whereas we learn online.  Moreover, we demonstrate that we can effectively track the time-varying changes in waveform, and detect overlapping spikes.  Indeed, it seems that the false positive detections from our approach have indistinguishable first order statistics from the true positives, suggesting that that second-order methods may be required to reduce false positive rate (i.e., template methods may be inadequate).  Our work therefore suggests that further improvements in real-time decoding of activity may be most effective if directed at simultaneous real-time spike sorting and decoding.  To facilitate such developments and support reproducible research, all code and data associated with this work is provided in the Supplementary materials.
+We describe an intuitive discrete-time approximation to the above infinite-dimensional continuous-time stochastic process, % as the limiting process of an intuitive discrete-time model.  
+then developing an online variational Bayesian inference algorithm for this model.  
+Via numerical simulations, we demonstrate that our inference procedure improves over the previous state-of-the-art,
+even though we allow the other methods to use the entire dataset for training, whereas we learn online.  
+Moreover, we demonstrate that we can effectively track the time-varying changes in waveform, and detect overlapping spikes.  
+Indeed, it seems that the false positive detections from our approach have indistinguishable first order statistics from the true positives, suggesting that that second-order methods may be required to reduce false positive rate (i.e., template methods may be inadequate).  Our work therefore suggests that further improvements in real-time decoding of activity may be most effective if directed at simultaneous real-time spike sorting and decoding.  To facilitate such developments and support reproducible research, all code and data associated with this work is provided in the Supplementary materials.
 
 
+\vspace{-.12in}
 \paragraph{\textbf{Notation: }}
 Unless otherwise specified, lower-case English alphabet characters indicate scalars $x \in \Real$. Bold indicates column vectors $\mb{x} \in \Real^p$,
 and upper-case bold indicates matrices, $\bX \in \Real^{p \times q}$.  Parameters and constants are Greek characters.  Time is $t \in [0,T]$, 
