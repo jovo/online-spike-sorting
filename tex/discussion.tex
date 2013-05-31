@@ -1,7 +1,11 @@
+% \paragraph{Summary}
 
+We have developed a novel Bayesian nonparametric model for spike sorting called \smug.  Our model and inference procedure incorporate certain features that previous approaches---be they nonparametric or not---lacked.  Most importantly, we developed a variational Bayesian online inference scheme, that enabled faster than real-time posterior inference.  Such computational efficiency is crucial for sequential experimental design \cite{}.  Although we only provided our algorithm with streaming data, \smug\ outperformed all competitor \emph{batch} algorithms (that is, algorithms that consume all the data at once). Our improved sensitivity and specificity seem to arise from multiple sources including (i) improved detection, (ii) correlated noise, (iii) capturing overlapping spikes, (iv) tracking waveform dynamics, and (v) utilizing multiple channels.  While others have developed closely related Bayesian models for clustering \cite{WoodBla2008,wood2009}, deconvolution based techniques \cite{Pillow2013}, time-varying waveforms \cite{calabrese2011kalman},  \emph{or} online methods \cite{OSORT, Franke2010}, we are the first to our knowledge to incorporate \emph{all} of those features.
+
+An interesting implication of our work is that it seems that our errors result from problems of the dictionary.  Fig.\ \ref{fig:ICold} shows the true positives, missed positives, and false positives in the space of the first two PCs (see Supplementary Fig.\ \ref{pairs}). Although we are clustering in a higher dimensional subspace (5 PCs) 
 
 % \vspace{-10pt}
-\subsection{Limitations of Dictionary-Based Techniques} \label{sub:template}
+\paragraph{Limitations of Dictionary-Based Techniques} \label{sub:template}
 \vspace{-5pt}
 
 
