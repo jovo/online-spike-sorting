@@ -1,39 +1,36 @@
 
 \begin{center}
 \begin{figure}[h!]
-\begin{subfigure}[b]{.3\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/pcaelements.pdf}
+\begin{subfigure}[b]{.45\textwidth}
+\includegraphics[width=1\textwidth]{../figs/new/pcaelements.pdf}
 \caption{}
-\label{fig:ICold}
+%\label{fig:ICold}
 \end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
+\begin{subfigure}[b]{.45\textwidth}
+\includegraphics[width=1\textwidth]{../figs/supfigs/pcaenergy.pdf}
 \caption{}
-\label{fig:ICold}
+\label{fig:PCAenergy}
 \end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\caption{\jovo{dictionary: (a) from first 5 secs, (b) from all data, (c) spectrum from all data which is cumsum/sum} 
-} \label{fig:timing}
+% \begin{subfigure}[b]{.3\textwidth}
+% % \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
+% \caption{}
+% \label{fig:ICold}
+% \end{subfigure}
+% \begin{subfigure}[b]{.3\textwidth}
+% % \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
+% \caption{}
+% \label{fig:ICold}
+% \end{subfigure}
+\caption{(a)Dictionary learned from the first 5 seconds of data from the HC1 dataset. (b) Percentage of variance explained by each PCA component.
+} \label{fig:dict}
 \end{figure}
 \end{center}
 
 \begin{figure}[htbp]
 	\centering
-		% \includegraphics[height=3in]{../figs/new/pairs.pdf}
-	\caption{(a) This shows the average number of true positives versus the average number of false positives in the intracellular cluster for 2 minute segments of the 4 minutes of the experiment.  \smug\ does better than    \jovo{let's make the symbols different for the different methods.  also, let's make the axes in terms of percentages, rather than raw numbers.} }
+ 	\includegraphics[height=3in]{../figs/supfigs/clusterpermerr.pdf}
+	\caption{(a) This shows the average number of true positives versus the average number of false positives in the intracellular cluster for 2 minute segments of the 4 minutes of the experiment.  \smug\ does better than all the competitors.  }
 	\label{fig:asdf}
-\end{figure}
-
-
-\begin{figure}[htbp]
-	\centering
-		\includegraphics[height=3in]{../figs/new/pairs.pdf}
-	\caption{caption}
-	\label{fig:pairs}
 \end{figure}
 
 
@@ -70,13 +67,13 @@ Improving \smug\ by incorporating \emph{multiple} channels.
 \end{center}
 
 
-
-\begin{figure}[htbp]
-	\centering
-		% \includegraphics[height=3in]{../figs/new/pairs.pdf}
-	\caption{(a) intracellular waveform shape over time (b) and in PC space.}
-	\label{fig:pairs}
-\end{figure}
+% 
+% \begin{figure}[htbp]
+% 	\centering
+% 		% \includegraphics[height=3in]{../figs/new/pairs.pdf}
+% 	\caption{(a) intracellular waveform shape over time (b) and in PC space.}
+% 	\label{fig:pairs}
+% \end{figure}
 
 
 
@@ -104,7 +101,14 @@ Improving \smug\ by incorporating \emph{multiple} channels.
 \end{figure}
 \end{center}
 
-
+\begin{center}
+\begin{figure}[h!]
+	% \centering
+		\includegraphics[width=\linewidth]{../figs/new/pairs.pdf}
+	\caption{Pairs plot of true positives (black), false positives (blue $\times$'s), and missed positives (red $+$'s).  It does not seem like clustering in this space could yield much improvement. }
+	\label{fig:pairs}
+\end{figure}
+\end{center}
 
 \begin{center}
 \begin{figure}
@@ -139,18 +143,18 @@ Improving \smug\ by incorporating \emph{multiple} channels.
 
 \begin{center}
 \begin{figure}[h!]
-\begin{subfigure}[b]{.5\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/timingsinglechannel.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\begin{subfigure}[b]{.5\textwidth}
-% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\caption{\jovo{timing plots: (a) line (can we put a line on there for 4 channels too?), (b) notched boxplots. } 
-} \label{fig:timing}
+\includegraphics[width=0.5\textwidth]{../figs/new/timingsinglechannel.pdf}
+% \begin{subfigure}[b]{.5\textwidth}
+% \includegraphics[width=\textwidth]{../figs/new/timingsinglechannel.pdf}
+% \caption{}
+% \label{fig:ICold}
+% \end{subfigure}
+% \begin{subfigure}[b]{.5\textwidth}
+% % \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
+% \caption{}
+% \label{fig:ICold}
+% \end{subfigure}
+\caption{\smug\ scales linearly with amount of data, with a slope smaller than one, meaning that \smug\ can operate in real-time. } \label{fig:timing}
 \end{figure}
 \end{center}
 

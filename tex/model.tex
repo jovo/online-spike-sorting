@@ -377,8 +377,7 @@ Where we previously had a DP mixture of Gaussians, we now have a DP mixture of G
 $\bth^*(\cdot)$, rather than a constant. When a spike at time $\tau_l$ is assigned to neuron $i$, it is assigned a weight-vector $\by_l$ drawn from a 
 Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. %Following \citep{wood2009}, a useful extension is to also allow the neuron assignment probabilities to evolve 
 %(corresponding to a time-varying Gamma process \citep{RaoTeh2009a}); we leave this for future work. 
-
-Algorithm \ref{alg:gen_proc} in the Supplementary Material summarizes the generative mechanism of the data for the full discrete-time model.
+Algorithm \ref{alg:gen_proc} in the Supplementary Material summarizes the full generative mechanism for the full discrete-time model.
 % <<<<<<< HEAD
 % Our second extension is to generalize our model from a single electrode to the case of multielectrode recordings. 
 % We allow the shape of any spike to vary across channels: for spike $l$ in channel $m$, call the weight-vector $\by^m_l$.
