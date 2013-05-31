@@ -222,7 +222,7 @@ Consequently, the clustering of spikes (determined by $G(\cdot)$) is independent
    \\
    (\mb{\mu}_{l}, \Sigma_{l}) &\equiv \bth_l,  &\text{ where } \bth_l &\sim \text{CRP}(\alpha, H_{\phi}(\cdot)), \quad l \in [|\mc{T}|],   \label{eq:CRP}\\
   x(t) &=   \sum_{l=1}^{|\mc{T}|} \sum_{k=1}^K y_{lk} d_k(t - \tau_{l}) + \eps_t  &\text{ where } \by_l &\sim \mc{N}_K(\mb{\mu}_{l}, \Sigma_{l}), \,  l \in [|\mc{T}|], \, \eps_t \sim \mc{N}(0,\sigma^2).   \label{eq:CRP_mix}
-\end{align}
+\end{align} \label{eq:marked_pp}
 \end{subequations}
 Unlike most applications which observe the outputs of a CRP, our observation at any time $t$ is a convolution-like function of the CRP outputs of all
 earlier times. Consequently, we cannot directly apply standard techniques for posterior inference. In \S \ref{sec:inf}, we develop a novel online 
@@ -240,33 +240,36 @@ algorithm for posterior inference; first, we provide a discrete-time approximati
 The previous subsections modeled the continuous-time voltage output of a neuron. Our data on the other hand consists of recordings
 at a discrete set of times. While it is possible to make inferences about the continuous-time process underlying these discrete recordings,
 in this paper, %for simplicity, 
-we restrict ourselves to the discrete case. We thus provide a discrete-time approximation to the model above. 
-Our approximation follows easily from the marked Poisson process characterization of the model.
+we restrict ourselves to the discrete case. %We thus provide a discrete-time approximation to the model above. 
+The marked Poisson process characterization of equation \ref{eq:marked_pp} leads to a simple
+discrete-time approximation of our model.
 
 Recall first the Bernoulli approximation to the Poisson process: a sample from a Poisson process with rate $\Lambda$ can be approximated by discretizing
-time at a granularity $\Delta$, and assigning each bin an event independently with probability $\Lambda\Delta$. The accuracy of this approximation increases 
-as $\Delta$ tends to $0$.
+time at a granularity $\Delta$, and assigning each bin an event independently with probability $\Lambda\Delta$ (the accuracy of the approximation increasing 
+as $\Delta$ tends to $0$).
 %
 %This suggests the following approximation at a time resolution $\Delta$. Draw the random Poisson process rate $\Lambda$ drawn from a Gamma$(1,\alpha)$ 
 %distribution. Simultaneously, draw a random probability measure
 % $G$ from a Dirichlet process. Assign an event to an interval independently with probability $\Lambda\Delta$, and to each event, assign a random mark drawn 
-In our case, we have to approximate the marked Poisson process $\mc{T}$. All this requires additionally is to assign marks $\bth_i$ and $\by_i$ to each event 
-in the Bernoulli approximation. Following Eqs.~\eqref{eq:CRP} and \eqref{eq:CRP_mix}, the $\bth_l$'s is distributed according
+To approximate the \emph{marked} Poisson process $\mc{T}$, all that is additionally required is to assign marks $\bth_i$ and $\by_i$ to each event 
+in the Bernoulli approximation. Following Eqs.~\eqref{eq:CRP} and \eqref{eq:CRP_mix}, the $\bth_l$'s are distributed according
 to a Chinese restaurant process, while each $\by_l$ is drawn from a normal distribution parametrized by the corresponding $\bth_l$. We discretize the 
-elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, defining a mapping from $L_2$ to $\Real^L$ yielding discrete dictionary elements 
-$\mt{\bd}_{k,:}=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$. These form the rows of a ${K \times L}$ matrix $\mt{\bD}$, we call its columns
-$\mt{\bd}_{:,h}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
+elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, %defining a mapping from $L_2$ to $\Real^L$ 
+yielding discrete dictionary elements 
+$\mt{\bd}_{k,:}=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$. These form the rows of a ${K \times L}$ matrix $\mt{\bD}$ (we call its columns
+$\mt{\bd}_{:,h}$). The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
 $\by$, is given by $\mt{\bD} \by$.
 
 We can simplify notation a little for the discrete-time model. Let $t$ index time-bins (so that for an observation interval of length 
 $T$, $t \in [T/\Delta]$).
 Let the binary variable $\mt{z}_t$ indicate whether or not a spike in present in time bin $t$ (recall that 
 $\mt{z}_t \sim \text{Bernoulli}(\Lambda \Delta)$). Let
-$\mt{\nu}_t$ and $\mt{\theta}_t$ be the neuron and neuron parameter associate with time bin $t$. If there is a spike associated with that bin (i.e.\ 
+$\mt{\nu}_t$ and $\mt{\theta}_t$ be the neuron and neuron parameter associate with time bin $t$, and let $\mt{\by}_t$ be its weight-vector. 
+If there is a spike associated with that bin (i.e.\ 
 $\mt{z}_t = 1$), then these are the marks of that spike, otherwise we ignore them.
 Then the output at time $t$, $x_t$ is given by
 %\begin{align}
-$\quad  x_t = \sum_{h = 1}^L \bd_{:,h}^{\T} \by_{t-h-1} + \epsilon_t \text{,\quad where $\epsilon_t \sim \mathcal{N}(0,\sigma^2)$.}$ 
+$\quad  x_t = \sum_{h = 1}^L \mt{z}_{t-h} \bd_{:,h}^{\T} \mt{\by}_{t-h-1} + \epsilon_t \text{,\quad where $\epsilon_t \sim \mathcal{N}(0,\sigma^2)$.}$ 
 %\end{align}
 \subsection{Correlations in time and across electrodes}
 We end by describing two extensions to the model outlined so far. 
