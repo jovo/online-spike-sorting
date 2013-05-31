@@ -61,7 +61,7 @@ While the above analysis suggests that it is not the threshold that yields \smug
 \caption{\smug\ achieves improved sensitivity and specificity over all competing methods on partial ground truth data (where true positives from one neuron are known from intracellular recordings).  
 (a) True positive and false positive rates for all variants of \smug\ and several competing state-of-the-art \emph{batch} algorithms.  
 (b) ROC curves demonstrating that both \sct{M}\smug\ and \smug\ outperform all competitor batch algorithms, regardless of threshold (including when we learn $\Lambda$ from the data, as indicated by a \jovo{*}).
-\jovo{@dec - keep colors/symbols the same in the two panel, if possible.  maybe use a scheme where color indicates algorithm and shape indicates \# of components.  also, be consistent about "IC" cluster vs. "Intracellular" Cluster. (b) title should be ``ROC Curve Comparisons''}  
+\jovo{@dec - keep colors/symbols the same in the two panel, if possible.  maybe use a scheme where color indicates algorithm and shape indicates \# of components.  also, be consistent about "IC" cluster vs. "Intracellular" Cluster. and normalize, renaming axes XY Rate instead of only XY. (b) title should be ``ROC Curve Comparisons''}  
 }
 \end{figure}
 \end{center}
@@ -71,15 +71,13 @@ While the above analysis suggests that it is not the threshold that yields \smug
 \subsection{Overlapping Spike Detection}
 
 
-\jovo{add grids to all panels of all figs by default, remove if it looks shitty.}
 
-A putative reason for the improved sensitivity and specificity of \smug\ over other algorithms is its ability to detect overlapping spikes.   When spikes overlap, although the result can accurately be modeled as a linear sum in voltage space, the resulting waveform often does not appear in any cluster in PC space (see \ref{Pillow2013}).  However, our online approach can readily find such overlapping spikes.  Figure \ref{fig:overlapping} shows one example of 135 examples where \smug\ believed that multiple waveforms were overlapping.  Indeed, it should be clear that by virtue of estimating the presence of multiple spikes, the residual squared error between the expected voltage and observed voltage shrinks.  Figure \ref{fig:resid} shows the density of the residual errors for all putative overlapping spikes.  The mass of this density is significantly smaller than the mass of the other scenarios.  
-\jovo{add a test.} 
+A putative reason for the improved sensitivity and specificity of \smug\ over other algorithms is its ability to detect overlapping spikes.   When spikes overlap, although the result can accurately be modeled as a linear sum in voltage space, the resulting waveform often does not appear in any cluster in PC space (see \ref{Pillow2013}).  However, our online approach can readily find such overlapping spikes.  Figure \ref{fig:overlapping} shows one example of 135 examples where \smug\ believed that multiple waveforms were overlapping.  Indeed, it should be clear that by virtue of estimating the presence of multiple spikes, the residual squared error between the expected voltage and observed voltage shrinks.  Figure \ref{fig:resid} shows the density of the residual errors for all putative overlapping spikes.  The mass of this density is significantly smaller than the mass of the other scenarios.  Of all the true spikes that we detect, 37 of them we believe to be overlapping.  Thus, while it seems detecting overlapping spikes helps, it does not fully explain the improvements over the competitor algorithms.
+\jovo{@jovo - add an actual statistical test test.} 
 
 
-It is possible for action potentials to fire close to simultaneously so that a given window would have 2 or move action potent ions.  It is possible for the algorithm to detect and fit overlapping spikes as they come in.  Out of the 3593 spikes detected by the algorithm, there are 124 pairs of overlapping spikes within 1ms of one another (3.45\%).  An example of an overlapping waveform is shown in Figure \ref{overlapping}.
+% It is possible for action potentials to fire close to simultaneously so that a given window would have 2 or move action potent ions.  It is possible for the algorithm to detect and fit overlapping spikes as they come in.  Out of the 3593 spikes detected by the algorithm, there are 124 pairs of overlapping spikes within 1 ms of one another (3.45\%).  An example of an overlapping waveform is shown in Figure \ref{overlapping}.
 
-\jovo{37 overlapping spikes}
 
 \begin{center}
 \begin{figure}[h!]
@@ -100,6 +98,8 @@ It is possible for action potentials to fire close to simultaneously so that a g
 
 
 \subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
+
+
 As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Allowing the mean of each component to evolve over time improved single-channel performance over the 4-minute dataset, and gave similar performance in the multi-channel algorithms.
 
 
@@ -128,6 +128,9 @@ As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shap
 \end{center}
 
 \subsection{Multi-Electrode Array} \label{sub:multi}
+
+\jovo{add grids to all panels of all figs by default, remove if it looks shitty.}
+
 
 In the tetrode case the waveform undoubtedly appears on all channels at once; it is possible to concatenate the channels to jointly process the data \cite{wood2009}.  When the action potential will only appear on a subset of channels it is nice to allow the action potential to vary in a low-dimensional subset in each of the channels instead of a low-dimensional subset over all the channels. \cite{Prentice2011}
 
@@ -227,45 +230,6 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 
 
 
-\begin{center}
-\begin{figure}[h!]
-\begin{subfigure}[b]{.5\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/timingsinglechannel.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\begin{subfigure}[b]{.5\textwidth}
-% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\caption{\jovo{timing plots: (a) line, (b) notched boxplots} 
-} \label{fig:timing}
-\end{figure}
-\end{center}
-
-
-\begin{center}
-\begin{figure}[h!]
-\begin{subfigure}[b]{.3\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/pcaelements.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\caption{\jovo{dictionary: (a) from first 5 secs, (b) from all data, (c) spectrum from all data which is cumsum/sum} 
-} \label{fig:timing}
-\end{figure}
-\end{center}
 
 
 
