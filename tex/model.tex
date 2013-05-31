@@ -59,20 +59,21 @@ exponentially distributed with mean $1/\lambda_i$. We write this as
 $ \mc{T}_i \sim \PP(\lambda_i)$.
 
 The actual electrical output of a neuron is not binary; instead each spiking event is a smooth perturbation in voltage about a
-resting state. This perturbation forms the shape of the spike, and without any loss of generality, we set the resting state to zero. 
+resting state. This perturbation forms the shape of the spike, %and without any loss of generality, we set the resting state to zero. 
 %{(\color{red} figure? better biological description? comment on how we preprocess the data to get zero mean?)}. 
-While the spike shapes vary across neurons as well as across different spikes of the same neuron, each 
-neuron has its own characteristic distribution over shapes. 
-We let $\bth^*_i \in \Theta$ parametrize this distribution for neuron $i$.
+with the spike shapes varying across neurons as well as across different spikes of the same neuron. However, each 
+neuron has its own characteristic distribution over shapes, and we let $\bth^*_i \in \Theta$ parametrize this distribution for neuron $i$.
  % having parameter $\bth^*_i$. 
 Whenever this neuron emits a 
 spike, a new shape is drawn independently from the corresponding distribution. %$p_{\bth_i}$, and 
-This waveform is then offset to the time of the spike, and contributes to the voltage trace associated with that spike. The complete recording from
+This waveform is then offset to the time of the spike, and contributes to the voltage trace associated with that spike. 
+
+The complete recording from
 the neuron is the superposition of all these spike waveforms plus noise.  
-Rather that treating the noise as white as is common in the literature \citep{Lewicki}, we allow the noise to exhibit temporal correlation,
+Rather that treating the noise as white as is common in the literature \citep{Lewicki}, we allow it to exhibit temporal correlation,
 recognizing that the `noise' is in actual fact background neural activity. 
-We model the noise as a realization of a Gaussian process (GP) \citep{RasWil2006}, with the covariance kernel $\mathcal{K}$ of the GP determining
-the temporal structure. We model the noise as Markov, using an exponential kernel.  %start by assuming the noise at each observation time is i.i.d.\ Gaussian.
+We model it as a realization of a Gaussian process (GP) \citep{RasWil2006}, with the covariance kernel $\mathcal{K}$ of the GP determining
+the temporal structure. We use an exponential kernel, modeling the noise as Markov.  %start by assuming the noise at each observation time is i.i.d.\ Gaussian.
 
 % Comment on how this dictionary is obtained now, or in section on inference?)}. 
 We model each spike shape as weighted superpositions of a dictionary of $K$ basis functions 
@@ -97,7 +98,7 @@ $
 % \end{figure}
 % \end{center}
 % 
-{The total signal recorded from any electrode  is the superposition of the outputs of all neurons. Assume for the moment there are $N$
+{The total signal received by any electrode  is the superposition of the outputs of all neurons. Assume for the moment there are $N$
 neurons, and define $\mc{T} \equiv \cup_{i \in [N]} \mc{T}_i$ as
 the (ordered) union of the spike times of all neurons. 
 Let $\tau_l \in \mc{T}$ indicate the time of the $l^{th}$ overall spike, whereas $\tau_{ij} \in \mc{T}_i$ is the time of the $j^{th}$ spike of neuron $i$.
@@ -190,8 +191,8 @@ later on.
 % power-law behavior in the number of spikes emitted by different neurons.
 % % 
 % =======
-Other \Levy measures can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
-power-law behavior in the number of spikes emitted by different neurons.
+%Other \Levy measures can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
+%power-law behavior in the number of spikes emitted by different neurons.
 % >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433
 % To complete the specification on the Gamma process, we choose a base-measure $\mathsf{H}(\bth^*)$.
 % %Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, 
@@ -218,7 +219,7 @@ to the conjugate normal-Wishart distribution with hyperparameters $\phi$.
 % 
 %\jovo{perhaps it is standard, but you sample $\Lambda$ and then the next line you have $\lambda_i$, but no explanation for how you from $\Lambda$ to $\lambda_i$. i also am confused as to why $\phi$ is a subscript on $H$, rather than in the $(\cdot)$}
 %Atom $i$ of the CRM corresponds to a neuron with parameters $(\lambda_i, \theta^*_i)$. 
-It is easy to directly specify the resulting continuous-time model, we provide the equations in the Supplementary material. 
+It is easy to directly specify the resulting continuous-time model, we provide the equations in the Supplementary Material. 
 However it is more convenient to represent the model using the marked Poisson process of Eq.~\eqref{eq:spk}. % and \eqref{eq:spk_shape}. 
 There, the overall process $\mc{T}$ is a rate $\Lambda$ Poisson process,
 and under a Gamma process prior, $\Lambda$ is Gamma$(\alpha,1)$ distributed %with shape and scale parameters $\alpha$ and $1$ respectively 
@@ -377,7 +378,7 @@ $\bth^*(\cdot)$, rather than a constant. When a spike at time $\tau_l$ is assign
 Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. %Following \citep{wood2009}, a useful extension is to also allow the neuron assignment probabilities to evolve 
 %(corresponding to a time-varying Gamma process \citep{RaoTeh2009a}); we leave this for future work. 
 
-Algorithm \ref{alg:gen_proc} in the supplementary material summarizes the generative mechanism of the data for the full discrete-time model.
+Algorithm \ref{alg:gen_proc} in the Supplementary Material summarizes the generative mechanism of the data for the full discrete-time model.
 % <<<<<<< HEAD
 % Our second extension is to generalize our model from a single electrode to the case of multielectrode recordings. 
 % We allow the shape of any spike to vary across channels: for spike $l$ in channel $m$, call the weight-vector $\by^m_l$.
