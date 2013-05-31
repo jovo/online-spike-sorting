@@ -19,6 +19,10 @@ onlinethresh=[687/NP 145/NF];
 onlinewhite=[683/NP 183/NF];
 FMM=[667/NP 121/NF];
 DPMM=[722/NP 186/NF];
+FOSORT=[716/NP 98/NF];
+OSORT1=[423/NP 58/NF];
+OSORT2=[293/NP 40/NF];
+
 figure(1);
 mksize=34;
 fs=20;
@@ -27,9 +31,9 @@ hold on
 plot(kmeans(2,1),kmeans(1,1),'r.','MarkerSize',mksize)
 t=text(kmeans(2,1),kmeans(1,1),' K-2');set(t,'FontSize',fs)
 plot(kmeans(2,2),kmeans(1,2),'r.','MarkerSize',mksize)
-t=text(kmeans(2,2),kmeans(1,2),' K-3');set(t,'FontSize',fs)
+t=text(kmeans(2,2),kmeans(1,2)+0.01,' K-3');set(t,'FontSize',fs)
 plot(kmeans(2,3),kmeans(1,3),'r.','MarkerSize',mksize)
-t=text(kmeans(2,3),kmeans(1,3),' K-4');set(t,'FontSize',fs)
+t=text(kmeans(2,3),kmeans(1,3)+0.01,' K-4');set(t,'FontSize',fs)
 plot(kmeans(2,4),kmeans(1,4),'r.','MarkerSize',mksize)
 t=text(kmeans(2,4),kmeans(1,4),' K-5');set(t,'FontSize',fs)
 plot(gmm(2,1),gmm(1,1),'b.','MarkerSize',mksize)
@@ -42,21 +46,30 @@ plot(gmm(2,4),gmm(1,4),'b.','MarkerSize',mksize)
 t=text(gmm(2,4),gmm(1,4)+.01,' GMM-5');set(t,'FontSize',fs)
 %online-ARN
 plot(onlinear(2),onlinear(1),'k.','MarkerSize',mksize)
-t=text(onlinear(2),onlinear(1),' ORGASM');set(t,'FontSize',fs)
+t=text(onlinear(2),onlinear(1),' O');set(t,'FontSize',fs)
 plot(onlinearar(2),onlinearar(1),'k.','MarkerSize',mksize)
-t=text(onlinearar(2),onlinearar(1),' ORGASMR');set(t,'FontSize',fs)
+t=text(onlinearar(2),onlinearar(1),' OR');set(t,'FontSize',fs)
 plot(onlinemcar(2),onlinemcar(1),'k.','MarkerSize',mksize)
-t=text(onlinemcar(2),onlinemcar(1),' MORGASM');set(t,'FontSize',fs)
+t=text(onlinemcar(2),onlinemcar(1),' MO');set(t,'FontSize',fs)
 plot(onlinemcarar(2),onlinemcarar(1),'k.','MarkerSize',mksize)
-t=text(onlinemcarar(2),onlinemcarar(1),' MORGASMR');set(t,'FontSize',fs)
+t=text(onlinemcarar(2),onlinemcarar(1),' MOR');set(t,'FontSize',fs)
 plot(onlinethresh(2),onlinethresh(1),'k.','MarkerSize',mksize)
-t=text(onlinethresh(2),onlinethresh(1)-.02,' FAKE-ORGASM');set(t,'FontSize',fs)
+t=text(onlinethresh(2),onlinethresh(1),' FAKE-O');set(t,'FontSize',fs)
 plot(onlinewhite(2),onlinewhite(1),'k.','MarkerSize',mksize)
-t=text(onlinewhite(2),onlinewhite(1),' ORGASM-W');set(t,'FontSize',fs)
+t=text(onlinewhite(2),onlinewhite(1)-0.01,' O-W');set(t,'FontSize',fs)
 plot(FMM(2),FMM(1),'m.','MarkerSize',mksize)
 t=text(FMM(2),FMM(1),' FMM');set(t,'FontSize',fs)
 plot(DPMM(2),DPMM(1),'m.','MarkerSize',mksize)
 t=text(DPMM(2)-.5e-5,DPMM(1)-.01,' DPMM');set(t,'FontSize',fs)
+plot(FOSORT(2),FOSORT(1),'g.','MarkerSize',mksize)
+t=text(FOSORT(2),FOSORT(1),' FOSORT');set(t,'FontSize',fs)
+
+% plot(OSORT1(2),OSORT1(1),'g.','MarkerSize',mksize)
+% t=text(OSORT1(2),OSORT1(1),' OSORT_1');set(t,'FontSize',fs)
+% 
+% plot(OSORT2(2),OSORT2(1),'g.','MarkerSize',mksize)
+% t=text(OSORT2(2),OSORT2(1),' OSORT_2');set(t,'FontSize',fs)
+
 plot([4 12]*10^(-5),[0.75 1],'-k')
 hold off
 set(gca,'FontSize',24)

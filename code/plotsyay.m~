@@ -19,6 +19,10 @@ onlinethresh=[687/NP 145/NF];
 onlinewhite=[683/NP 183/NF];
 FMM=[667/NP 121/NF];
 DPMM=[722/NP 186/NF];
+FOSORT=[716/NP 98/NF];
+OSORT1=[423/NP 58/NF];
+OSORT2=[293/NP 40/NF];
+
 figure(1);
 mksize=34;
 fs=20;
@@ -57,6 +61,15 @@ plot(FMM(2),FMM(1),'m.','MarkerSize',mksize)
 t=text(FMM(2),FMM(1),' FMM');set(t,'FontSize',fs)
 plot(DPMM(2),DPMM(1),'m.','MarkerSize',mksize)
 t=text(DPMM(2)-.5e-5,DPMM(1)-.01,' DPMM');set(t,'FontSize',fs)
+plot(FOSORT(2),FOSORT(1),'g.','MarkerSize',mksize)
+t=text(FOSORT(2),FOSORT(1),' FOSORT');set(t,'FontSize',fs)
+
+plot(OSORT1(2),OSORT1(1),'g.','MarkerSize',mksize)
+t=text(OSORT1(2),OSORT1(1),' OSORT_1');set(t,'FontSize',fs)
+
+plot(OSORT2(2),OSORT2(1),'g.','MarkerSize',mksize)
+t=text(OSORT2(2),OSORT2(1),' OSORT_2');set(t,'FontSize',fs)
+
 plot([4 12]*10^(-5),[0.75 1],'-k')
 hold off
 set(gca,'FontSize',24)
