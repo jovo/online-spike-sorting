@@ -34,9 +34,7 @@ $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations u
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recordings 
 $\bx^L_t \equiv (x_{t},\cdots, x_{t+L-1})\T$.
 Recalling that the basis functions $\bD$, and thus all spike waveforms, span $L$ time bins, the residual at time $t+t_1$ is then given by
-\begin{align}
-  \delta x_{t+t_1} = x_t - \sum_{h=1}^{L-t_1} \mh{z}_{t-h} \bD\mh{\by}_{t-h} \label{eq:resid}
-\end{align}
+$  \delta x_{t+t_1} = x_t - \sum_{h=1}^{L-t_1} \mh{z}_{t-h} \bD\mh{\by}_{t-h}$.
 
 We treat the residual $\resx_{t} =  (\delta x_{t}, \cdots, \delta x_{t+L})\T$ as an observation from a DP mixture model, and use this to make a hard decision about whether or not this was produced 
 by an underlying spike, what neuron that spike belongs 
@@ -47,13 +45,13 @@ $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+
 %Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
 For the first step we use Bayes' rule to decide whether there is a spike underlying the residual:
 \begin{align}
-  P(\mt{z}_t = 1 | \resx_t)  &\propto P(\mt{z}_t = 1,  \resx_t) = \sum_{\nu_t = 1}^{\mh{C}_{t-1}+1} P(\resx_t, {\nu_t} | \mt{z}_t = 1) P(\mt{z}_t = 1) \label{eq:spk_prob}\\
-\intertext{$P({\nu_t} = i | \mt{z}_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}), while}
-  P(\resx_t | {\nu_t = i} , \mt{z}_t = 1) &= \int_{\Theta} P(\resx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
+  P(\mt{z}_t = 1 | \resx_t)  &\propto \sum_{i = 1}^{\mh{C}_{t-1}+1} P(\resx_t, {\nu_t = i} | \mt{z}_t = 1) P(\mt{z}_t = 1) \label{eq:spk_prob}
 \end{align}
+Here, $ P(\resx_t | {\nu_t = i} , \mt{z}_t = 1) = \int_{\Theta} P(\resx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t$,
+while $P({\nu_t} = i | \mt{z}_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr})
 Here,  $P(\resx_t | \theta_t)$ is just the normal distribution, while we restrict $q_{it}(\cdot)$ be the 
 normal-Wishart distribution. % with parameters 
-We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to approximate $P(\mt{z}_t = 1 | \resx_t)$. 
+We can then evaluate the integral, and then summation \eqref{eq:spk_prob} to approximate $P(\mt{z}_t = 1 | \resx_t)$. 
 If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $\mt{z}_t = 0$.
 Observe that making this decision involves marginalizing over all possible cluster assignments $\nu_t$, and all values of the weight vector $\by_t$.
 On the other hand, having decided that a spike is present, we simplify matters by collapsing these posterior distributions to point estimates 
