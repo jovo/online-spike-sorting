@@ -104,7 +104,8 @@ A putative reason for the improved sensitivity and specificity of \smug\ over ot
 \subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
 
 
-As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (see Figure \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R} which models the mean of the dictionary weights via an auto-regressive process.  Figure \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
+As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (Figure \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R}, which models the mean of the dictionary weights via an auto-regressive process.  Figure \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  More precisely, the mean of the posterior standard deviations for the time-varying prior is about half of that  
+Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
  
 
 
@@ -126,8 +127,9 @@ As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shap
 \label{fig:AR}
 \end{subfigure}
 \caption{
-(a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24s and the color gives the elapsed time.  This neuron decreases in amplitude over the period of the recording. 
-(b) \jovo{take out scale bars.}
+The IC waveform changes over time, which our posterior parameters track. 
+(a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24 seconds with color denoting the time interval.  This neuron decreases in amplitude over the period of the recording. 
+(b) The same waveforms plotted in PC space.
 (c) \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}
 \jovo{AR: mean 0.0037  std  0.0038
    other: mean 0.0077  std  0.0071}
