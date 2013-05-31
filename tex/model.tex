@@ -295,13 +295,14 @@ $  \mb{\mu}^*_{t+1} = \mathbf{A} \mb{\mu}^*_t + \mathbf{r}_t$.
 
 Where we previously had a DP mixture of Gaussians, we now have a DP mixture of GPs. Each neuron is now associated with a vector-valued function 
 $\bth^*(\cdot)$, rather than a constant. When a spike at time $\tau_l$ is assigned to neuron $i$, it is assigned a weight-vector $\by_l$ drawn from a 
-Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. Following \citep{wood2009}, a useful extension is to also allow the neuron assignment probabilities to evolve 
-(corresponding to a time-varying Gamma process \citep{RaoTeh2009a}); we leave this for future work.
+Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. %Following \citep{wood2009}, a useful extension is to also allow the neuron assignment probabilities to evolve 
+%(corresponding to a time-varying Gamma process \citep{RaoTeh2009a}); we leave this for future work. 
+In a similar way, we also induce correlations in the noise, we model this as an AR process with transition matrix $\mathbf{B}$.
 
 Our second extension is to generalize our model from a single electrode to the case of multielectrode recordings. 
 We allow the shape of any spike to vary across channels: for spike $l$ in channel $m$, call the weight-vector $\by^m_l$.
 Of course, all these vectors need to be correlated as they correspond to the same spike. We do this simply by concatenating the set of vectors into
-a single $MK$-element vector $\by_l = (\by^1_l;\cdots;\by^M_l)$, and modelling this as a multivariate normal. In principle, one might expect its associated 
+a single $MK$-element vector $\by_l = (\by^1_l;\cdots;\by^M_l)$, and modelling this as a multivariate normal. In principle, one might expect the associated 
 covariance matrix to possess a block structure (corresponding to subvector associated with each channel); however, rather than building this into the model,
 we allow the data to inform us about any such structure.
 Algorithm \ref{alg:gen_proc} in the supplementary material outlines generative mechanism of the data for the discrete-time model.
