@@ -147,7 +147,9 @@ The IC waveform changes over time, which our posterior parameters track.
 % \vspace{-5pt}
 
 
-Another key feature of \smug\ is its ability to incorporate multiple channels.  For the HC1 data, \sct{M}\smug\ (the multielectrode variant) achieved \jovo{??} more true positives, while only missing an additional \jovo{??} spikes (see Fig.\ \ref{hc1res}).  We further evaluate the impact of multiple channels using both a three channel Michigan shank (Fig.\ \ref{3dev}). In Fig.\ \ref{ex31} and\ref{ex32} we show the top two most prevalent waveforms from these data across the three electrodes.  If only the third electrode would have been used, these two waveforms would not be distinct (as evidenced by their substantial overlap in PC space upon using only the third channel).  This suggests that by borrowing strength across electrodes, we obtain improved detection accuracy. Supplementary Fig.\ \ref{sfig:8} shows a similar plot for the eight channel data.  
+Our \smug\ achieved a heightened sensitivity by virtue of incorporating \emph{multiple} channels (see \sct{M}\smug\ point in Fig.\ \ref{hc1res}).  
+% Another key feature of \smug\ is its ability to incorporate multiple channels.  For the HC1 data, \sct{M}\smug\ (the multielectrode variant) achieved \jovo{??} more true positives, while only missing an additional \jovo{??} spikes (see Fig.\ \ref{hc1res}).  
+We further evaluate the impact of multiple channels using both a three channel Michigan shank (Fig.\ \ref{3dev}). In Fig.\ \ref{ex31} and\ref{ex32} we show the top two most prevalent waveforms from these data across the three electrodes.  If only the third electrode would have been used, these two waveforms would not be distinct (as evidenced by their substantial overlap in PC space upon using only the third channel in Fig.\ \ref{3chpca}).  This suggests that by borrowing strength across electrodes, we obtain improved detection accuracy. Supplementary Fig.\ \ref{sfig:8} shows a similar plot for the eight channel data.  
 
 
 % In the tetrode case the waveform undoubtedly appears on all channels at once; it is possible to concatenate the channels to jointly process the data \cite{wood2009}.  When the action potential will only appear on a subset of channels it is nice to allow the action potential to vary in a low-dimensional subset in each of the channels instead of a low-dimensional subset over all the channels. \cite{Prentice2011}
@@ -205,38 +207,9 @@ Another key feature of \smug\ is its ability to incorporate multiple channels.  
 % \label{ex83}
 % \end{subfigure}
 \caption{
+Improving \smug\ by incorporating \emph{multiple} channels.
 (a) Three electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (b,c) Top 2 most prevalent waveforms.  Each waveform shape is 2ms long.   Note in (a) we have a waveform that appears on both channel 2 and channel 3, whereas in (b) the waveform only appears in channel 3.  If only channel 3 was used, it would be difficult to separate the waveform in (a) and (b), as is demonstrated in Fig.\ (d) by the representation of detected spikes on the 3rd channel in PCA space.
 }
-\end{figure}
-\end{center}
-
-
-
-\vspace{-10pt}
-\subsection{Limitations of Dictionary-Based Techniques} \label{sub:template}
-\vspace{-5pt}
-
-
-\begin{center}
-\begin{figure}[h!]
-\begin{subfigure}[b]{.33\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
-\caption{}
-\label{fig:ICold}
-\end{subfigure}
-\begin{subfigure}[b]{.33\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/ICclusternewpca.pdf}
-\caption{}
-\label{fig:ICnew}
-\end{subfigure}
-\begin{subfigure}[b]{.33\textwidth}
-\includegraphics[width=\textwidth]{../figs/IntracellularTrueFalsePositivesv2}
-\caption{}
-\label{truewaveforms}
-\end{subfigure}
-\caption{Template matching.
-(c) Errorbar plots of the true positives and the false positives in the IC cluster.  While the false positives have slightly more variability, the mean shape for the false positives and the true positives is nearly identical.  The true misses have a significantly lower amplitude as well as high variability. 
-} \label{fig:IC-PCA}
 \end{figure}
 \end{center}
 
