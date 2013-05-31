@@ -1,19 +1,19 @@
 
-\subsection{Data}
+\paragraph{Data:}
 
 We used two different datasets to demonstrate the efficacy of \smug.  First, the ever popular, publicly available HC1 dataset %\footnote{http://crcns.org/data-sets/hc/hc-1/}
 as described in \cite{Henze2000}.  We used the dataset d533101 that consisted of an extracellular tetrode and a single intracellular electrode.  The recording was made simultaneously on all electrodes and was set up such that the cell with the intracellular electrode was also recorded on the extracellular array implanted in the hippocampus of an anesthetized rat. The intracellular recording is relatively noiseless and gives nearly certain firing times of the intracellular neuron.  The extracellular recording contains the spike waveforms from the intracellular neuron as well as an unknown number of additional neurons.  The data is a 4-minute recording at a 10 kHz sampling rate.  
 
-The second dataset comes from novel NeuroNexus devices implanted in the rat motor cortex.  The data was recorded at 32.5 kHz in freely-moving rats.  The first device we consider is a set of 3 channels of data shown in Fig.\ \ref{3dev}.  The neighboring electrode sites in these devices have 30 $\mu$m between electrode edges and 60 $\mu$m between electrode centers.  These devices are close enough that a locally-firing neuron could appear on multiple electrode sites \cite{Prentice2011}, so neighboring channels warrant joint processing.  The second device has 8-channels (as shown in Fig.\ \ref{8dev}), but is otherwise similar to the first.
+The second dataset comes from novel NeuroNexus devices implanted in the rat motor cortex.  The data was recorded at 32.5 kHz in freely-moving rats.  The first device we consider is a set of 3 channels of data (Fig.\ \ref{3dev}).  The neighboring electrode sites in these devices have 30 $\mu$m between electrode edges and 60 $\mu$m between electrode centers.  These devices are close enough that a locally-firing neuron could appear on multiple electrode sites \cite{Prentice2011}, so neighboring channels warrant joint processing.  The second device has 8-channels (see Fig.\ \ref{8dev}), but is otherwise similar to the first.
 
 For both datasets, we preprocessed with a high-pass filter at 800 Hz using a fourth order Butterworth filter before we analyzed the time series.  To get the PCA decomposition, we used the spikes detected with a threshold (three times the standard deviation of the noise above the mean) in the first five seconds and used the top five principal components.  The noise standard deviation was estimated both over the first five seconds of the recording as well as the entire recording, and the estimate was nearly identical.  Our results were also robust to minor variations in the choice of the number of principal components.  The autoregressive parameters were estimated by using lag-1 autocorrelation on the same set of data.  For the multichannel algorithms we estimate the covariance between channels and normalize by our noise variance estimate.
 
-Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we can only verify accuracy for the neuron with the intracellular (IC) recording.  In these experiments, we define a detected spike to be an IC spike if the IC recording has a spike within 0.5 milliseconds (ms) of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the ``IC cluster''.   We refer to these data as ``partial ground truth data'', because we know the ground truth spike times for one of the neurons, but not all the others.  
+Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we can only verify accuracy for the neuron with the intracellular (IC) recording.  We define a detected spike to be an IC spike if the IC recording has a spike within 0.5 milliseconds (ms) of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the ``IC cluster''.   We refer to these data as ``partial ground truth data'', because we know the ground truth spike times for one of the neurons, but not all the others.  
 
 
 
-
-\subsection{Algorithm Comparisons}
+\vspace{-.1in}
+\paragraph{Algorithm Comparisons}
 
 We compare a number of variants of \smug, as well as several previously proposed methods, as described below.  The vanilla version of \smug\ operates on a single channel with colored noise.  When using multiple channels, we append an ``\sct{M}'' to obtain \sct{M}\smug.  When we model the mean of the waveforms as an auto-regressive process, we ``post-pend'' to obtain \smug\sct{R}.  
 We compare these variants of \smug\ to Gaussian mixture models and k-means with N components (\sct{Gmm-N} and \sct{K-N}, respectively), where \sct{N} indicates the number of components.  We compare with a Dirichlet Process Mixture Model (DPMM) \cite{WoodBla2008} as well as the  Focused Mixture Model (\sct{Fmm}) \cite{FMM}, a recently proposed Bayesian generative model with state-of-the-art performance.  Finally, with compare with \sct{OSORT} \cite{OSORT}, an online sorting algorithm.  Only \smug\ and \sct{OSORT} methods were online as we desired to compare to the state-of-the-art \emph{batch} algorithms which use all the data. 
@@ -33,7 +33,8 @@ The single-channel experiments were all run on channel 2 (the results were nearl
 The online algorithms were all run with weakly informative parameters, namely  $\mb{\mu}_0=\mb{0}$ $,\lambda_0=0.1,\bW=10\bI$, and $\nu=1$ ($\bI$ is the identity matrix).  
 For the autoregressive process, we set $\bB=(1-\mathsf{exp}(-2\times 10^{-6}))\bI$ and $r_t\sim\mathsf{N}(0,\mathsf{exp}(-4\times 10^{-6})\bI$.  $\alpha$ was set to $0.1$. The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31 seconds for a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory (see Supplementary Fig.\ \ref{fig:timing} for details).
 
-\subsection{Performance on partial ground truth data}
+\vspace{-.1in}
+\paragraph{Performance on partial ground truth data}
 
 
 
@@ -70,7 +71,8 @@ algorithms.
 % 
 % 
 \vspace{-10pt}
-\subsection{Overlapping Spike Detection}
+\vspace{-.1in}
+\paragraph{Overlapping Spike Detection}
 
 
 
@@ -99,13 +101,15 @@ Indeed, by virtue of estimating the presence of multiple spikes, the residual sq
 % \caption{asdf}
 % \label{fig:resid}
 % \end{subfigure}
+\vspace{-.1in}
 \caption{\smug\ can detect multiple overlapping waveforms (Top Left) The observed voltage (solid black), MAP waveform 1 (red), MAP waveform 2 (blue), and expected waveform from the sum (dashed-black). (Bottom Left) Residuals from same example snippet, demonstrating a clear improvement in residuals.  (c) {Histogram of residuals for all putative overlapping examples.}} \label{fig:overlapping}
 \end{SCfigure}
 \end{center}
 
 
 \vspace{-10pt}
-\subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
+\vspace{-.1in}
+\paragraph{Time-Varying Waveform Adaptation} \label{sub:adapt}
 
 
 As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Fig.\ \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (Fig.\ \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R}, which models the mean of the dictionary weights via an auto-regressive process.  Fig.\ \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  More precisely, the mean of the posterior standard deviations for the time-varying prior is about half of that for the static prior's posteriors. 
@@ -132,6 +136,7 @@ Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
 \caption{}
 \label{fig:AR}
 \end{subfigure}
+\vspace{-.3in}
 \caption{
 The IC waveform changes over time, which our posterior parameters track. 
 (a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24 seconds with color denoting the time interval.  This neuron decreases in amplitude over the period of the recording. 
@@ -142,7 +147,7 @@ The IC waveform changes over time, which our posterior parameters track.
 \end{center}
 
 \vspace{-10pt}
-\subsection{Multielectrode Array} \label{sub:multi}
+\paragraph{Multielectrode Array} \label{sub:multi}
 % \vspace{-5pt}
 
 
