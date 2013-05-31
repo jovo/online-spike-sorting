@@ -1,4 +1,5 @@
 \newcommand{\tx}{\tilde{x}}
+\newcommand{\resx}{\delta{x}}
 
 
 We now address the problem of posterior inference over the latent variables given the matrix $\bX$ of multielectrode recordings. 
@@ -19,50 +20,48 @@ greedy search (SUGS) algorithm of
 \citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize SUGS to our 
 observation process, also accounting for the time-evolution of the cluster parameters.
 
-At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations until time $t$. It also maintains
+Below, we describe an iteration of our algorithm the case a single electrode; %Most steps are repeated across all electrodes; 
+%we will point out when the need for anything more complicated arises. 
+generalizing to the multielectrode case is straightforward. 
+At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations so far. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
-waveforms. In addition to these point estimates, the algorithm also keeps a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
-set of neurons associated with the spikes seen so far. Let the number of unique neurons observed at time $t$ be $C_t$, so that $i$ varies from $1$ to $C_t$.
+waveforms. We indicate these point estimates with the hat operator, so, for example $\mh{\mc{T}}^t_i$ is the set of estimated spike times before time $t$ assigned
+to neuron $i$. The algorithm also keeps a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
+set of neurons associated with the spikes seen so far (i.e.\ $i \in [\mh{C}_t]$). 
 For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
 
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recording $x_{t+1}$ at time $t+1$.
-We subtract this term from $x_{t+1}$, and treat the residual $\mt{x}_{t+1}$ as an observation from a DP mixture model.
-Given this residual, our algorithm then makes a hard decision about whether or not this was produced by an underlying spike, what neuron that spike belongs 
+Recalling that the basis functions $\bD$, and thus all spike waveforms, span $L$ time bins, the residual at time $t$ is then given by
+\begin{align}
+  \resx_t = x_t - \sum_{h=1}^L \bD\mh{\by}_{t-h} \label{eq:resid}
+\end{align}
+
+We treat the residual $\resx_{t+1}$ as an observation from a DP mixture model, and use this to make a hard decision about whether or not this was produced 
+by an underlying spike, what neuron that spike belongs 
 to (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
 $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
 
 
-Below, we describe each of these steps for the case a single electrode; %Most steps are repeated across all electrodes; 
-%we will point out when the need for anything more complicated arises. 
-generalizing to the multielectrode case is straightforward. We start by recalling that the basis functions $\bD$, and thus all spike waveforms,
-span $L$ time bins. 
-Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
-The residual at time $t$ is then given by
+%Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
+For the first step we decide whether or not there is a spike underlying the residual by applying Bayes' rule,
 \begin{align}
-  \mt{\bx}_t = \bx_t - \sum_{h=1}^L \bD\by_{t-h} \label{eq:resid}
+  P(z_t = 1 | \resx_t)  &\propto P(z_t = 1,  \resx_t) = \sum_{\nu_t = 1}^{\mh{C}_{t-1}+1} P(\resx_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
+\intertext{$P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}), while}
+  P(\resx_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\resx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
 \end{align}
-Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
-By Bayes' rule,
-\begin{align}
-  P(z_t = 1 | \mt{\bx}_t)  &\propto P(z_t = 1,  \mt{\bx}_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\mt{\bx}_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
-\intertext{Recall that $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $\mc{T}^t_i$ index the time bins
-inferred to containing spikes from neuron $i$,  $P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}). 
-On the other hand,}
-  P(\mt{\bx}_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\mt{\bx}_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
-\end{align}
-Here,  $P(\mt{\bx}_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$, while we restrict $q_{it}(\cdot)$ be the 
+Here,  $P(\resx_t | \theta_t)$ is just the normal distribution, while we restrict $q_{it}(\cdot)$ be the 
 normal-Wishart distribution. % with parameters 
-We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to calculate $P(z_t = 1 | \mt{\bx}_t)$. 
+We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to calculate $P(z_t = 1 | \resx_t)$. 
 If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $z_t = 0$.
 Observe that making this decision involves marginalizing over all possible cluster assignments $\nu_t$, and all values of the weight vector $\by_t$.
-On the other hand, having decided that a spike is present , we simplify matters collapsing these posterior distributions to point estimates. In
-particular, we assign the spike to the neuron with highest posterior probability, and similarly set the weight-vector to its MAP value. 
+On the other hand, having decided that a spike is present , we simplify matters collapsing these posterior distributions to point estimates 
+$\mh{\nu}_t$ and $\mh{\by}_t$. Both are obtained from their MAP values. 
 
-Given these point estimates, we can update the posterior distribution over parameters of cluster $\nu_t$ to obtain $q_{i,t+1}$ from $q_{i,t}$; this
+Given these point estimates, we can update the posterior distribution over parameters of cluster $\mh{\nu}_t$ to obtain $q_{i,t+1}$ from $q_{i,t}$; this
 is straightforward because of conjugacy. 
 We need to follow this up with an additional update step for the parameter distributions of \emph{all} clusters because of the AR process on the parameters.
-This too is straightforward {\color{red} Get exact update rule}.
+This too is straightforward {\color{red} Get exact update rule. Hyperparameters}.
 
 The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
 
