@@ -164,14 +164,19 @@ theoretical properties, as well as posterior computation; see e.g.\ \citep{James
 %Recall that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$; characterizing the distribution over spike times 
 %and shapes respectively. 
 Recalling that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$, and with the measure $\mathsf{G}(\dd \bth)$ in mind,
+% <<<<<<< HEAD
+% we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an atomic measure on $\Theta$:
+% $\ \  \mathsf{\Lambda}(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
+% =======
 we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an random measure on $\Theta$:
 $\ \  \Lambda(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
+% >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433
 % >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 
 For a CRM, the distribution over measures is induced by distributions
 over the infinite sequence of weights, and the infinite sequence of their locations. 
 The weights $\lambda_i$ are the jumps of a \Levy process \citep{Sato90}, and their distribution is characterized by a 
-\Levy measure $\rho(\lambda)$. The locations $\bth^*_i$ are drawn i.i.d.\  from a base probability measure $H(\bth^*)$.
+\Levy measure $\rho(\lambda)$. The locations $\bth^*_i$ are drawn i.i.d.\  from a base probability measure $\mathsf{H}(\bth^*)$.
 As is typical, we assume these to be independent. % (though this is not necessary). 
 %{\color{green} if there's space, I
 %can elaborate on the construction of the CRM from its Levy measure, though this is not necessary}
@@ -184,15 +189,21 @@ total rate $\Lambda \equiv \mathsf{\Lambda}(\Theta) = \sum_{i=1}^{\infty} \lambd
 %The Gamma distribution has shape parameter $1$ and scale parameter $\alpha$.  Since this is finite almost surely, so too is $\mc{T}$. 
 The Gamma process is also closely connected with the Dirichlet process \citep{Ferguson73}, which will prove useful
 later on.
+% <<<<<<< HEAD
+% Other choices of the \Levy intensity can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
+% power-law behavior in the number of spikes emitted by different neurons.
+% % 
+% =======
 Other \Levy measures can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
+% >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433
 % To complete the specification on the Gamma process, we choose a base-measure $\mathsf{H}(\bth^*)$.
 % %Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, 
 % We set $\mathsf{H}(\bth^*)$ 
 % to the conjugate normal-Wishart distribution with parameters $\phi$. 
 % =======
-To complete the specification on the Gamma process, %we choose a base-measure $H(\bth^*)$.
+To complete the specification on the Gamma process, %we choose a base-measure $\mathsf{H}(\bth^*)$.
 %Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, 
-we set $H(\bth^*)$ 
+we set $\mathsf{H}_{\phi}(\bth^*)$ 
 to the conjugate normal-Wishart distribution with hyperparameters $\phi$.
 % >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 %Our overall model is then:
@@ -219,7 +230,7 @@ The labels $\bth_i$ assigning events to neurons are drawn i.i.d. from a normaliz
 process: % $\mathsf{G}(\dd \bth)$:
 %\vspace{-.2in}
 %\begin{align}
-$ \mathsf{G}(\dd \bth) = \frac{1}{\Lambda} \sum_{l=1}^{\infty} \lambda_l$.
+$ \mathsf{G}(\dd \bth) = 1/\Lambda \sum_{l=1}^{\infty} \lambda_l$.
 %\end{align}
 
 $\mathsf{G}(\dd \bth)$ is a random probability measure (RPM) called a \emph{normalized random measure} \citep{JamesLP09}. Crucially, a 
@@ -236,7 +247,7 @@ draws from a DP mixture model (DPMM) of Gaussians \citep{Lo1984}.
 % =======
 %The connection with the DP allows us to simplify the representation of our model. In particular, 
 We can exploit the connection with the DP to %a remarkable property of the DP that allows us to 
-integrate out the infinite-dimensional measure $\mathsf{G}(\cdot)$ (and thus $\Lambda(\cdot)$), and assign spikes to neurons via 
+integrate out the infinite-dimensional measure $\mathsf{G}(\cdot)$ (and thus $\mathsf{\Lambda}(\cdot)$), and assign spikes to neurons via 
 %. The resulting marginal distribution over observations follows 
 the so-called Chinese restaurant process (CRP) \citep{Pit2002a}. Under this scheme, the $l^{th}$ spike is assigned the same parameter as an earlier spike with probability 
 % >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
@@ -246,10 +257,14 @@ produced by neuron $i$ before time $t$,
 we then have for spike $l$ at time $t = \tau_l$: 
 \vspace{-.06in}
 \begin{align}
+% <<<<<<< HEAD
+%   \mathsf{P}({\nu_l} = i) & \propto 
+% =======
  \bth_l = \bth^*_{\nu_l} \text{, where } 
   P({\nu_l} = i) & \propto 
+% >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433
   \begin{cases}
-   |\mc{T}^t_i| \quad i \in \{1,\cdots, C_{t}\}, \\
+   |\mc{T}^t_i| \quad i \in [C_{t}], \\
    \alpha \quad\ i = C_{t} + 1, 
   \end{cases}  
 \label{eq:crp_marg_pr}
@@ -289,7 +304,7 @@ Consequently, the clustering of spikes (determined by $\mathsf{G}(\cdot)$) is in
 
 %\vspace{-.1in}
 % =======
-\vspace{-.2in}
+\vspace{-.1in}
 % >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 \subsection{A discrete-time approximation}  \label{sec:disc_time}
 % \vspace{-.1in}
@@ -365,3 +380,15 @@ Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. %Following \citep{wood2009}, a useful
 %(corresponding to a time-varying Gamma process \citep{RaoTeh2009a}); we leave this for future work. 
 
 Algorithm \ref{alg:gen_proc} in the supplementary material summarizes the generative mechanism of the data for the full discrete-time model.
+% <<<<<<< HEAD
+% Our second extension is to generalize our model from a single electrode to the case of multielectrode recordings. 
+% We allow the shape of any spike to vary across channels: for spike $l$ in channel $m$, call the weight-vector $\by^m_l$.
+% Of course, all these vectors need to be correlated as they correspond to the same spike. We do this simply by concatenating the set of vectors into
+% a single $MK$-element vector $\by_l = (\by^1_l;\cdots;\by^M_l)$, and modeling this as a multivariate normal. In principle, one might expect the associated 
+% covariance matrix to possess a block structure (corresponding to subvector associated with each channel); however, rather than building this into the model,
+% we allow the data to inform us about any such structure.
+% Algorithm \ref{alg:gen_proc} in the supplementary material outlines generative mechanism of the data for the discrete-time model.
+% 
+% \jovo{what's a semicolon in a sequence?}
+% =======
+% >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433

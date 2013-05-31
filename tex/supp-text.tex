@@ -2,7 +2,7 @@
 Our overall model is then:
 \begin{subequations}
 \begin{align}
-  \mc{T}_i\ \  &\sim \text{PP}(\lambda_i) \quad i \in \NN, \quad &\text{ where } \Lambda(\cdot)&=\sum_{i=1}^{\infty} \lambda_i \delta_{\theta^*_i} \sim \Gamma \text{P}(\alpha, H(\cdot| {\phi})), \\ %\mathcal{NW}(\mu, \Sigma)) \\ \\
+  \mc{T}_i\ \  &\sim \text{PP}(\lambda_i) \quad i \in \NN, \quad &\text{ where } \mathsf{\Lambda}(\cdot)&=\sum_{i=1}^{\infty} \lambda_i \delta_{\theta^*_i} \sim \Gamma \text{P}(\alpha, \mathsf{H}(\cdot| {\phi})), \\ %\mathcal{NW}(\mu, \Sigma)) \\ \\
 \vspace{-.8in}
   x_i(t) &= \sum_{j = 1}^{|\mc{T}_i|}  \sum_{k = 1}^{K} y^*_{ijk} \mathsf{d}_k(t - \tau_{ij}), \quad &\text{ where }\by^*_{ij}  &\sim \mathsf{N}_K(\mb{\mu}^*_i, \Sigma^*_i) \quad i,j \in \NN, \\
   x(t)   &= \sum_{i=1}^{\infty} x_i(t) + \eps_t, \quad &\text{ where at any time $t$, } \eps_t &\sim \mathsf{N}(0,\Sigma_x) \text{ independently}
