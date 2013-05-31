@@ -6,14 +6,14 @@ inference is intractable, and we have to resort to approximating the posterior d
 There exists a vast literature on approximate inference for Bayesian nonparametric models, especially so for models based on the Dirichlet process.
 Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
 and recently there has also been work on constructing deterministic approximations to the intractable posterior (eg.\ \citep{BleJor2006, MinGha2003}).
-Posterior inference in our problem is further confounded by two additional factors. The first is the convolutional nature of our observation process, 
+Our problem is further complicated by two additional factors. The first is the convolutional nature of our observation process, 
 where at each time,
 we observe a function of the previous observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes 
 the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
 Our ultimate goal, on the other hand, is to perform inference in real time, making these approaches are unsuitable for our purposes.
 
-With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on 
+Keeping the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on 
 \citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize this algorithm to our 
 observation process, and also to account for the time-evolution of the cluster parameters.
 
