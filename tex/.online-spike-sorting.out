@@ -1,6 +1,6 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
 \BOOKMARK [1][-]{section.2}{Model}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Modeling a single electrode recording}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.1}{Modeling a single neuron output}{section.2}% 3
 \BOOKMARK [2][-]{subsection.2.2}{Completely random measures \(CRMs\)}{section.2}% 4
 \BOOKMARK [2][-]{subsection.2.3}{A discrete-time approximation}{section.2}% 5
 \BOOKMARK [2][-]{subsection.2.4}{Correlations in time and across electrodes}{section.2}% 6
