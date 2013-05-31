@@ -1,5 +1,5 @@
 \newcommand{\tx}{\tilde{x}}
-\newcommand{\resx}{\delta{x}}
+\newcommand{\resx}{\delta{\bx}^L}
 
 
 We now address the problem of posterior inference over the latent variables given the matrix $\bX$ of multielectrode recordings. 
@@ -20,7 +20,7 @@ greedy search (SUGS) algorithm of
 \citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize SUGS to our 
 observation process, also accounting for the time-evolution of the cluster parameters.
 
-Below, we describe an iteration of our algorithm the case a single electrode; %Most steps are repeated across all electrodes; 
+Below, we describe an iteration of our algorithm for the case a single electrode; %Most steps are repeated across all electrodes; 
 %we will point out when the need for anything more complicated arises. 
 generalizing to the multielectrode case is straightforward. 
 At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations so far. It also maintains
@@ -31,10 +31,11 @@ set of neurons associated with the spikes seen so far (i.e.\ $i \in [\mh{C}_t]$)
 For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
 
-Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recording $x_{t+1}$ at time $t+1$.
+Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recordings 
+$\bx^L_t \equiv (x_{t+1},\cdots, x_{t+L})$.
 Recalling that the basis functions $\bD$, and thus all spike waveforms, span $L$ time bins, the residual at time $t$ is then given by
 \begin{align}
-  \resx_t = x_t - \sum_{h=1}^L \bD\mh{\by}_{t-h} \label{eq:resid}
+  \resx_t = \bx^L_t - \sum_{h=1}^L \bD\mh{\by}_{t-h} \label{eq:resid}
 \end{align}
 
 We treat the residual $\resx_{t+1}$ as an observation from a DP mixture model, and use this to make a hard decision about whether or not this was produced 
