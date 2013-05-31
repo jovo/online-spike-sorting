@@ -1,22 +1,22 @@
 
 \subsection{Data}
 
-We used two different datasets to demonstrate the efficacy of \smug.  First, the ever popular, publicly available HC1 dataset\footnote{http://crcns.org/data-sets/hc/hc-1/}
+We used two different datasets to demonstrate the efficacy of \smug.  First, the ever popular, publicly available HC1 dataset %\footnote{http://crcns.org/data-sets/hc/hc-1/}
 as described in \cite{Henze2000}.  We used the dataset d533101 that consisted of an extracellular tetrode and a single intracellular electrode.  The recording was made simultaneously on all electrodes and was set up such that the cell with the intracellular electrode was also recorded on the extracellular array implanted in the hippocampus of an anesthetized rat. The intracellular recording is relatively noiseless and gives nearly certain firing times of the intracellular neuron.  The extracellular recording contains the spike waveforms from the intracellular neuron as well as an unknown number of additional neurons.  The data is a 4-minute recording at a 10 kHz sampling rate.  
 
-The second dataset comes from Michigan using Michigan probes\footnote{their website perhaps?}.  These data \jovo{@dec - need you here :).}
+The second dataset comes from novel NeuroNexus devices implanted in the rat motor cortex.  The data was recorded at 32.5 kHz in freely-moving rats.  The first device we consider is a set of 3 channels of data shown in Figure \ref{3dev}.  The neighboring electrode sites in these devices have 30 $\mu$m between electrode edges and 60 $\mu$m between electrode centers.  These devices are close enough that a locally-firing neuron could appear on multiple electrode sites \dec{(cite that paper on action potential overlap)}, so neighboring channels warrant joint processing.  The second device has 8-channels (as shown in Figure \ref{8dev}), but is otherwise similar to the first.
 
 
 
-\jovo{@dec - same pre-processing for both?  regardless, need you to add it.}
-We preprocessed with a high-pass filter at 800 Hz before we analyzed the time series.  To get the PCA decomposition, we used the spikes detected with a threshold (three times the standard deviation of the noise above the mean) in the first five seconds and used the top three principal components.  The noise standard deviation was estimated both over the first five seconds of the recording as well as the entire recording, and the estimate was nearly identical.  Our results were also robust to minor variations in the choice of the number of principal components.
+For both datasets, we preprocessed with a high-pass filter at 800 Hz before we analyzed the time series.  \jovo{@dec - add the rest of the pre-processing steps here.}
+To get the PCA decomposition, we used the spikes detected with a threshold (three times the standard deviation of the noise above the mean) in the first five seconds and used the top three principal components.  The noise standard deviation was estimated both over the first five seconds of the recording as well as the entire recording, and the estimate was nearly identical.  Our results were also robust to minor variations in the choice of the number of principal components.
 
 Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we can only verify accuracy for the neuron with the intracellular (IC) recording.  In these experiments, we define a detected spike to be an IC spike if the IC recording has a spike within 0.5 milliseconds (ms) of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the ``IC cluster''.   We refer to these data as ``partial ground truth data'', because we know the ground truth spike times for one of the neurons, but not all the others.  
 
 
 
 
-\subsection{Bake-off Recipes}
+\subsection{Bake-off!}
 
 We compare a number of variants of \smug, as well as several previously proposed methods, as described below.  The vanilla version of \smug\ operates on a single channel with colored noise.  When using multiple channels, we append an ``\sct{M}'' to obtain \sct{M}\smug.  When we model the mean of the waveforms as an auto-regressive process, we ``post-pend'' to obtain \smug\sct{R}.  
 We compare these variants of \smug\ to Gaussian mixture models and k-means with N components (\sct{Gmm-N} and \sct{K-N}, respectively), where \sct{N} indicates the number of components.  Finally, we include a Focus Mixture Model (\sct{Fmm}) \cite{??}, a recently proposed Bayesian generative model with state-of-the-art performance.  Only \smug\ methods were online as we desired to compare to the state-of-the-art \emph{batch} algorithms which use all the data. 
@@ -30,8 +30,10 @@ The single-channel experiments were all run on channel 2 (the results were nearl
 
 % \subsection{Results}
 
-The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
+% The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
 
+The online algorithms were all run with weakly informative parameters, namely  $\mb{\mu}_0=\mb{0}$ $,\lambda_0=0.1,\bW=10\bI$, and $\nu=1$ ($\bI$ is the identity matrix).  
+For the autoregressive process, we set $\bB=(1-\mathsf{exp}(-2\times 10^{-6}))\bI$ and $r_t\sim\mathsf{N}(0,\mathsf{exp}(-4\times 10^{-6})\bI$.  $\alpha$ was set to $0.1$. The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31 seconds for a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory (see Supplementary Figure \ref{fig:timing} for details).
 
 \subsection{Performance on partial ground truth data}
 
@@ -44,32 +46,33 @@ Our improved sensitivity and specificity is \emph{despite} that \smug\ is fully 
 One possible explanation for the relatively poor performance of the batch algorithms as compared to \smug\ is a poor choice of the important---but often overlooked---threshold parameter.  Figure \ref{fig:roc} shows the receiver operating characteristic (ROC) curve for the k-means algorithms as well as \smug\ and \sct{M}\smug\ (where \sct{M} indicates multichannel, see below for detail).  Although we typically run \smug\ without tuning parameters, the prior on $\Lambda$ sets the expected number of spikes, which we can vary in a kind of ``empirical Bayes'' strategy.  Indeed, the \smug\ curves are fully above the batch curves for all thresholds and priors, suggesting that regardless of which threshold one chooses for pre-processing, \smug\ always does better on these data than all the competitor algorithms.  Moreover, \smug\ which infers $\Lambda$ from the data (indicated by an \jovo{@dec - what symbol did you use here?}) is \jovo{@dec - does how good?}.
 
 While the above analysis suggests that it is not the threshold that yields \smug\ improved performance; rather, it is \smug's ability to detect signals more reliably.  In the following, we provide evidence suggesting how several of \smug's key features are fundamental to this improvement.
-
-
- 
+%
 \begin{center}
-\begin{figure}
-\begin{subfigure}[b]{.49\textwidth}
-\centering
-\includegraphics[width=\textwidth]{../figs/truefalsepositive.pdf}
-\caption{}
-\label{hc1res}
-\end{subfigure}
-\begin{subfigure}[b]{.49\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/icroc.pdf}
-\caption{}
-\label{fig:roc}
-\end{subfigure}
-\caption{\smug\ achieves improved sensitivity and specificity over all competing methods on partial ground truth data (where true positives from one neuron are known from intracellular recordings).  
-(a) True positive and false positive rates for all variants of \smug\ and several competing state-of-the-art \emph{batch} algorithms.  
-(b) ROC curves demonstrating that both \sct{M}\smug\ and \smug\ outperform all competitor batch algorithms, regardless of threshold (including when we learn $\Lambda$ from the data, as indicated by a \jovo{*}).
-\jovo{@dec - keep colors/symbols the same in the two panel, if possible.  maybe use a scheme where color indicates algorithm and shape indicates \# of components.  also, be consistent about "IC" cluster vs. "Intracellular" Cluster. and normalize, renaming axes XY Rate instead of only XY. (b) title should be ``ROC Curve Comparisons''}  
-}
-\end{figure}
+\begin{SCfigure}[3]
+	\includegraphics[width=0.28\textwidth]{../figs/truefalsepositive.pdf}
+	\includegraphics[width=0.3\textwidth]{../figs/new/icroc.pdf}
+% \begin{subfigure}[b]{.49\textwidth}
+% \centering
+% \includegraphics[width=\textwidth]{../figs/truefalsepositive.pdf}
+% \caption{}
+% \label{hc1res}
+% \end{subfigure}
+% \begin{subfigure}[b]{.49\textwidth}
+% \includegraphics[width=\textwidth]{../figs/new/icroc.pdf}
+% \caption{}
+% \label{fig:roc}
+% \end{subfigure}
+\caption{\smug\ achieves improved sensitivity and specificity over all competing methods on partial ground truth data. % (where true positives from one neuron are known from intracellular recordings).  
+(a) True positive and false positive rates for all variants of \smug\ and several competing 
+% state-of-the-art \emph{batch} 
+algorithms.  
+(b) ROC curves demonstrating that \smug outperforms all competitor algorithms, regardless of threshold (\jovo{*} indicates learning $\Lambda$ from the data).}
+\end{SCfigure}
 \end{center}
-
-
-
+% 
+% 
+% 
+\vspace{-10pt}
 \subsection{Overlapping Spike Detection}
 
 
@@ -104,10 +107,12 @@ A putative reason for the improved sensitivity and specificity of \smug\ over ot
 \subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
 
 
-As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (Figure \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R}, which models the mean of the dictionary weights via an auto-regressive process.  Figure \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  More precisely, the mean of the posterior standard deviations for the time-varying prior is about half of that  
+As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (Figure \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R}, which models the mean of the dictionary weights via an auto-regressive process.  Figure \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  More precisely, the mean of the posterior standard deviations for the time-varying prior is about half of that for the static prior's posteriors. 
 Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
  
-
+% \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}
+% \jovo{AR: mean 0.0037  std  0.0038
+   % other: mean 0.0077  std  0.0071}
 
 \begin{center}
 \begin{figure}
@@ -129,26 +134,22 @@ Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
 \caption{
 The IC waveform changes over time, which our posterior parameters track. 
 (a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24 seconds with color denoting the time interval.  This neuron decreases in amplitude over the period of the recording. 
-(b) The same waveforms plotted in PC space.
-(c) \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}
-\jovo{AR: mean 0.0037  std  0.0038
-   other: mean 0.0077  std  0.0071}
+(b) The same waveforms plotted in PC space still captures the temporal variance.
+(c) The mean and standard deviation of the waveforms at three time points for the auto-regressive prior on the mean waveform (top) and static prior (bottom). While the auto-regressive prior admits adaptation to the time-varying mean, the posterior of the static prior simply increases its variance.  
 }
 \end{figure}
 \end{center}
 
-\subsection{Multi-Electrode Array} \label{sub:multi}
-
-\jovo{add grids to all panels of all figs by default, remove if it looks shitty.}
+\vspace{-10pt}
+\subsection{Multielectrode Array} \label{sub:multi}
+% \vspace{-5pt}
 
 
 In the tetrode case the waveform undoubtedly appears on all channels at once; it is possible to concatenate the channels to jointly process the data \cite{wood2009}.  When the action potential will only appear on a subset of channels it is nice to allow the action potential to vary in a low-dimensional subset in each of the channels instead of a low-dimensional subset over all the channels. \cite{Prentice2011}
 
-We use processed data from novel NeuroNexus devices implanted in the rat motor cortex.  The data was recorded at 32.5kHz in freely-moving rats, and the data was first processed by high-pass filtering at 800Hz.  The first device we consider is a set of 3 channels of data shown in Figure \ref{3dev}.  The neighboring electrode sites in these devices have 30 $\mu$m between electrode edges and 60 $\mu$m between electrode centers.  These devices are close enough that a locally-firing neuron could appear on multiple electrode sites (cite that paper on action potential overlap), and neighboring channels warrant joint processing.  The second, 8-channel device is shown in Figure \ref{8dev}, and has similar properties to the first device.
 
  The top 2 clusters found in the first 10 minutes of data on the 3-channel device are shown in Figures \ref{ex31}, \ref{ex32}.  The waveform in channel 3 is very similar for the waveforms in Figure \ref{ex31} and \ref{ex32}, and would be difficult to separate if we were analyzing each channel individually; the representation of those two clusters in PCA space on channel 3 is shown in Figure \ref{chpca}.  We gain the ability to distinguish the waveforms by looking at all the channels simultaneously.  The top 3 clusters found in the 8-channel device can be found in Figures \ref{ex81}, \ref{ex82}, and \ref{ex83}.
 
-{\color{red} perhaps add comments about time-evolution and the false positives we avoid by using multi-channel analysis}
 
 
 \begin{center}
@@ -181,7 +182,7 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 \begin{subfigure}[b]{.12\textwidth}
 \includegraphics[width=0.8\textwidth]{../figs/8dev}
 \caption{}
-\label{3dev}
+\label{8dev}
 \end{subfigure}
 \begin{subfigure}[b]{.28\textwidth}
 \includegraphics[width=\textwidth]{../figs/8devim/clus3}
@@ -208,9 +209,9 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 
 
 
-
+\vspace{-10pt}
 \subsection{Limitations of Dictionary-Based Techniques} \label{sub:template}
-
+\vspace{-5pt}
 
 
 \begin{center}
@@ -235,9 +236,6 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 } \label{fig:IC-PCA}
 \end{figure}
 \end{center}
-
-
-
 
 
 

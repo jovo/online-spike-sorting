@@ -103,16 +103,21 @@ Address \\
 \providecommand{\mhb}[1]{\hat{\boldsymbol{#1}}}
 \providecommand{\whb}[1]{\widehat{\boldsymbol{#1}}}
 \providecommand{\mvb}[1]{\vec{\boldsymbol{#1}}}
-\newcommand{\ZZ}{\mathbb{Z}}         
+\providecommand{\sf}[1]{\mathsf{#1}}
 
+\newcommand{\ZZ}{\mathbb{Z}}         
 \newcommand{\by}{\mathbf{y}}
 \newcommand{\tby}{\mathbf{y}^*}
 \newcommand{\ty}{y^*}
 \newcommand{\bA}{\mathbf{A}}
 \newcommand{\bB}{\mathbf{B}}
 \newcommand{\bD}{\mathbf{D}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bW}{\mathbf{W}}
 \newcommand{\bd}{\mathbf{d}}
 \newcommand{\bth}{\mb{\theta}}
+\newcommand{\phiv}{\mb{\phi}}
+\newcommand{\muv}{\mb{\mu}}
 
 \usepackage{color}
 \newcommand{\jovo}[1]{{\color{blue}{\it #1}}}
@@ -121,11 +126,25 @@ Address \\
 \newcommand{\eps}{\varepsilon}
 \providecommand{\sct}[1]{{\sc \texttt{#1}}}
 \newcommand{\smug}{\sct{Orgasm}}
-
+% \newcommand{\iid}{\overset{iid}{\sim}}
 
 %\nipsfinalcopy % Uncomment for camera-ready version
 
-\begin{document}
+\setlength{\parsep}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\topmargin}{0pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+
+\setlength{\parskip}{2pt}
+\parindent 10pt
+ \usepackage[compact]{titlesec}
+\titlespacing{\section}{20pt}{*0}{*0}
+\titlespacing{\subsection}{5pt}{*0}{*0}
+
+
+\begin{document} 
 
 
 \maketitle
@@ -171,6 +190,7 @@ acknowledgments in the anonymized submission, only in the
 final paper. 
 \end{comment}
 
+\clearpage
 {\small
 \bibliography{refs}
 \bibliographystyle{unsrt}
