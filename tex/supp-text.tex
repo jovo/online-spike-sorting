@@ -1,0 +1,41 @@
+\begin{algorithm}
+\caption{Generative mechanism for the multi-electrode, non-stationary, discrete-time process}\label{alg:gen_proc}
+\begin{tabular}{p{1.2cm}p{12.4cm}}
+Input:&  a) the number of bins $T$, and the bin-width $\Delta$\\
+  &  b) the $K$-by-$L$ dictionary $\bD$ of $K$ basis functions\\
+  &  c) the DP hyperparameters $\alpha$ and $\phi$.\\ 
+  &  d) the transition matrix $\bB$ of the neuron AR process \\
+Output:& \  An $M$-by-$T$ matrix $\bX$ of multielectrode recordings. % defined by a set of state and time pairs.
+\end{tabular}
+\begin{algorithmic}[1]
+\State Initialize the number of clusters $C_1$ to $0$.
+\State Draw the overall spiking rate $\Lambda \sim \text{Gamma}(\alpha, 1)$.
+%\State Set $A_{s_i}(\tau) = \sum_j A_{s_i,j} (\tau)$ and define $u_{s_i}(\tau) \ge A_{s_i}(\tau) \forall \tau$. \label{alg:loop}
+%\State Let $\tau_o = (w_{i} - l_i)$. \label{alg:smjp_loop}
+\For{$t$ in $[T] $}
+\State Sample $\mt{z}_t \sim \text{Bernoulli}(\Lambda \Delta)$, with $\mt{z}_t = 1$ indicating a spike in bin $t$.
+\If{$\mt{z}_t = 1$}   \label{enum:thin}
+  \State Sample $\mt{\nu}_t$, assigning the spike to a neuron, with
+%\begin{align*}
+$  P({\mt{\nu}_t} = i) \propto 
+  \begin{cases}
+   |\mc{T}^t_i| \quad i \in [C] \\
+   \alpha \quad\ i = C + 1 \\
+  \end{cases}$
+%\end{align*}
+       \If{ $\nu_t = C_t + 1$} 
+          \State  $C_{t+1} \leftarrow C_t + 1$. 
+		\State Set $\theta^*_{C_{t+1}} \sim H_{\phi}(\cdot)$, and $\mc{T}_{C_{t+1}}$=\{t\}.
+       \Else \State  $\mc{T}_{\nu_t} \leftarrow \mc{T}_{\nu_t} \cup \{t\}$.
+    \EndIf
+\State Set $\theta_t = \theta^*_{\nu_t}$, recalling that $\theta_t \equiv (\mb{\mu}_t, \Sigma_t)$.
+\State Sample $\by_t = (\by^1_t; \cdots; \by^M_1) %\equiv (\by_{t1}, \cdots, \by_{t\Upsilon}) 
+           \sim \mathcal{N}(\mb{\mu}_t, \Sigma_t)$, determining the spike shape at all electrodes.
+%\State $\bx^h_{t:t+L} = A\by^h$
+\State $ x^m_t = \sum_{h = 1}^L \bD_{:,h}^{\T} \by^m_{t-h-1} + \epsilon^m_t \text{\qquad where $\epsilon^m_t \sim \mathcal{N}(0,\sigma^2), m \in [M]$.} $
+\State Update the cluster parameters: ${\mb{\mu}}^*_i = \mathbf{B} {\mb{\mu}}^*_i + r_i \quad i \in [C_{t+1}]$
+\EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+

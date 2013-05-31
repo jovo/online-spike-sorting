@@ -1,21 +1,23 @@
 \newcommand{\tx}{\tilde{x}}
 
 
-We now address the problem of posterior inference over the latent variables given the matrix $\bX$ of multielectrode recordings. Unsurprisingly, exact 
-inference is intractable, and we have to resort to approximating the posterior distribution.
-There exists a vast literature on approximate inference for Bayesian nonparametric models, especially so for models based on the Dirichlet process.
+We now address the problem of posterior inference over the latent variables given the matrix $\bX$ of multielectrode recordings. 
+%Unsurprisingly, exact inference is intractable, and we have to resort to approximating the posterior distribution.
+There exists a vast literature on computational approaches to posterior inference for Bayesian nonparametric models, especially so for models based on the 
+Dirichlet process.
 Traditional approaches are sampling-based, typically involving Markov chain Monte Carlo techniques (see eg.\ \citep{Nea2000, IshJam2001}), 
 and recently there has also been work on constructing deterministic approximations to the intractable posterior (eg.\ \citep{BleJor2006, MinGha2003}).
-Our problem is further complicated by two additional factors. The first is the convolutional nature of our observation process, 
+Our problem is complicated by two additional factors. The first is the convolutional nature of our observation process, 
 where at each time,
 we observe a function of the previous observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes 
 the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
 Our ultimate goal, on the other hand, is to perform inference in real time, making these approaches are unsuitable for our purposes.
 
-Keeping the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on 
-\citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize this algorithm to our 
-observation process, and also to account for the time-evolution of the cluster parameters.
+Keeping the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on the sequential update and
+greedy search (SUGS) algorithm of
+\citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize SUGS to our 
+observation process, also accounting for the time-evolution of the cluster parameters.
 
 At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations until time $t$. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
@@ -25,7 +27,7 @@ For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parame
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
 
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recording $x_{t+1}$ at time $t+1$.
-We subtract this term from $x_{t+1}$, and treat the residual $\mt{\bx}_{t+1}$ as an observation from a DP mixture model.
+We subtract this term from $x_{t+1}$, and treat the residual $\mt{x}_{t+1}$ as an observation from a DP mixture model.
 Given this residual, our algorithm then makes a hard decision about whether or not this was produced by an underlying spike, what neuron that spike belongs 
 to (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
 $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
@@ -38,14 +40,15 @@ span $L$ time bins.
 Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
 The residual at time $t$ is then given by
 \begin{align}
-  \mt{\bx}_t = \bx_t - \sum_{i=1}^L \bD\by_{t-i} \label{eq:resid}
+  \mt{\bx}_t = \bx_t - \sum_{h=1}^L \bD\by_{t-h} \label{eq:resid}
 \end{align}
 Given this residual, the first step is to decide whether or not there is a spike underlying this residual.
 By Bayes' rule,
 \begin{align}
   P(z_t = 1 | \mt{\bx}_t)  &\propto P(z_t = 1,  \mt{\bx}_t) = \sum_{\nu_t = 1}^{C_{t-1}+1} P(\mt{\bx}_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
-\intertext{Recall that $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $n_i$ be the number of spikes from 
-neuron $i$,  $P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}). On the other hand,}
+\intertext{Recall that $C_{t-1}$ is the number of unique neurons underlying the observations before time $t$. Letting $\mc{T}^t_i$ index the time bins
+inferred to containing spikes from neuron $i$,  $P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}). 
+On the other hand,}
   P(\mt{\bx}_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\mt{\bx}_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
 \end{align}
 Here,  $P(\mt{\bx}_t | \theta_t)$ is just the normal distribution with mean $\mu_t$ and variance $\theta_t$, while we restrict $q_{it}(\cdot)$ be the 
@@ -62,3 +65,4 @@ We need to follow this up with an additional update step for the parameter distr
 This too is straightforward {\color{red} Get exact update rule}.
 
 The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
+
