@@ -1,36 +1,4 @@
 
-\jovo{need to discuss preprocessing
-
-fig 1a: include all data in main, in supplement, include current 1a and with errorbars
-
-table of run times
-
-compare with DPMM
-
-check matlab initializes with hierarchical clustering for GMM \& k-means
-
-add waveforms over time in PC space
-
-scatterplot of waveforms of TP, FP, and FN in PC space (either learned from all data or only these waveforms).  let's see whether the distributions look different at all in this space, which should inform us with regard to how well we are doing. perhaps plot ellipsoids (corresponding to level-sets) with means and covariances fit from the data
-
-show waveforms in 3b and 3c in PCA of channel 3 to show that they are overlapping. {\color{green} done}
-
-
-% rotate 3a and 4a panels to be N rows and 1 column, rather than 1 row and N columns
-
-show that we capture waveform adaptation, via showing the $\mu$ moving around in PC space
-
-show 10 waveforms of AR and non-AR means \& errorbars over time 
-
-
-for overlapping, show in black dashed lines, the "expected" trace (sum of overlapping),
-and beside that, show the three time-varying residuals, reporting the sum-squared residuals
-
-then let's plot the two distributions of sum-squared-residuals (one for assuming overlapping, one for only the ground-truth neuron).  depending on how different those two distributions look and what they look like, we can test to demonstrate the differences.
-
-
-}
-
 \subsection{Data}
 
 We used two different datasets to demonstrate the efficacy of \smug.  First, the ever popular, publicly available HC1 dataset\footnote{http://crcns.org/data-sets/hc/hc-1/}
@@ -71,10 +39,10 @@ The results were very similar for $K$=2, $K$=3, and $K$=4.   On the full 4-minut
 % The PCA learned from the thresholded spikes was used as an input to the online algorithms.  
 For comparison, the algorithms we implemented here detected 3593 spikes of which 840 were intracellular spikes; this means we detected fewer total "spikes" while capturing more of the intracellular spikes. ({\color{red}  Is it worthwhile to give a plot showing what we don't detect that a threshold does and vice versa?})
 To get uncertainty estimates, we split the data into 10 random 2 minute segments and process them with the algorithms. The results are qualitatively similar (see Figure \ref{sfig:hc1res}).
+\jovo{@dec - change numbers to fractions}
 
 
-
-Our approach uses a dictionary that we specify \emph{a priori}, although we envision adaptively learning the dictionary in future work. Thus, we can compare variants of \smug~using different dictionaries.  We consider three different dictionaries: (i) the same ``batch'' dictionary used for the other methods, (ii) a dictionary learned via PCA applied to data from a the d566102 dataset in the HC-1 database (this dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat), and (iii) a dictionary learned from using only the first \jovo{X=??} seconds of data from this experiment.  Because dictionary learning via PCA is so fast, learning a dictionary from the first several sections is trivial computationally.  Figure \ref{hc1res} indicates that using a better dictionary results in better sensitivity and/or specificity. \jovo{we will have to revise this sentence to reflect the actual results.}
+% Our approach uses a dictionary that we specify \emph{a priori}, although we envision adaptively learning the dictionary in future work. Thus, we can compare variants of \smug~using different dictionaries.  We consider three different dictionaries: (i) the same ``batch'' dictionary used for the other methods, (ii) a dictionary learned via PCA applied to data from a the d566102 dataset in the HC-1 database (this dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat), and (iii) a dictionary learned from using only the first \jovo{X=??} seconds of data from this experiment.  Because dictionary learning via PCA is so fast, learning a dictionary from the first several sections is trivial computationally.  Figure \ref{hc1res} indicates that using a better dictionary results in better sensitivity and/or specificity. \jovo{we will have to revise this sentence to reflect the actual results.}
 
 % \jovo{@dec: i changed this to highlight that we used other data to learn the dictionary.  let's replace the figs with those results.}
 % Because our method is fully online, we cannot use the data to estimate the dictionary weights. We therefore learn a dictionary via PCA applied to data from a the d566102 dataset in the HC-1 database.  This dataset is recorded from the same type of tetrode device implanted by the same lab in a hippocampus of a different anesthetized rat. Our approach is robust to such variations in the dictionary.  We also compare our results using the dictionary learned from the data, and obtain quantitatively quite similar results (see Figure \ref{sfig:truewaveforms} in the Supplementary materials).
@@ -94,27 +62,37 @@ For the IC cluster, it is of interest to investigate the properties of the true 
 \label{hc1res}
 \end{subfigure}
 \begin{subfigure}[b]{.49\textwidth}
-% \includegraphics[width=\textwidth]{../figs/alloverlappingspikes/olspike3}
+\includegraphics[width=\textwidth]{../figs/new/icroc.pdf}
 \caption{}
 \label{overlapping}
 \end{subfigure}
-\caption{\smug~achieves improved sensitivity and specificity over all competing methods on partial ground truth data (where true positives from one neuron are known from intracellular recordings).  (a) This shows the average number of true positives versus the average number of false positives in the intracellular cluster for 2 minute segments of the 4 minutes of day.  The methods that combine the clustering and the detection have similar numbers of false positives but greater numbers of true positives.   \jovo{let's make the symbols different for the different methods.  also, let's make the axes in terms of percentages, rather than raw numbers.} (b) \jovo{ROC curve.}
+\caption{\smug~achieves improved sensitivity and specificity over all competing methods on partial ground truth data (where true positives from one neuron are known from intracellular recordings).  (a) This shows the average number of true positives versus the average number of false positives in the intracellular cluster for 2 minute segments of the 4 minutes of day.  The methods that combine the clustering and the detection have similar numbers of false positives but greater numbers of true positives.   \jovo{let's make the symbols different for the different methods.  also, let's make the axes in terms of percentages, rather than raw numbers.} (b) \jovo{ROC curve but for our best algorithm, and including one point for inferring $\pi$.  keep colors the same as in the (a) panel, if possible.  maybe use a scheme where color indicates algorithm and shape indicates \# of components.  also, be consistent about "IC" cluster vs. "Intracellular" Cluster.}  \jovo{make fig like 1a in supplement with errorbars.}
 }
 \end{figure}
 \end{center}
 
+\jovo{add grids to all panels of all figs by default, remove if it looks shitty.}
 
 \subsection{Overlapping Spike Detection}
+
+A principle reason for the improved sensitivity and specificity of \smug~over other algorithms is its ability to detect overlapping spikes.   
 It is possible for action potentials to fire close to simultaneously so that a given window would have 2 or move action potent ions.  It is possible for the algorithm to detect and fit overlapping spikes as they come in.  Out of the 3593 spikes detected by the algorithm, there are 124 pairs of overlapping spikes within 1ms of one another (3.45\%).  An example of an overlapping waveform is shown in Figure \ref{overlapping}.
 
+\jovo{37 overlapping spikes}
+
 \begin{center}
-\begin{figure}
+\begin{figure}[h!]
 \begin{subfigure}[b]{.49\textwidth}
 \includegraphics[width=\textwidth]{../figs/alloverlappingspikes/olspike3}
 \caption{}
 \label{overlapping}
 \end{subfigure}
-\caption{Results on the d533101 dataset.  (a) \jovo{like this but also with the sum} (b) \jovo{residuals for this example.} (c) histogram of residuals for all putative overlapping examples.}
+\begin{subfigure}[b]{.49\textwidth}
+\includegraphics[width=\textwidth]{../figs/overlappingstat.pdf}
+\caption{}
+\label{overlapping}
+\end{subfigure}
+\caption{Results on the d533101 dataset.  (a) \jovo{like this but also with the sum} (b) \jovo{residuals for this example.} (c) \jovo{histogram of residuals for all putative overlapping examples. keep colors consistent across all three panels.  i think line plots for the histograms would more clearly indicate that residuals are significantly smaller than the others.}}
 \end{figure}
 \end{center}
 
@@ -126,17 +104,25 @@ As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shap
 
 \begin{center}
 \begin{figure}
-\begin{subfigure}[b]{.5\textwidth}
+\begin{subfigure}[b]{.33\textwidth}
 \includegraphics[width=\textwidth]{../figs/evohc1}
 \caption{}
 \label{evohc1}
 \end{subfigure}
-\begin{subfigure}[b]{.5\textwidth}
-\includegraphics[width=\textwidth]{../figs/IntracellularTrueFalsePositivesv2}
+\begin{subfigure}[b]{.33\textwidth}
+\includegraphics[width=\textwidth]{../figs/new/clusterevo.pdf}
+\caption{}
+\label{clusterevo}
+\end{subfigure}
+\begin{subfigure}[b]{.33\textwidth}
+\includegraphics[width=\textwidth]{../figs/new/ARvsStationary.pdf}
 \caption{}
 \label{truewaveforms}
 \end{subfigure}
-\caption{(a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24s and the color gives the elapsed time.  This neuron decreases in amplitude over the period of the recording. (b) Errorbar plots of the true positives and the false positives in the IC cluster.  While the false positives have slightly more variability, the mean shape for the false positives and the true positives is nearly identical.  The true misses have a significantly lower amplitude as well as high variability}
+\caption{
+(a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24s and the color gives the elapsed time.  This neuron decreases in amplitude over the period of the recording. 
+(b) \jovo{take out scale bars.}
+(c) \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}}
 \end{figure}
 \end{center}
 
@@ -200,19 +186,60 @@ We use processed data from novel NeuroNexus devices implanted in the rat motor c
 \end{subfigure}
 \caption{
 (a) Three electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (b,c) Top 2 most prevalent waveforms.  Each waveform shape is 2ms long.   Note in (a) we have a waveform that appears on both channel 2 and channel 3, whereas in (b) the waveform only appears in channel 3.  If only channel 3 was used, it would be difficult to separate the waveform in (a) and (b), as is demonstrated in Figure (d) by the representation of detected spikes on the 3rd channel in PCA space.
-(e)8 electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (f,g,h) Top 3 most prevalent waveforms.  Each waveform shape is 2ms long.}
+(e)8 electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (f,g,h) Top 3 most prevalent waveforms.  Each waveform shape is 2ms long.
+\jovo{update these in various ways that you know.}
+}
 \end{figure}
 \end{center}
 
 
 
 
+\subsection{Limitations of Dictionary-Based Techniques} \label{sub:template}
 
 
 
+\begin{center}
+\begin{figure}[h!]
+\begin{subfigure}[b]{.33\textwidth}
+\includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
+\caption{}
+\label{fig:ICold}
+\end{subfigure}
+\begin{subfigure}[b]{.33\textwidth}
+\includegraphics[width=\textwidth]{../figs/new/ICclusternewpca.pdf}
+\caption{}
+\label{fig:ICnew}
+\end{subfigure}
+\begin{subfigure}[b]{.33\textwidth}
+\includegraphics[width=\textwidth]{../figs/IntracellularTrueFalsePositivesv2}
+\caption{}
+\label{truewaveforms}
+\end{subfigure}
+\caption{Template matching.
+(c) Errorbar plots of the true positives and the false positives in the IC cluster.  While the false positives have slightly more variability, the mean shape for the false positives and the true positives is nearly identical.  The true misses have a significantly lower amplitude as well as high variability. 
+} \label{fig:IC-PCA}
+\end{figure}
+\end{center}
 
 
 
+\begin{center}
+\begin{figure}[h!]
+\begin{subfigure}[b]{.5\textwidth}
+\includegraphics[width=\textwidth]{../figs/new/timingsinglechannel.pdf}
+\caption{}
+\label{fig:ICold}
+\end{subfigure}
+\begin{subfigure}[b]{.5\textwidth}
+% \includegraphics[width=\textwidth]{../figs/new/ICclusteroldpca.pdf}
+\caption{}
+\label{fig:ICold}
+\end{subfigure}
+\caption{\jovo{timing plots: (a) line (fix missing L), (b) notched boxplots} 
+} \label{fig:timing}
+\end{figure}
+\end{center}
 
 
 
