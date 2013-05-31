@@ -30,6 +30,8 @@ The single-channel experiments were all run on channel 2 (the results were nearl
 
 % \subsection{Results}
 
+The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
+
 
 \subsection{Performance on partial ground truth data}
 
@@ -80,19 +82,19 @@ A putative reason for the improved sensitivity and specificity of \smug\ over ot
 
 
 \begin{center}
-\begin{figure}[h!]
-\begin{subfigure}[b]{.49\textwidth}
+\begin{SCfigure}[3]
+\begin{subfigure}[b]{.3\textwidth}
 \includegraphics[width=\textwidth]{../figs/alloverlappingspikes/olspike3}
 \caption{}
 \label{fig:overlapping}
 \end{subfigure}
-\begin{subfigure}[b]{.49\textwidth}
+\begin{subfigure}[b]{.3\textwidth}
 \includegraphics[width=\textwidth]{../figs/overlappingstat.pdf}
 \caption{}
 \label{fig:resid}
 \end{subfigure}
 \caption{Results on the d533101 dataset.  (a) \jovo{like this but also with the sum} (b) \jovo{residuals for this example.} (c) \jovo{histogram of residuals for all putative overlapping examples. keep colors consistent across all three panels.  i think line plots for the histograms would more clearly indicate that residuals are significantly smaller than the others.}}
-\end{figure}
+\end{SCfigure}
 \end{center}
 
 
@@ -100,7 +102,8 @@ A putative reason for the improved sensitivity and specificity of \smug\ over ot
 \subsection{Time-Varying Waveform Adaptation} \label{sub:adapt}
 
 
-As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Allowing the mean of each component to evolve over time improved single-channel performance over the 4-minute dataset, and gave similar performance in the multi-channel algorithms.
+As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Figure \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (see Figure \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R} which models the mean of the dictionary weights via an auto-regressive process.  Figure \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
+ 
 
 
 \begin{center}
@@ -113,17 +116,20 @@ As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shap
 \begin{subfigure}[b]{.33\textwidth}
 \includegraphics[width=\textwidth]{../figs/new/clusterevo.pdf}
 \caption{}
-\label{clusterevo}
+\label{fig:clusterevo}
 \end{subfigure}
 \begin{subfigure}[b]{.33\textwidth}
 \includegraphics[width=\textwidth]{../figs/new/ARvsStationary.pdf}
 \caption{}
-\label{truewaveforms}
+\label{fig:AR}
 \end{subfigure}
 \caption{
 (a) Mean IC waveforms over time.  Each colored line represents the mean of the waveform averaged over 24s and the color gives the elapsed time.  This neuron decreases in amplitude over the period of the recording. 
 (b) \jovo{take out scale bars.}
-(c) \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}}
+(c) \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}
+\jovo{AR: mean 0.0037  std  0.0038
+   other: mean 0.0077  std  0.0071}
+}
 \end{figure}
 \end{center}
 
