@@ -159,57 +159,24 @@ We further evaluate the impact of multiple channels using both a three channel M
 
 
 \begin{center}
-\begin{figure}[h!]
-\begin{subfigure}[b]{.12\textwidth}
-\includegraphics[width=1\textwidth]{../figs/3dev}
-\caption{}
-\label{3dev}
-\end{subfigure}
-\begin{subfigure}[b]{.28\textwidth}
-\includegraphics[width=\textwidth]{../figs/3devim/clus1}
-\caption{}
-\label{ex31}
-\end{subfigure}
-\begin{subfigure}[b]{.28\textwidth}
-\includegraphics[width=\textwidth]{../figs/3devim/clus2}
-\caption{}
-\label{ex32}
-\end{subfigure}
-\begin{subfigure}[b]{.28\textwidth}
-\includegraphics[width=\textwidth]{../figs/new/3chpca}
-\caption{}
-\label{3chpca}
-\end{subfigure}
+\begin{SCfigure}[3]
+	\includegraphics[width=.3\textwidth]{../figs/3devim/clus1}
+	\includegraphics[width=.3\textwidth]{../figs/3devim/clus2}
+% \begin{subfigure}[b]{.28\textwidth}
+% \includegraphics[width=\textwidth]{../figs/3devim/clus1}
 % \caption{}
-% \end{figure}
-% \end{center}
-% \begin{center}
-% \begin{figure}[h!]
-% \begin{subfigure}[b]{.12\textwidth}
-% \includegraphics[width=0.8\textwidth]{../figs/8dev}
-% \caption{}
-% \label{8dev}
+% \label{ex31}
 % \end{subfigure}
 % \begin{subfigure}[b]{.28\textwidth}
-% \includegraphics[width=\textwidth]{../figs/8devim/clus3}
+% \includegraphics[width=\textwidth]{../figs/3devim/clus2}
 % \caption{}
-% \label{ex81}
-% \end{subfigure}
-% \begin{subfigure}[b]{.28\textwidth}
-% \includegraphics[width=\textwidth]{../figs/8devim/clus9}
-% \caption{}
-% \label{ex82}
-% \end{subfigure}
-% \begin{subfigure}[b]{.28\textwidth}
-% \includegraphics[width=\textwidth]{../figs/8devim/clus6}
-% \caption{}
-% \label{ex83}
+% \label{ex32}
 % \end{subfigure}
 \caption{
-Improving \smug\ by incorporating \emph{multiple} channels.
-(a) Three electrode device showing local proximity of electrodes with channel indexes in large, red numbers. (b,c) Top 2 most prevalent waveforms.  Each waveform shape is 2ms long.   Note in (a) we have a waveform that appears on both channel 2 and channel 3, whereas in (b) the waveform only appears in channel 3.  If only channel 3 was used, it would be difficult to separate the waveform in (a) and (b), as is demonstrated in Fig.\ (d) by the representation of detected spikes on the 3rd channel in PCA space.
+Improving \smug\ by incorporating {multiple} channels.
+The top 2 most prevalent waveforms from the Michigan dataset with three channels.  Note that the left panel has a waveform that appears on both channel 2 and channel 3, whereas the waveform in the right panel  only appears in channel 3.  If only channel 3 was used, it would be difficult to separate these waveform. % in (a) and (b), as is demonstrated in Fig.\ 
 }
-\end{figure}
+\end{SCfigure}
 \end{center}
 
 
