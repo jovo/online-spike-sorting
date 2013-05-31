@@ -74,7 +74,7 @@ While the above analysis suggests that it is not the threshold that yields \smug
 
 
 
-A putative reason for the improved sensitivity and specificity of \smug\ over other algorithms is its ability to detect overlapping spikes.   When spikes overlap, although the result can accurately be modeled as a linear sum in voltage space, the resulting waveform often does not appear in any cluster in PC space (see \ref{Pillow2013}).  However, our online approach can readily find such overlapping spikes.  Figure \ref{fig:overlapping} shows one example of 135 examples where \smug\ believed that multiple waveforms were overlapping.  Indeed, it should be clear that by virtue of estimating the presence of multiple spikes, the residual squared error between the expected voltage and observed voltage shrinks.  Figure \ref{fig:resid} shows the density of the residual errors for all putative overlapping spikes.  The mass of this density is significantly smaller than the mass of the other scenarios.  Of all the true spikes that we detect, 37 of them we believe to be overlapping.  Thus, while it seems detecting overlapping spikes helps, it does not fully explain the improvements over the competitor algorithms.
+A putative reason for the improved sensitivity and specificity of \smug\ over other algorithms is its ability to detect overlapping spikes.   When spikes overlap, although the result can accurately be modeled as a linear sum in voltage space, the resulting waveform often does not appear in any cluster in PC space (see \ref{Pillow2013}).  However, our online approach can readily find such overlapping spikes.  Figure \ref{fig:overlapping} (top left panel) shows one example of 135 examples where \smug\ believed that multiple waveforms were overlapping.  Indeed, by virtue of estimating the presence of multiple spikes, the residual squared error between the expected voltage and observed voltage shrinks for this snippet (bottom left).  The right panel of Figure \ref{fig:overlapping} shows the density of the residual errors for all putative overlapping spikes.  The mass of this density is significantly smaller than the mass of the other scenarios.  Of all the true spikes that we detect, 37 of them we believe to be overlapping.  Thus, while it seems detecting overlapping spikes helps, it does not fully explain the improvements over the competitor algorithms.
 \jovo{@jovo - add an actual statistical test test.} 
 
 
@@ -83,17 +83,19 @@ A putative reason for the improved sensitivity and specificity of \smug\ over ot
 
 \begin{center}
 \begin{SCfigure}[3]
-\begin{subfigure}[b]{.3\textwidth}
-\includegraphics[width=\textwidth]{../figs/alloverlappingspikes/olspike3}
-\caption{}
-\label{fig:overlapping}
-\end{subfigure}
-\begin{subfigure}[b]{.3\textwidth}
-\includegraphics[width=\textwidth]{../figs/overlappingstat.pdf}
-\caption{}
-\label{fig:resid}
-\end{subfigure}
-\caption{Results on the d533101 dataset.  (a) \jovo{like this but also with the sum} (b) \jovo{residuals for this example.} (c) \jovo{histogram of residuals for all putative overlapping examples. keep colors consistent across all three panels.  i think line plots for the histograms would more clearly indicate that residuals are significantly smaller than the others.}}
+\includegraphics[width=.28\textwidth]{../figs/alloverlappingspikes/olspike3}
+\includegraphics[width=.28\textwidth]{../figs/overlappingstatv2.pdf}
+% \begin{subfigure}[b]{.3\textwidth}
+% \includegraphics[width=\textwidth]{../figs/alloverlappingspikes/olspike3}
+% \caption{}
+% \label{fig:overlapping}
+% \end{subfigure}
+% \begin{subfigure}[b]{.3\textwidth}
+% \includegraphics[width=\textwidth]{../figs/overlappingstatv2.pdf}
+% \caption{asdf}
+% \label{fig:resid}
+% \end{subfigure}
+\caption{\smug\ can detect multiple overlapping waveforms (Top Left) The observed voltage (solid black), MAP waveform 1 (red), MAP waveform 2 (blue), and expected waveform from the sum (dashed-black). (Bottom Left) Residuals from same example snippet, demonstrating a clear improvement in residuals.  (c) {Histogram of residuals for all putative overlapping examples.}} \label{fig:overlapping}
 \end{SCfigure}
 \end{center}
 
