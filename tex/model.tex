@@ -31,8 +31,8 @@ Each neuron generates a continuous-time voltage trace, and  the outputs of all n
 the recordings $\bX$.  At a high level, in \S \ref{sec:spike} we model the continuous-time output of each neuron as a
 series of idealized Poisson events smoothed with appropriate kernels, while
 \S \ref{sec:crm} uses the Gamma process to develop a nonparametric prior for an entire population.
-\S \ref{sec:disc_time} then describes a discrete-time approximation based on the Bernoulli approximation to the Poisson process, while
-\S \ref{sec:multi} describes the complete model for multichannel data.
+\S \ref{sec:disc_time} then describes a discrete-time approximation based on the Bernoulli approximation to the Poisson process. For
+conceptual clarity, we restrict ourselves to single channel recordings until \S \ref{sec:multi}, where we describe the complete model for multichannel data.
 %, and apply this to the observed data.
 %Each neuron has its own distribution over waveform shapes. 
 % 
@@ -43,7 +43,7 @@ series of idealized Poisson events smoothed with appropriate kernels, while
 % >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 
 %\vspace{-.1in}
-\subsection{Modeling a single neuron output} \label{sec:spike}
+\subsection{Modeling the continuous-time output of a single neuron} \label{sec:spike}
 %\vspace{-.1in}
 There is a rich literature characterizing the spiking activity of a single neuron \citep{gerst08} accounting in detail for factors like non-stationarity, 
 refractoriness and spike waveform. We however make a number of simplifying assumptions (some of which we later relax).
@@ -69,7 +69,7 @@ Whenever this neuron emits a
 spike, a new shape is drawn independently from the corresponding distribution. %$p_{\bth_i}$, and 
 This waveform is then offset to the time of the spike, and contributes to the voltage trace associated with that spike. The complete recording from
 the neuron is the superposition of all these spike waveforms plus noise.  
-Rather that treating the noise as white as is common in the literature \citep{}, we allow the noise to exhibit temporal correlation,
+Rather that treating the noise as white as is common in the literature \citep{Lewicki}, we allow the noise to exhibit temporal correlation,
 recognizing that the `noise' is in actual fact background neural activity. 
 We model the noise as a realization of a Gaussian process (GP) \citep{RasWil2006}, with the covariance kernel $\mathcal{K}$ of the GP determining
 the temporal structure. We model the noise as Markov, using an exponential kernel.  %start by assuming the noise at each observation time is i.i.d.\ Gaussian.
@@ -128,7 +128,7 @@ With probability one, the neurons have distinct parameters, so that the mark $\b
 Eq.~\eqref{eq:spk}. The output waveform $x(t)$ is then a linear functional of this marked Poisson process. % (Eq.~\eqref{eq:spk_sup}). 
 
 %\vspace{-.1in}
-\subsection{Completely random measures (CRMs)}  \label{sec:crm}
+\subsection{A nonparametric model of population activity}  \label{sec:crm}
 %\vspace{-.1in}
 
 %The previous section assumed a known number of neurons $N$; 
@@ -165,15 +165,9 @@ CRMs have been well studied in the Bayesian nonparametrics community, and there 
 theoretical properties, as well as posterior computation; see e.g.\ \citep{JamesLP09, Hjo1990, ThiJor2007}. 
 %Recall that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$; characterizing the distribution over spike times 
 %and shapes respectively. 
-Recalling that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$, and with the measure $\mathsf{G}(\dd \bth)$ in mind,
-% <<<<<<< HEAD
-% we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an atomic measure on $\Theta$:
-% $\ \  \mathsf{\Lambda}(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
-% =======
+Recalling that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$, %and with the measure $\mathsf{G}(\dd \bth)$ in mind,
 we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an random measure $\Lambda(\cdot)$ on $\Theta$:
 $\ \  \Lambda(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
-% >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433
-% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 
 For a CRM, the distribution over measures is induced by distributions
 over the infinite sequence of weights, and the infinite sequence of their locations. 
@@ -197,6 +191,7 @@ later on.
 % % 
 % =======
 Other \Levy measures can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
+power-law behavior in the number of spikes emitted by different neurons.
 % >>>>>>> 7fea96c6e4a0bbe1b00f773309ab4c7a16108433
 % To complete the specification on the Gamma process, we choose a base-measure $\mathsf{H}(\bth^*)$.
 % %Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, 
@@ -225,7 +220,7 @@ to the conjugate normal-Wishart distribution with hyperparameters $\phi$.
 %Atom $i$ of the CRM corresponds to a neuron with parameters $(\lambda_i, \theta^*_i)$. 
 It is easy to directly specify the resulting continuous-time model, we provide the equations in the Supplementary material. 
 However it is more convenient to represent the model using the marked Poisson process of Eq.~\eqref{eq:spk}. % and \eqref{eq:spk_shape}. 
-Then, the overall process $\mc{T}$ is a rate $\Lambda$ Poisson process,
+There, the overall process $\mc{T}$ is a rate $\Lambda$ Poisson process,
 and under a Gamma process prior, $\Lambda$ is Gamma$(\alpha,1)$ distributed %with shape and scale parameters $\alpha$ and $1$ respectively 
 \citep{Ferguson73}.
 The labels $\bth_i$ assigning events to neurons are drawn i.i.d. from a normalized Gamma 
@@ -238,9 +233,9 @@ $ \mathsf{G}(\dd \bth) = \left(1/\Lambda\right) \sum_{l=1}^{\infty} \lambda_l$.
 $\mathsf{G}(\dd \bth)$ is a random probability measure (RPM) called a \emph{normalized random measure} \citep{JamesLP09}. Crucially, a 
 normalized Gamma process is the Dirichlet process (DP) \citep{Ferguson73}, so that 
 the spike parameters $\bth$ are i.i.d.\ draws with a DP-distributed RPM.
-For the $l^{th}$ spike in $\mc{T}$, its shape vector is drawn from a normal distribution
+For spike $l$, the shape vector is drawn from a normal 
 with parameters $(\mb{\mu}_{l}, \Sigma_{l})$: these are thus
-draws from a DP mixture model (DPMM) of Gaussians \citep{Lo1984}.
+draws from a DP mixture (DPM) of Gaussians \citep{Lo1984}.
 
 % <<<<<<< HEAD
 % The connection with the DP allows us to simplify the representation of our model. In particular, we exploit a remarkable property of the DP that
@@ -257,7 +252,7 @@ proportional to the number of earlier spikes having that parameter. It is assign
 proportional to $\alpha$. Letting $C_t$ be the number of neurons observed until time $t$, and  $\mc{T}^t_i = \mc{T}_i \cap [0,t)$ be the times of spikes 
 produced by neuron $i$ before time $t$,
 we then have for spike $l$ at time $t = \tau_l$: 
-\vspace{-.06in}
+\vspace{-.07in}
 \begin{align}
 % <<<<<<< HEAD
 %   \mathsf{P}({\nu_l} = i) & \propto 
@@ -278,7 +273,8 @@ assign spikes to neurons based on the assignments of earlier spikes.
 %$\mathsf{G}(\dd \bth) = \frac{1}{R} R(\dd \bth)$. From the properties of the Gamma process, the probability measure $G$ a Dirichlet process, 
 This requires one last property: for the Gamma process, the RPM $\mathsf{G}(\cdot)$ is independent of the total mass $\Lambda$. 
 Consequently, the clustering of spikes (determined by $\mathsf{G}(\cdot)$) is independent of the rate $\Lambda$ at which they are produced. We then have
- the following model equivalent to the one above:
+ the following model:
+\vspace{-.04in}
 \begin{subequations}
 \begin{align}
   \mc{T} &\sim \PP(\Lambda), \qquad &\text{ where } \Lambda  &\sim \mathsf{\Gamma P}(\alpha, 1),
