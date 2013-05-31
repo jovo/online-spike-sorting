@@ -34,8 +34,10 @@ The single-channel experiments were all run on channel 2 (the results were nearl
 
 % The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
 
-The online algorithms were all run with weakly informative parameters, namely  $\mb{\mu}_0=\mb{0}$ $,\lambda_0=0.1,\bW=10\bI$, and $\nu=1$ ($\bI$ is the identity matrix).  
-For the autoregressive process, we set $\bB=(1-\mathsf{exp}(-2\times 10^{-6}))\bI$ and $r_t\sim\mathsf{N}(0,\mathsf{exp}(-4\times 10^{-6})\bI$.  $\alpha$ was set to $0.1$. The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31 seconds for a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory (see Supplementary Fig.\ \ref{fig:timing} for details).
+The online algorithms were all run with weakly informative parameters. For the normal-Wishart, we used  $\mb{\mu}_0=\mb{0}$ $,\lambda_0=0.1,\bW=10\bI$, and $\nu=1$ ($\bI$ is the identity matrix).  
+The AR process corresponded to a GP with length-scale $30$ seconds, and variance $0.1$.
+%we set $\bB=(1-\mathsf{exp}(-2\times 10^{-6}))\bI$ and $r_t\sim\mathsf{N}(0,\mathsf{exp}(-4\times 10^{-6})\bI$.  
+$\alpha$ was set to $0.1$. The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31 seconds for a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory (see Supplementary Fig.\ \ref{fig:timing} for details).
 
 \vspace{-.1in}
 \paragraph{Performance on partial ground truth data}
@@ -157,9 +159,9 @@ The IC waveform changes over time, which our posterior parameters track.
 % \vspace{-5pt}
 
 
-Our \smug\ achieved a heightened sensitivity by virtue of incorporating \emph{multiple} channels (see \sct{M}\smug\ point in Fig.\ \ref{hc1res}).  
+\smug\ achieved a heightened sensitivity by incorporating \emph{multiple} channels (see \sct{M}\smug\ point in Fig.\ \ref{hc1res}).  
 % Another key feature of \smug\ is its ability to incorporate multiple channels.  For the HC1 data, \sct{M}\smug\ (the multielectrode variant) achieved \jovo{??} more true positives, while only missing an additional \jovo{??} spikes (see Fig.\ \ref{hc1res}).  
-We further evaluate the impact of multiple channels using both a three channel NeuroNexus shank (Fig.\ \ref{3dev}). In Fig.\ \ref{ext31} we show the top two most prevalent waveforms from these data across the three electrodes.  Had only the third electrode been used, these two waveforms would not be distinct (as evidenced by their substantial overlap in PC space upon using only the third channel in Fig.\ \ref{3chpca}).  This suggests that borrowing strength across electrodes improves detection accuracy. Supplementary Fig.\ \ref{sfig:8} shows a similar plot for the eight channel data.  
+We further evaluate the impact of multiple channels using a three channel NeuroNexus shank (Supp.\ Fig.\ \ref{3dev}). In Fig.\ \ref{ext31} we show the top two most prevalent waveforms from these data across the three electrodes.  Had only the third electrode been used, these two waveforms would not be distinct (as evidenced by their substantial overlap in PC space upon using only the third channel in Fig.\ \ref{3chpca}).  This suggests that borrowing strength across electrodes improves detection accuracy. Supplementary Fig.\ \ref{sfig:8} shows a similar plot for the eight channel data.  
 
 
 % In the tetrode case the waveform undoubtedly appears on all channels at once; it is possible to concatenate the channels to jointly process the data \cite{wood2009}.  When the action potential will only appear on a subset of channels it is nice to allow the action potential to vary in a low-dimensional subset in each of the channels instead of a low-dimensional subset over all the channels. \cite{Prentice2011}
