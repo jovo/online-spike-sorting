@@ -250,8 +250,8 @@ In our case, we have to approximate the marked Poisson process $\mc{T}$. All thi
 in the Bernoulli approximation. Following Eqs.~\eqref{eq:CRP} and \eqref{eq:CRP_mix}, the $\bth_l$'s is distributed according
 to a Chinese restaurant process, while each $\by_l$ is drawn from a normal distribution parametrized by the corresponding $\bth_l$. We discretize the 
 elements of dictionary $d_k \equiv \{d_k(t)\}_{t \in (0,T)}$ as well, defining a mapping from $L_2$ to $\Real^L$ yielding discrete dictionary elements 
-$\mt{\mb{D}}_{k,:}=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$. These form the rows of a ${K \times L}$ matrix $\mt{\bD}$, we call its columns
-$\mt{\mb{D}}_{:,l}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
+$\mt{\bd}_{k,:}=(\mt{d}_k[1], \ldots, \mt{d}_k[L])\T$. These form the rows of a ${K \times L}$ matrix $\mt{\bD}$, we call its columns
+$\mt{\bd}_{:,h}$. The shape of the $j^{th}$ spike is now a vector of length $L$, and for a weight vector
 $\by$, is given by $\mt{\bD} \by$.
 
 We can simplify notation a little for the discrete-time model. Let $t$ index time-bins (so that for an observation interval of length 
@@ -262,7 +262,7 @@ $\mt{\nu}_t$ and $\mt{\theta}_t$ be the neuron and neuron parameter associate wi
 $\mt{z}_t = 1$), then these are the marks of that spike, otherwise we ignore them.
 Then the output at time $t$, $x_t$ is given by
 \begin{align}
-  x_t = \sum_{h = 1}^L \bD_{:,h}^{\T} \by_{t-h-1} + \epsilon_t &\text{\qquad where $\epsilon_t \sim \mathcal{N}(0,\sigma^2)$.} 
+  x_t = \sum_{h = 1}^L \bd_{:,h}^{\T} \by_{t-h-1} + \epsilon_t &\text{\qquad where $\epsilon_t \sim \mathcal{N}(0,\sigma^2)$.} 
 \end{align}
 \subsection{Correlations in time and across electrodes}
 We end by describing two extensions to the model outlined so far. 
@@ -288,8 +288,10 @@ Gaussian with mean $\mb{\mu}^*_i(\tau_l)$. Following \citep{wood2009}, a useful 
 
 Our second extension is to generalize our model from a single electrode to the case of multielectrode recordings. 
 We allow the shape of any spike to vary across channels: for spike $l$ in channel $m$, call the weight-vector $\by^m_l$.
-Of course, all these vectors need to be correlated as they correspond to the same spike; we do this by modeling the set of
-vectors as a matrix-variate normal. {\color{green} Need to check with Dec how we set details of this correlation matrix}.
+Of course, all these vectors need to be correlated as they correspond to the same spike. We do this simply by concatenating the set of vectors into
+a single $MK$-element vector $\by_l = (\by^1_l;\cdots;\by^M_l)$, and modelling this as a multivariate normal. In principle, one might expect its associated 
+covariance matrix to possess a block structure (corresponding to subvector associated with each channel); however, rather than building this into the model,
+we allow the data to inform us about any such structure.
 Algorithm \ref{alg:gen_proc} outlines generative mechanism of the data for the discrete-time model.
 
 \begin{algorithm}
@@ -323,13 +325,12 @@ $  P({\mt{\nu}_t} = i) \propto
        \Else \State  $\mc{T}_{\nu_t} \leftarrow \mc{T}_{\nu_t} \cup \{t\}$.
     \EndIf
 \State Set $\theta_t = \theta^*_{\nu_t}$, recalling that $\theta_t \equiv (\mb{\mu}_t, \Sigma_t)$.
-\State Sample $\bY_t %\equiv (\by_{t1}, \cdots, \by_{t\Upsilon}) 
-           \sim \mathcal{N}(\mb{\mu}_t, \Sigma \otimes K)$, determining the spike shape at all electrodes. \jovo{define $\otimes$.}
+\State Sample $\by_t = (\by^1_t; \cdots; \by^M_1) %\equiv (\by_{t1}, \cdots, \by_{t\Upsilon}) 
+           \sim \mathcal{N}(\mb{\mu}_t, \Sigma_t)$, determining the spike shape at all electrodes.
 %\State $\bx^h_{t:t+L} = A\by^h$
-\EndIf
-
-\State Update the cluster parameters: ${\mb{\mu}}^*_i = \mathbf{B} {\mb{\mu}}^*_i + r_i \quad i \in [C_{t+1}]$
 \State $ x^m_t = \sum_{h = 1}^L \bD_{:,h}^{\T} \by^m_{t-h-1} + \epsilon^m_t \text{\qquad where $\epsilon^m_t \sim \mathcal{N}(0,\sigma^2), m \in [M]$.} $
+\State Update the cluster parameters: ${\mb{\mu}}^*_i = \mathbf{B} {\mb{\mu}}^*_i + r_i \quad i \in [C_{t+1}]$
+\EndIf
 \EndFor
 \end{algorithmic}
 \end{algorithm}
