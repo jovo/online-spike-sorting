@@ -10,7 +10,7 @@ Traditional approaches are sampling-based, typically involving Markov chain Mont
 and recently there has also been work on constructing deterministic approximations to the intractable posterior (eg.\ \citep{BleJor2006, MinGha2003}).
 Our problem is complicated by two additional factors. The first is the convolutional nature of our observation process, 
 where at each time,
-we observe a function of the previous observations drawn from the DP mixture model. This is in contrast to the usual situation where one directly observes 
+we observe a function of the previous observations drawn from the DPMM. This is in contrast to the usual situation where one directly observes 
 the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
 Our ultimate goal, on the other hand, is to perform inference in real time, making these approaches are unsuitable for our purposes.
@@ -23,7 +23,7 @@ observation process, also accounting for the time-evolution of the cluster param
 Below, we describe an iteration of our algorithm for the case a single electrode; %Most steps are repeated across all electrodes; 
 %we will point out when the need for anything more complicated arises. 
 generalizing to the multielectrode case is straightforward. 
-At a high level, at time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations so far. It also maintains
+At time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations so far. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
 waveforms. We indicate these point estimates with the hat operator, so, for example $\mh{\mc{T}}^t_i$ is the set of estimated spike times before time $t$ assigned
 to neuron $i$. The algorithm also keeps a set of posterior distributions $q_{it}(\theta^*_i)$ where $i$ spans over the
@@ -32,37 +32,39 @@ For each $i$, $q_{it}(\theta^*_i)$ approximates the distribution over the parame
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
 
 Having identified the location and shape of spikes from earlier times, we can calculate their contribution to the recordings 
-$\bx^L_t \equiv (x_{t+1},\cdots, x_{t+L})$.
-Recalling that the basis functions $\bD$, and thus all spike waveforms, span $L$ time bins, the residual at time $t$ is then given by
+$\bx^L_t \equiv (x_{t},\cdots, x_{t+L-1})\T$.
+Recalling that the basis functions $\bD$, and thus all spike waveforms, span $L$ time bins, the residual at time $t+t_1$ is then given by
 \begin{align}
-  \resx_t = \bx^L_t - \sum_{h=1}^L \bD\mh{\by}_{t-h} \label{eq:resid}
+  \delta x_{t+t_1} = x_t - \sum_{h=1}^{L-t_1} \mh{z}_{t-h} \bD\mh{\by}_{t-h} \label{eq:resid}
 \end{align}
 
-We treat the residual $\resx_{t+1}$ as an observation from a DP mixture model, and use this to make a hard decision about whether or not this was produced 
+We treat the residual $\resx_{t} =  (\delta x_{t}, \cdots, \delta x_{t+L})\T$ as an observation from a DP mixture model, and use this to make a hard decision about whether or not this was produced 
 by an underlying spike, what neuron that spike belongs 
 to (one of the earlier neurons or a new neuron), and what the shape of the associated spike waveform is. The latter is used to calculate
 $q_{i,t+1}(\theta^*_i)$, the new distribution over neuron parameters at time $t+1$. Our algorithm proceeds recursively in this manner. 
 
 
 %Let $z_t$ indicate whether or not a spike is present at time $t$, with $\by_t$ giving its shape, and $\nu_t$ its associated neuron. 
-For the first step we decide whether or not there is a spike underlying the residual by applying Bayes' rule,
+For the first step we use Bayes' rule to decide whether there is a spike underlying the residual:
 \begin{align}
-  P(z_t = 1 | \resx_t)  &\propto P(z_t = 1,  \resx_t) = \sum_{\nu_t = 1}^{\mh{C}_{t-1}+1} P(\resx_t, {\nu_t} | z_t = 1) P(z_t = 1) \label{eq:spk_prob}\\
-\intertext{$P({\nu_t} = i | z_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}), while}
-  P(\resx_t | {\nu_t = i} , z_t = 1) &= \int_{\Theta} P(\resx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
+  P(\mt{z}_t = 1 | \resx_t)  &\propto P(\mt{z}_t = 1,  \resx_t) = \sum_{\nu_t = 1}^{\mh{C}_{t-1}+1} P(\resx_t, {\nu_t} | \mt{z}_t = 1) P(\mt{z}_t = 1) \label{eq:spk_prob}\\
+\intertext{$P({\nu_t} = i | \mt{z}_t = 1)$ follows from the CRP update rule (equation \eqref{eq:crp_marg_pr}), while}
+  P(\resx_t | {\nu_t = i} , \mt{z}_t = 1) &= \int_{\Theta} P(\resx_t | \theta_t) q_{it} (\theta_t) \dd \theta_t  \label{eq:norm_nw}
 \end{align}
 Here,  $P(\resx_t | \theta_t)$ is just the normal distribution, while we restrict $q_{it}(\cdot)$ be the 
 normal-Wishart distribution. % with parameters 
-We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to calculate $P(z_t = 1 | \resx_t)$. 
-If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $z_t = 0$.
+We can then evaluate integral \eqref{eq:norm_nw}, and then summation \eqref{eq:spk_prob} to approximate $P(\mt{z}_t = 1 | \resx_t)$. 
+If this exceeds a threshold of $0.5$ we decide that there is a spike present at time $t$, otherwise, we set $\mt{z}_t = 0$.
 Observe that making this decision involves marginalizing over all possible cluster assignments $\nu_t$, and all values of the weight vector $\by_t$.
-On the other hand, having decided that a spike is present , we simplify matters collapsing these posterior distributions to point estimates 
+On the other hand, having decided that a spike is present, we simplify matters by collapsing these posterior distributions to point estimates 
 $\mh{\nu}_t$ and $\mh{\by}_t$. Both are obtained from their MAP values. 
 
-Given these point estimates, we can update the posterior distribution over parameters of cluster $\mh{\nu}_t$ to obtain $q_{i,t+1}$ from $q_{i,t}$; this
-is straightforward because of conjugacy. 
-We need to follow this up with an additional update step for the parameter distributions of \emph{all} clusters because of the AR process on the parameters.
-This too is straightforward {\color{red} Get exact update rule. Hyperparameters}.
+Given these point estimates, we can update the posterior distribution over parameters of cluster $\mh{\nu}_t$ to obtain $q_{i,t+1}(\cdot)$ from 
+$q_{i,t}(\cdot)$; this is straightforward because of conjugacy. We follow this up with an additional update step for the distributions of the means of
+\emph{all} clusters: this is to account for the AR evolution of the cluster means. 
+%This too is straightforward {\color{red} Get exact update rule. Hyperparameters}.
+We use a variational update to keep  $q_{i,t+1}(\cdot)$ in the normal-Wishart distribution. Finally we take a stochastic gradient step to
+update any hyperparameters we wish to learn. We provide all details in the Supplementary material.
 
-The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
+%The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
 
