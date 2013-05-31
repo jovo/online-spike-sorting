@@ -15,7 +15,7 @@ the DPMM outputs themselves.
 The second complication is a computational requirement: typical inference schemes are batch methods that are slow and computationally expensive. 
 Our ultimate goal, on the other hand, is to perform inference in real time, making these approaches are unsuitable for our purposes.
 
-Keeping the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on the sequential update and
+With the latter objective in mind, we develop an online algorithm for posterior inference. Our algorithm is based on the sequential update and
 greedy search (SUGS) algorithm of
 \citep{WangDun2009}, though that work was concerned with the usual case of i.i.d.\ observations from a DPMM. We generalize SUGS to our 
 observation process, also accounting for the time-evolution of the cluster parameters.
@@ -26,7 +26,7 @@ generalizing to the multielectrode case is straightforward.
 At time $t$, our algorithm maintains the set of times of the spikes it has inferred from the observations so far. It also maintains
 the identities of the neurons that it assigned each of these spikes to, as well as the weight vectors determining the shapes of the associated spike 
 waveforms. We indicate these point estimates with the hat operator, so, for example $\mh{\mc{T}}^t_i$ is the set of estimated spike times before time $t$ assigned
-to neuron $i$. The algorithm also keeps a set of posterior distributions $\mathsf{q}_{it}(\theta^*_i)$ where $i$ spans over the
+to neuron $i$. In addition to these point estimates, the algorithm also keeps a set of posterior distributions $\mathsf{q}_{it}(\theta^*_i)$ where $i$ spans over the
 set of neurons associated with the spikes seen so far (i.e.\ $i \in [\mh{C}_t]$). 
 For each $i$, $\mathsf{q}_{it}(\theta^*_i)$ approximates the distribution over the parameters 
 $\theta_i^* \equiv (\mu_i^*, \Sigma_i^*)$ of neuron $i$ given the observations until time $t$. 
