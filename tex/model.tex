@@ -2,28 +2,43 @@
 \newcommand{\NN}{\mathbb{N}}         
 %\nipsfinalcopy % Uncomment for camera-ready version
 
-\subsection{Notation}
-
-Unless otherwise specified, we let lower-case English alphabet characters indicate scalars $x \in \Real$. Bold indicates column vectors $\mb{x} \in \Real^p$,
-and upper-case bold indicates matrices, $\bX \in \Real^{p \times q}$.  Parameters and constants are Greek characters.  Time is $t \in [0,T]$, 
-$i \in [N]$ indexes the $N$ neurons, where $[N]=\{1,2,\ldots,N\}$. Script denotes sets and pipes denote the cardinality of the set, e.g. $|\mc{T}|$.  We let $\equiv$ denote ``is shorthand for''. San serif fonts, e.g., $\mathsf{H}$, denote functions. 
-%\vspace{-.1in}
-\subsection{Input}
-%\vspace{-.1in}
+% \subsection{Notation}
+% 
+% Unless otherwise specified, we let lower-case English alphabet characters indicate scalars $x \in \Real$. Bold indicates column vectors $\mb{x} \in \Real^p$,
+% and upper-case bold indicates matrices, $\bX \in \Real^{p \times q}$.  Parameters and constants are Greek characters.  Time is $t \in [0,T]$, 
+% $i \in [N]$ indexes the $N$ neurons, where $[N]=\{1,2,\ldots,N\}$. Script denotes sets and pipes denote the cardinality of the set, e.g. $|\mc{T}|$.  We let $\equiv$ denote ``is shorthand for''. San serif fonts, e.g., $\mathsf{H}$, denote functions. 
+% %\vspace{-.1in}
+% \subsection{Input}
+% %\vspace{-.1in}
+% % \subsection{Data Model}
+% Our data is a time-series of multielectrode recordings $\bX \equiv (\bx_1, \cdots, \bx_T)$, and consists of $T$ recordings from $M$ channels. 
+% The set of recording times lie on regular grid with interval length $\Delta$, while $\bx(t) \equiv \bx_t\in \mathbb{R}^M$ for all $t$. 
+% This time-series of electrical activity is driven by an unknown number of neurons;  
+% we do not wish to bound this number \emph{a priori}. %, though only a few of the infinite
+% =======
 % \subsection{Data Model}
+
 Our data is a time-series of multielectrode recordings $\bX \equiv (\bx_1, \cdots, \bx_T)$, and consists of $T$ recordings from $M$ channels. 
-The set of recording times lie on regular grid with interval length $\Delta$, while $\bx(t) \equiv \bx_t\in \mathbb{R}^M$ for all $t$. 
-This time-series of electrical activity is driven by an unknown number of neurons;  
-we do not wish to bound this number \emph{a priori}. %, though only a few of the infinite
+Underlying these recordings is a continuous-time voltage trace sampled on regular grid with interval length $\Delta$, while $\bx_t \in \mathbb{R}^M$ for all $t$. 
+This electrical activity is driven by an unknown number of neurons, %and 
+%we do not wish to bound this number \emph{a priori}. %, though only a few of the infinite
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 %neurons dominate. These neurons contribute the majority of the activity in any finite interval of time; however, as time passes, the total number of 
 %observed neurons increases {\color{red}(Justify?)}. 
 %Each neuron, has its own `shape' A natural model in such a situation is to
 with the neurons themselves generating continuous-time voltage traces. 
-The outputs of all neurons superimposed and discretely sampled to produce the 
-recordings $\bX$.  At a high level, we model the output of each neuron as a
-series of idealized spikes which are smoothed with appropriate kernels, the latter determining the shape of each spike. 
+The outputs of all neurons are superimposed and discretely sampled to produce the 
+recordings $\bX$.  At a high level, we model the continuous-time output of each neuron as a
+series of idealized Poisson events smoothed with appropriate kernels (the latter determining the shape of each spike).
+We then provide a discrete-time approximation to this model based on the Bernoulli approximation to the Poisson process, and
+apply this to the observed data.
 %Each neuron has its own distribution over waveform shapes. 
-We describe this in detail, starting first with a model for a single channel recording $\bx \equiv (x_1, \cdots, x_T)\T$.
+% 
+% We describe this in detail, starting first with a model for a single channel recording $\bx \equiv (x_1, \cdots, x_T)\T$.
+% =======
+We describe this below, starting first with a model for the continuous-time output $x(t)$ of a single neuron.
+%channel recording $\bx\T \equiv (x_1, \cdots, x_T)$.
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 
 %\vspace{-.1in}
 \subsection{Modeling a single electrode recording}
@@ -115,12 +130,13 @@ Eq.~\eqref{eq:spk}. The output waveform $x(t)$ is then a linear functional of th
 \subsection{Completely random measures (CRMs)}
 %\vspace{-.1in}
 
-The previous section assumed a known number of neurons $N$; in practice, our recordings are a superposition of outputs of an unknown
-number of neurons. We do not wish to bound this number \emph{a priori}, moreover we expect the number of neurons observed to increase as we 
+%The previous section assumed a known number of neurons $N$; 
+In practice, our recordings are a superposition of outputs of an unknown
+number of neurons. We do not wish to bound this number \emph{a priori}, moreover we expect this number to increase as we 
 record over longer intervals. This suggests a nonparametric Bayesian approach: allow the \emph{total} 
 number of underlying neurons to be infinite.
 Since only a finite number of spikes are observed in any finite interval, only a finite number of neurons will be \emph{active}.
- Spiking activity over any finite interval will be dominated by a few of these neurons (the complexity of the
+Onlt a few neurons dominate spiking activity over any interval (the complexity of the
 data will suggest how many).
 This elegant and flexible modeling approach has  already proved 
 successful in neuroscience applications \citep{WoodBla2008}.
@@ -133,29 +149,39 @@ successful in neuroscience applications \citep{WoodBla2008}.
 %also be finite. Moreover, we want this to be dominated by a few $\lambda_i$: the corresponding neurons contribute the majority of the spiking
 %activity in the observation interval. 
 
-A natural framework that captures our  modeling requirements is that of \emph{completely random measures} (CRMs) \citep{Kingman:PJM67}.
-CRMs are stochastic processes that form flexible and convenient priors over
-infinite dimensional objects like probability distributions \citep{JamesLP09}, hazard functions \citep{Hjo1990}, latent features \citep{ThiJor2007}. 
-These have been well studied in the Bayesian nonparametrics and machine learning communities, and there is a wealth of literature on
-theoretical properties, as well as posterior computation.
+% A natural framework that captures our  modeling requirements is that of \emph{completely random measures} (CRMs) \citep{Kingman:PJM67}.
+% CRMs are stochastic processes that form flexible and convenient priors over
+% infinite dimensional objects like probability distributions \citep{JamesLP09}, hazard functions \citep{Hjo1990}, latent features \citep{ThiJor2007}. 
+% These have been well studied in the Bayesian nonparametrics and machine learning communities, and there is a wealth of literature on
+% theoretical properties, as well as posterior computation.
+% 
+% Recall that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$; characterizing the distribution over spike times 
+% and shapes respectively. With Eq.~\eqref{eq:mark_distr} in mind, we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an atomic measure on $\Theta$:
+% $\quad \mathsf{\Lambda}(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
+% 
+% =======
+A natural framework for our requirements is that of \emph{completely random measures} (CRMs) \citep{Kingman:PJM67}.
+%CRMs are stochastic processes that form flexible and convenient priors over
+%infinite dimensional objects like probability distributions \citep{JamesLP09}, hazard functions \citep{Hjo1990}, latent features \citep{ThiJor2007}. 
+CRMs have been well studied in the Bayesian nonparametrics community, and there is a wealth of literature on
+theoretical properties, as well as posterior computation; see \citep{JamesLP09, Hjo1990, ThiJor2007} for example. 
+%Recall that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$; characterizing the distribution over spike times 
+%and shapes respectively. 
+With Eq.~\eqref{eq:mark_distr} in mind, and recalling that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$,
+we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an atomic measure on $\Theta$:
+$\ \  \Lambda(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 
-Recall that each neuron is characterized by a pair of parameters $(\lambda_i, \bth^*_i)$; characterizing the distribution over spike times 
-and shapes respectively. With Eq.~\eqref{eq:mark_distr} in mind, we map the infinite collection of pairs $\{(\lambda_i, \bth^*_i)\}$ to an atomic measure on $\Theta$:
-$\quad \mathsf{\Lambda}(\dd \bth) = \sum_{i=1}^{\infty} \lambda_i \delta_{\bth^*_i}$.
-
-
-For any subset $\varTheta$ of $\Theta$, the measure $\Lambda(\varTheta)$ equals \( \sum_{\{ i: \bth^*_i \in \varTheta \} } \lambda_i\). We allow $\Lambda(\cdot)$ to be random,
-modeling it as a realization of a CRM. Such a random measure has the property that for any two disjoint subsets $\varTheta_1$,  $\varTheta_2 \subseteq \Theta$, the measures $\Lambda(\varTheta_1)$ and $\Lambda(\varTheta_2)$ are independent. 
-This distribution over measures is induced by distributions
-over the infinite sequence of weights (the $\lambda_i$'s), and the infinite sequence of their locations (the $\bth^*_i$'s). 
-For a CRM, the weights $\lambda_i$ are the jumps of a \Levy process \citep{Sato90}, and their distribution is characterized by a 
+For a CRM, the distribution over measures is induced by distributions
+over the infinite sequence of weights, and the infinite sequence of their locations. 
+The weights $\lambda_i$ are the jumps of a \Levy process \citep{Sato90}, and their distribution is characterized by a 
 \Levy measure $\rho(\lambda)$. The locations $\bth^*_i$ are drawn i.i.d.\  from a base probability measure $H(\bth^*)$.
 As is typical, we assume these to be independent. % (though this is not necessary). 
 %{\color{green} if there's space, I
 %can elaborate on the construction of the CRM from its Levy measure, though this is not necessary}
 
-The class of CRM is determined by the \Levy measure $\rho(\lambda)$. We choose $\rho(\lambda) = \alpha \lambda^{-1}\exp(-\lambda)$;
-this results in a CRM called the Gamma process ($\Gamma$P) \citep{applebaum2004}. 
+We set the \Levy measure $\rho(\lambda) = \alpha \lambda^{-1}\exp(-\lambda)$,
+resulting in a CRM called the Gamma process ($\Gamma$P) \citep{applebaum2004}. 
 The Gamma process has the convenient property that the 
 total rate $\Lambda \equiv \mathsf{\Lambda}(\Theta) = \sum_{i=1}^{\infty} \lambda_i$ is Gamma distributed (and thus conjugate to the Poisson process prior on $\mc{T}$).
 %\footnote{We abuse notation by using $\Lambda$ to denote both the measure as well as the total measure of $\Theta}
@@ -165,10 +191,16 @@ later on.
 Other choices of the \Levy intensity can be used to capture greater uncertainty in the number of neurons active in any finite interval, or to model
 power-law behavior in the number of spikes emitted by different neurons.
 
-To complete the specification on the Gamma process, we choose a base-measure $\mathsf{H}(\bth^*)$.
+% To complete the specification on the Gamma process, we choose a base-measure $\mathsf{H}(\bth^*)$.
+% %Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, 
+% We set $\mathsf{H}(\bth^*)$ 
+% to the conjugate normal-Wishart distribution with parameters $\phi$. 
+% =======
+To complete the specification on the Gamma process, %we choose a base-measure $H(\bth^*)$.
 %Recalling that $\bth^* \equiv (\mu^*, \Sigma^*)$ gives the mean and variance of the weight-vector $\by^*$ of a neuron, 
-We set $\mathsf{H}(\bth^*)$ 
-to the conjugate normal-Wishart distribution with parameters $\phi$. 
+we set $H(\bth^*)$ 
+to the conjugate normal-Wishart distribution with hyperparameters $\phi$.
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 %Our overall model is then:
 %\begin{subequations}
 %\begin{align}
@@ -183,9 +215,10 @@ to the conjugate normal-Wishart distribution with parameters $\phi$.
 %process on the product space. 
 % 
 %\jovo{perhaps it is standard, but you sample $\Lambda$ and then the next line you have $\lambda_i$, but no explanation for how you from $\Lambda$ to $\lambda_i$. i also am confused as to why $\phi$ is a subscript on $H$, rather than in the $(\cdot)$}
-Atom $i$ of the CRM corresponds to a neuron with parameters $(\lambda_i, \theta^*_i)$. We provide the equations of the resulting model in the Supplementary
-material, however it will be more convenient to rerepresent the model using the marked Poisson process of Eq.~\eqref{eq:spk}. % and \eqref{eq:spk_shape}. 
-The superposition process $\mc{T}$ is a rate $\Lambda$ Poisson process,
+%Atom $i$ of the CRM corresponds to a neuron with parameters $(\lambda_i, \theta^*_i)$. 
+It is easy to directly specify the resulting continuous-time model, we provide the equations in the Supplementary material. 
+However it is more convenient to rerepresent the model using the marked Poisson process of Eq.~\eqref{eq:spk}. % and \eqref{eq:spk_shape}. 
+The overall process $\mc{T}$ is a rate $\Lambda$ Poisson process,
 and under a Gamma process prior, $\Lambda$ has a Gamma$(\alpha,1)$ distribution %with shape and scale parameters $\alpha$ and $1$ respectively 
 \citep{Ferguson73}.
 As we saw (Eq.~\eqref{eq:mark_distr}), the labels $\bth_i$ assigning events to neurons are drawn i.i.d. from a normalized Gamma 
@@ -201,9 +234,17 @@ parameter $\bth_l$, its shape vector is drawn from a normal distribution
 with parameters $(\mb{\mu}_{l}, \Sigma_{l})$. Thus the spike parameters $\bth$ are i.i.d.\ draws from a Dirichlet process, while the weight vectors are
 draws from a DP mixture model (DPMM) of Gaussians \citep{Lo1984}.
 
-The connection with the DP allows us to simplify the representation of our model. In particular, we exploit a remarkable property of the DP that
-allows us to integrate out the infinite-dimensional variable $\mathsf{G}(\cdot)$. The resulting marginal distribution over observations follows the so-called
- Chinese restaurant process ($\mathsf{CRP}$) \citep{Pit2002a}. Under this scheme, the $l^{th}$ spike is assigned the same parameter as an earlier spike with probability 
+% <<<<<<< HEAD
+% The connection with the DP allows us to simplify the representation of our model. In particular, we exploit a remarkable property of the DP that
+% allows us to integrate out the infinite-dimensional variable $\mathsf{G}(\cdot)$. The resulting marginal distribution over observations follows the so-called
+%  Chinese restaurant process ($\mathsf{CRP}$) \citep{Pit2002a}. Under this scheme, the $l^{th}$ spike is assigned the same parameter as an earlier spike with probability 
+% =======
+%The connection with the DP allows us to simplify the representation of our model. In particular, 
+We can exploit the connection with the DP to %a remarkable property of the DP that allows us to 
+integrate out the infinite-dimensional measure $G(\cdot)$ (and thus $\Lambda(\cdot)$), and assign spikes to neurons via 
+%. The resulting marginal distribution over observations follows 
+the so-called Chinese restaurant process (CRP) \citep{Pit2002a}. Under this scheme, the $l^{th}$ spike is assigned the same parameter as an earlier spike with probability 
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 proportional to the number of earlier spikes having that parameter. It is assigned a new parameter (and thus, a new neuron is observed) with probability 
 proportional to $\alpha$. Letting $C_t$ be the number of neurons observed until time $t$, and  $\mc{T}^t_i = \mc{T}_i \cap [0,t)$ be the times of spikes 
 produced by neuron $i$ before time $t$,
@@ -235,9 +276,14 @@ Consequently, the clustering of spikes (determined by $\mathsf{G}(\cdot)$) is in
   x(t) &=   \textstyle{\sum_{l \in |\mc{T}|}} \sum_{k \in [K]} y_{lk} \mathsf{d}_k(t - \tau_{l}) + \eps_t  &\text{ where }  \eps_t &\iid \mathsf{N}(0,\sigma^2),  \,  l \in [|\mc{T}|].   \label{eq:CRP_mix}
 \end{align} \label{eq:marked_pp}
 \end{subequations}
-Unlike most applications which observe the outputs of a $\mathsf{CRP}$, our observation at any time $t$ is a convolution-like function of the $\mathsf{CRP}$ outputs of all
-earlier times. Consequently, we cannot directly apply standard techniques for posterior inference. In \S \ref{sec:inf}, we develop a novel online 
-algorithm for posterior inference; first, we provide a discrete-time approximation to our model.
+% Unlike most applications which observe the outputs of a $\mathsf{CRP}$, our observation at any time $t$ is a convolution-like function of the $\mathsf{CRP}$ outputs of all
+% earlier times. Consequently, we cannot directly apply standard techniques for posterior inference. In \S \ref{sec:inf}, we develop a novel online 
+% algorithm for posterior inference; first, we provide a discrete-time approximation to our model.
+% =======
+%Unlike most applications which observe the outputs of a CRP, our observation at any time $t$ is a convolution-like function of the CRP outputs of all
+%earlier times. Consequently, we cannot directly apply standard techniques for posterior inference. In \S \ref{sec:inf}, we develop a novel online 
+%algorithm for posterior inference; first, we provide a discrete-time approximation to our model.
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 
 %For neuron $i$, the sequence of spike times is distributed as a Poisson process with random rate $\lambda_i$.
 %Each event $\tau_{ij}$ is associated with a mark or label $y_{ij}$ drawn from a normal distribution (again, with random parameters).
@@ -247,7 +293,11 @@ algorithm for posterior inference; first, we provide a discrete-time approximati
 %one based on the Beta process-binomial process.
 
 %\vspace{-.1in}
+% =======
+\vspace{-.2in}
+% >>>>>>> ff0f5b20cd09ef2d570aa2ed8ea5c6d04356249f
 \subsection{A discrete-time approximation}
+\vspace{-.1in}
 The previous subsections modeled the continuous-time voltage output of a neuron. Our data on the other hand consists of recordings
 at a discrete set of times. While it is possible to make inferences about the continuous-time process underlying these discrete recordings,
 in this paper, %for simplicity, 
@@ -282,7 +332,9 @@ Then the output at time $t$, $x_t$ is given by
 %\begin{align}
 $\quad  x_t = \sum_{h = 1}^L \mt{z}_{t-h} \mathsf{\bd}_{:,h}^{\T} \mt{\by}_{t-h-1} + \eps_t \text{,\quad where $\eps_t \iid \mathsf{N}(0,\sigma^2)$.}$ 
 %\end{align}
+\vspace{-.1in}
 \subsection{Correlations in time and across electrodes}
+\vspace{-.1in}
 We end by describing some extensions to the model outlined so far. 
 %The first is the inclusion of measurement noise: {\color{red} Biology?}. Let $\eps_t$ be the noise at time $t$, we model this as independent, additive and Gaussian.
 %However, rather than modeling the noise as independent across time, we model it as a first-order autoregressive process. This can capture
