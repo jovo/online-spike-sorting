@@ -1,12 +1,16 @@
 
 \paragraph{Data:}
 
+In the following, we refer to our algorithm as \smug\footnote{Online gamma Process Autoregressive Spike Sorting}.
 We used two different datasets to demonstrate the efficacy of \smug.  First, the ever popular, publicly available HC1 dataset %\footnote{http://crcns.org/data-sets/hc/hc-1/}
 as described in \cite{Henze2000}.  We used the dataset d533101 that consisted of an extracellular tetrode and a single intracellular electrode.  The recording was made simultaneously on all electrodes and was set up such that the cell with the intracellular electrode was also recorded on the extracellular array implanted in the hippocampus of an anesthetized rat. The intracellular recording is relatively noiseless and gives nearly certain firing times of the intracellular neuron.  The extracellular recording contains the spike waveforms from the intracellular neuron as well as an unknown number of additional neurons.  The data is a 4-minute recording at a 10 kHz sampling rate.  
 
 The second dataset comes from novel NeuroNexus devices implanted in the rat motor cortex.  The data was recorded at 32.5 kHz in freely-moving rats.  The first device we consider is a set of 3 channels of data (Fig.\ \ref{3dev}).  The neighboring electrode sites in these devices have 30 $\mu$m between electrode edges and 60 $\mu$m between electrode centers.  These devices are close enough that a locally-firing neuron could appear on multiple electrode sites \cite{Prentice2011}, so neighboring channels warrant joint processing.  The second device has 8-channels (see Fig.\ \ref{8dev}), but is otherwise similar to the first.
 
-For both datasets, we preprocessed with a high-pass filter at 800 Hz using a fourth order Butterworth filter before we analyzed the time series.  To get the PCA decomposition, we used the spikes detected with a threshold (three times the standard deviation of the noise above the mean) in the first five seconds and used the top five principal components.  The noise standard deviation was estimated both over the first five seconds of the recording as well as the entire recording, and the estimate was nearly identical.  Our results were also robust to minor variations in the choice of the number of principal components.  The autoregressive parameters were estimated by using lag-1 autocorrelation on the same set of data.  For the multichannel algorithms we estimate the covariance between channels and normalize by our noise variance estimate.
+
+For both datasets, we preprocessed with a high-pass filter at 800 Hz using a fourth order Butterworth filter before we analyzed the time series.  To 
+define $\bD$, we used the first five principle components of all spikes detected with a threshold (three times the standard deviation of the noise above the mean) in the first five seconds.  The noise standard deviation was estimated both over the first five seconds of the recording as well as the entire recording, and the estimate was nearly identical.  Our results were also robust to minor variations in the choice of the number of principal components.  The autoregressive parameters were estimated by using lag-1 autocorrelation on the same set of data.  For the multichannel algorithms we estimate the covariance between channels and normalize by our noise variance estimate.
+
 
 Each algorithm gives a clustering of the detected spikes.  In this dataset, we only have a partial ground truth, so we can only verify accuracy for the neuron with the intracellular (IC) recording.  We define a detected spike to be an IC spike if the IC recording has a spike within 0.5 milliseconds (ms) of the detected spike in the extracellular recording.  We define the cluster with the greatest number of intracellular spikes as a the ``IC cluster''.   We refer to these data as ``partial ground truth data'', because we know the ground truth spike times for one of the neurons, but not all the others.  
 
@@ -16,9 +20,9 @@ Each algorithm gives a clustering of the detected spikes.  In this dataset, we o
 \paragraph{Algorithm Comparisons}
 
 We compare a number of variants of \smug, as well as several previously proposed methods, as described below.  The vanilla version of \smug\ operates on a single channel with colored noise.  When using multiple channels, we append an ``\sct{M}'' to obtain \sct{M}\smug.  When we model the mean of the waveforms as an auto-regressive process, we ``post-pend'' to obtain \smug\sct{R}.  
-We compare these variants of \smug\ to Gaussian mixture models and k-means with N components (\sct{Gmm-N} and \sct{K-N}, respectively), where \sct{N} indicates the number of components.  We compare with a Dirichlet Process Mixture Model (DPMM) \cite{WoodBla2008} as well as the  Focused Mixture Model (\sct{Fmm}) \cite{FMM}, a recently proposed Bayesian generative model with state-of-the-art performance.  Finally, with compare with \sct{OSORT} \cite{OSORT}, an online sorting algorithm.  Only \smug\ and \sct{OSORT} methods were online as we desired to compare to the state-of-the-art \emph{batch} algorithms which use all the data. 
+We compare these variants of \smug\ to Gaussian mixture models and k-means \citep{Lewicki} with N components (\sct{Gmm-N} and \sct{K-N}, respectively), where \sct{N} indicates the number of components.  We compare with a Dirichlet Process Mixture Model (\sct{DPMM}) \cite{WoodBla2008} as well as the  Focused Mixture Model (\sct{Fmm}) \cite{FMM}, a recently proposed Bayesian generative model with state-of-the-art performance.  Finally, with compare with \sct{OSORT} \cite{OSORT}, an online sorting algorithm.  Only \smug\ and \sct{OSORT} methods were online as we desired to compare to the state-of-the-art \emph{batch} algorithms which use all the data. 
 % could not find any previous code available for online spike sorting, despite a small literature on the topic \cite{??}.  
-Note that \smug\ algorithms used a dictionary learned from the first five seconds of data, whereas all other algorithms used a dictionary learned from the entire data set.  In either case, the dictionary consisted of the first five principal components of the matrix consisting of all waveforms from the thresholded voltage traces.  
+Note that \smug\ algorithms learned $\bD$ from the first five seconds of data, whereas all other algorithms used a dictionary learned from the entire data set.  
 % Supplementary Fig.\ \ref{fig:waveforms} shows the two different dictionaries and the relative fraction of variance explained.
 
 % 
@@ -30,15 +34,18 @@ The single-channel experiments were all run on channel 2 (the results were nearl
 
 % The online algorithms were all run with weakly informative parameters (\dec{add parameters once I get vinayak's notation}). The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31s was a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory.
 
-The online algorithms were all run with weakly informative parameters, namely  $\mb{\mu}_0=\mb{0}$ $,\lambda_0=0.1,\bW=10\bI$, and $\nu=1$ ($\bI$ is the identity matrix).  
-For the autoregressive process, we set $\bB=(1-\mathsf{exp}(-2\times 10^{-6}))\bI$ and $r_t\sim\mathsf{N}(0,\mathsf{exp}(-4\times 10^{-6})\bI$.  $\alpha$ was set to $0.1$. The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31 seconds for a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory (see Supplementary Fig.\ \ref{fig:timing} for details).
+The online algorithms were all run with weakly informative parameters. For the normal-Wishart, we used  $\mb{\mu}_0=\mb{0}$ $,\lambda_0=0.1,\bW=10\bI$, and $\nu=1$ ($\bI$ is the identity matrix).  
+The AR process corresponded to a GP with length-scale $30$ seconds, and variance $0.1$.
+%we set $\bB=(1-\mathsf{exp}(-2\times 10^{-6}))\bI$ and $r_t\sim\mathsf{N}(0,\mathsf{exp}(-4\times 10^{-6})\bI$.  
+$\alpha$ was set to $0.1$. The parameters were insensitive to minor changes.  Running time in unoptimized MATLAB code for 4 minutes of data was 31 seconds for a single channel and 3 minutes for all 4 channels on a 3.2 GHz Intel Core i5 machine with 6 GB of memory (see Supplementary Fig.\ \ref{fig:timing} for details).
 
 \vspace{-.1in}
 \paragraph{Performance on partial ground truth data}
 
 
 
-The main empirical result of our contribution is that all variants of \smug\ detect more true positives with fewer false positives than any of the other algorithms on the partial ground truth data (see Fig.\ \ref{hc1res}).  The only comparable result is the \sct{OSORT}; however, the \sct{OSORT} algorithm split the IC cluster into 2 different clusters and we combined the two clusters into one by hand.  Our improved sensitivity and specificity is \emph{despite} that \smug\ is fully online, whereas all the algorithms (besides \sct{OSORT}) that we compare to are batch algorithms using all data for all spikes.   Note that all the comparison algorithms pre-process the data via thresholding at some constant (which we set to three standard deviations above the mean).  To assess the extent to which performance of \smug\ is due to \emph{not} thresholding, we implement \sct{Fake}-\smug, which thresholds the data.  Indeed, \sct{Fake}-\smug's performance is much like that of the batch algorithms.  To get uncertainty estimates, we split the data into ten random two minute segments and repeat this analysis and the results are qualitatively similar. % (see Supplementary Fig.\ \ref{sfig:hc1res}).
+The main empirical result of our contribution is that all variants of \smug\ detect more true positives with fewer false positives than any of the other algorithms on the partial ground truth data (see Fig.\ \ref{hc1res}).  The only comparable result is the \sct{OSORT}; however, the \sct{OSORT} algorithm split the IC cluster into 2 different clusters and we combined the two clusters into one by hand.  Our improved sensitivity and specificity is \emph{despite} 
+the fact that \smug\ is fully online, whereas all the algorithms (besides \sct{OSORT}) that we compare to are batch algorithms using all data for all spikes.   Note that all the comparison algorithms pre-process the data via thresholding at some constant (which we set to three standard deviations above the mean).  To assess the extent to which performance of \smug\ is due to \emph{not} thresholding, we implement \sct{Fake}-\smug, which thresholds the data.  Indeed, \sct{Fake}-\smug's performance is much like that of the batch algorithms.  To get uncertainty estimates, we split the data into ten random two minute segments and repeat this analysis and the results are qualitatively similar. % (see Supplementary Fig.\ \ref{sfig:hc1res}).
 
 
 One possible explanation for the relatively poor performance of the batch algorithms as compared to \smug\ is a poor choice of the important---but often overlooked---threshold parameter.  The right panel of Fig.\ \ref{hc1res} shows the receiver operating characteristic (ROC) curve for the k-means algorithms as well as \smug\ and \sct{M}\smug\ (where \sct{M} indicates multichannel, see below for detail).  Although we typically run \smug\ without tuning parameters, the prior on $\Lambda$ sets the expected number of spikes, which we can vary in a kind of ``empirical Bayes'' strategy.  Indeed, the \smug\ curves are fully above the batch curves for all thresholds and priors, suggesting that regardless of which threshold one chooses for pre-processing, \smug\ always does better on these data than all the competitor algorithms.  Moreover, in \smug we are able to infer the parameter $\Lambda$ at a reasonable point, and the inferred $\Lambda$ is shown in the left panel of Fig.\ \ref{hc1res}. and the points along the curve in the right panel.  These figures also reveal that using the correlated noise model greatly improves performance.
@@ -102,7 +109,8 @@ Indeed, by virtue of estimating the presence of multiple spikes, the residual sq
 % \label{fig:resid}
 % \end{subfigure}
 \vspace{-.1in}
-\caption{\smug\ can detect multiple overlapping waveforms (Top Left) The observed voltage (solid black), MAP waveform 1 (red), MAP waveform 2 (blue), and expected waveform from the sum (dashed-black). (Bottom Left) Residuals from same example snippet, demonstrating a clear improvement in residuals.  (c) {Histogram of residuals for all putative overlapping examples.}} \label{fig:overlapping}
+\caption{\smug\ detects multiple overlapping waveforms (Top Left) The observed voltage (solid black), MAP waveform 1 (red), MAP waveform 2 (blue), and waveform from the sum (dashed-black). (Bottom Left) Residuals from same example snippet, showing a clear improvement in residuals.  %(c) {Histogram of residuals for all putative overlapping examples.}
+    } \label{fig:overlapping}
 \end{SCfigure}
 \end{center}
 
@@ -112,7 +120,7 @@ Indeed, by virtue of estimating the presence of multiple spikes, the residual sq
 \paragraph{Time-Varying Waveform Adaptation} \label{sub:adapt}
 
 
-As as been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Fig.\ \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (Fig.\ \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R}, which models the mean of the dictionary weights via an auto-regressive process.  Fig.\ \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  More precisely, the mean of the posterior standard deviations for the time-varying prior is about half of that for the static prior's posteriors. 
+As has been demonstrated previously \cite{calabrese2011kalman}, the waveform shape of a neuron may change over time.  The mean waveform over time for the intracellular neuron is shown in Fig.\ \ref{evohc1}.  Clearly, the mean waveform is changing over time.  Moreover, these changes are reflected in the principal component space (Fig.\ \ref{fig:clusterevo}).  We therefore compared means and variances \smug\ with \smug\sct{R}, which models the mean of the dictionary weights via an auto-regressive process.  Fig.\ \ref{fig:AR} shows that the auto-regressive model for the mean dictionary weights yields a time-varying posterior (top), whereas the static prior yields a constant posterior mean with increasing posterior marginal variances (bottom).  More precisely, the mean of the posterior standard deviations for the time-varying prior is about half of that for the static prior's posteriors. 
 Indeed, the \smug\sct{R} yields 11 more true detections than \smug.
  
 % \jovo{plot 3 ARs on top of each other, and also plot 3 stationary on top of each other.}
@@ -151,9 +159,9 @@ The IC waveform changes over time, which our posterior parameters track.
 % \vspace{-5pt}
 
 
-Our \smug\ achieved a heightened sensitivity by virtue of incorporating \emph{multiple} channels (see \sct{M}\smug\ point in Fig.\ \ref{hc1res}).  
+\smug\ achieved a heightened sensitivity by incorporating \emph{multiple} channels (see \sct{M}\smug\ point in Fig.\ \ref{hc1res}).  
 % Another key feature of \smug\ is its ability to incorporate multiple channels.  For the HC1 data, \sct{M}\smug\ (the multielectrode variant) achieved \jovo{??} more true positives, while only missing an additional \jovo{??} spikes (see Fig.\ \ref{hc1res}).  
-We further evaluate the impact of multiple channels using both a three channel Michigan shank (Fig.\ \ref{3dev}). In Fig.\ \ref{ex31} and\ref{ex32} we show the top two most prevalent waveforms from these data across the three electrodes.  If only the third electrode would have been used, these two waveforms would not be distinct (as evidenced by their substantial overlap in PC space upon using only the third channel in Fig.\ \ref{3chpca}).  This suggests that by borrowing strength across electrodes, we obtain improved detection accuracy. Supplementary Fig.\ \ref{sfig:8} shows a similar plot for the eight channel data.  
+We further evaluate the impact of multiple channels using a three channel NeuroNexus shank (Supp.\ Fig.\ \ref{3dev}). In Fig.\ \ref{ext31} we show the top two most prevalent waveforms from these data across the three electrodes.  Had only the third electrode been used, these two waveforms would not be distinct (as evidenced by their substantial overlap in PC space upon using only the third channel in Fig.\ \ref{3chpca}).  This suggests that borrowing strength across electrodes improves detection accuracy. Supplementary Fig.\ \ref{sfig:8} shows a similar plot for the eight channel data.  
 
 
 % In the tetrode case the waveform undoubtedly appears on all channels at once; it is possible to concatenate the channels to jointly process the data \cite{wood2009}.  When the action potential will only appear on a subset of channels it is nice to allow the action potential to vary in a low-dimensional subset in each of the channels instead of a low-dimensional subset over all the channels. \cite{Prentice2011}
@@ -170,7 +178,7 @@ We further evaluate the impact of multiple channels using both a three channel M
 % \begin{subfigure}[b]{.28\textwidth}
 % \includegraphics[width=\textwidth]{../figs/3devim/clus1}
 % \caption{}
-% \label{ex31}
+%
 % \end{subfigure}
 % \begin{subfigure}[b]{.28\textwidth}
 % \includegraphics[width=\textwidth]{../figs/3devim/clus2}
@@ -179,11 +187,11 @@ We further evaluate the impact of multiple channels using both a three channel M
 % \end{subfigure}
 \caption{
 Improving \smug\ by incorporating {multiple} channels.
-The top 2 most prevalent waveforms from the Michigan dataset with three channels.  Note that the left panel has a waveform that appears on both channel 2 and channel 3, whereas the waveform in the right panel  only appears in channel 3.  If only channel 3 was used, it would be difficult to separate these waveform. % in (a) and (b), as is demonstrated in Fig.\ 
-}
-\end{SCfigure}
+The top 2 most prevalent waveforms from the NeuroNexus dataset with three channels.  Note that the left panel has a waveform that appears on both channel 2 and channel 3, whereas the waveform in the right panel  only appears in channel 3.  If only channel 3 was used, it would be difficult to separate these waveform.
+} 
+\end{SCfigure} \label{ext31}
 \end{center}
-
+\vspace{-.1in}
 
 
 
